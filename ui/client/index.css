@@ -1,0 +1,121 @@
+#contents {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.scheduler-container {
+    width : 100%;
+    height: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+
+table.table-container {
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+.table-container thead tr {
+    height: 50px;
+    background : #3c4f6f;
+    color: #f9fffa;
+}
+table.table-container tbody {
+    text-align: center;
+}
+table.table-container thead {
+    text-align: center;
+    overflow: scroll;
+}
+
+table.table-container tbody tr {
+    border-bottom : 1px solid #364e61;
+    height: 43px;
+    color:#90a8c2;
+    font-size:10px;
+}
+
+.custom-layout {
+    margin-bottom: 10px;
+    margin-left: 20px;
+}
+
+.custom-select {
+    border: 0px !important;
+    background: #364e61 !important;
+}
+
+.custom-select .text {
+    color:#90a8c2 !important;
+}
+
+.ui.selection.active.dropdown:hover {
+    border-color: #233245 !important;
+    box-shadow: 0px 2px 3px 0px #233245 !important;
+}
+
+.ui.selection.active.dropdown .menu {
+    border-color: #233245 !important;
+    box-shadow: 0px 2px 3px 0px #233245 !important;
+}
+
+.ui.selection.dropdown:focus .menu {
+    border-color: #233245 !important;
+    box-shadow: 0px 2px 3px 0px #233245 !important;
+}
+
+.custom-select .item {
+    color:#90a8c2 !important;
+    border-top: 0px !important;
+    border-right: 0px !important;
+    border-bottom: 1px solid #233245 !important;
+    background: #364e61 !important;
+}
+
+.custom-text input {
+    color:#90a8c2 !important;
+    border: 0px !important;
+    background: #364e61 !important;
+}
+.custom-text input::-webkit-input-placeholder {
+    color:#90a8c2 !important;
+}
+
+.header-text input {
+    color: #364e61 !important;
+    border: 0px !important;
+    background: #f0f8fc !important;
+}
+
+.custom-text input::-webkit-input-placeholder {
+    color:#90a8c2 !important;
+}
+
+.vertical-line {
+    display: inline;
+    background-color: #000;
+    width: 1px;
+    height: 100%;
+}
+.far:hover {
+    color:red;
+}
+
+.schedule_row:hover {
+    background:#364e61;
+    box-shadow: 0px 2px 3px 0px #233245 !important;
+    cursor:pointer;
+}
+.selected {
+    background: #ff5873;
+}
+.activeIcon:hover {
+    -webkit-text-shadow: 2px 2px 0px rgba(10, 10, 10, 0.2);
+    text-shadow: 2px 2px 0px rgba(10, 10, 10, 0.2);
+}

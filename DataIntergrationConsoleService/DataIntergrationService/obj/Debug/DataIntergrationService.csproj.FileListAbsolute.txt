@@ -1,0 +1,5 @@
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationService\bin\DataIntergrationService.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationService\bin\DataIntergrationService.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationService\obj\Debug\DataIntergrationService.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationService\obj\Debug\DataIntergrationService.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationService\obj\Debug\DataIntergrationService.pdb

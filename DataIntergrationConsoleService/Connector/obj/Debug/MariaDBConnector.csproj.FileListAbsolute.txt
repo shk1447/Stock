@@ -1,0 +1,6 @@
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\bin\Debug\MariaDBConnector.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\bin\Debug\MariaDBConnector.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\obj\Debug\MariaDBConnector.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\obj\Debug\MariaDBConnector.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\obj\Debug\MariaDBConnector.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\MariaDBConnector\bin\Debug\MySql.Data.dll

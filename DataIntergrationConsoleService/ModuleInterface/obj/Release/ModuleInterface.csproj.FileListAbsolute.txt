@@ -1,0 +1,5 @@
+D:\PrivateSource\작업\DataIntergrationConsoleService\ModuleInterface\bin\Release\ModuleInterface.dll
+D:\PrivateSource\작업\DataIntergrationConsoleService\ModuleInterface\bin\Release\ModuleInterface.pdb
+D:\PrivateSource\작업\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.csprojResolveAssemblyReference.cache
+D:\PrivateSource\작업\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.dll
+D:\PrivateSource\작업\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.pdb

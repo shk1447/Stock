@@ -1,0 +1,7 @@
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\bin\Debug\LogWriter.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\bin\Debug\LogWriter.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\obj\Debug\LogWriter.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\obj\Debug\LogWriter.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\obj\Debug\LogWriter.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\bin\Debug\log4net.dll
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\LogWriter\bin\Debug\log4net.xml
