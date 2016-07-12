@@ -13,9 +13,10 @@ Thumbs.db
 *.cache
 *.ilk
 *.log
-[Bb]in
+[Bb]in*/
 [Dd]ebug*/
 *.sbr
 obj*/
 [Rr]elease*/
 _ReSharper*/
+node_modules*/
