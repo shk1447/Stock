@@ -1,0 +1,560 @@
+﻿2016-06-22 10:38:42,661 [8] INFO  - Service is Running on http://172.16.10.65:1447/
+2016-06-22 10:38:42,661 [7] INFO  - Service is Running on urn:docs-oasis-open-org:ws-dd:ns:discovery:2009:01
+2016-06-22 12:08:01,528 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:000470
+2016-06-22 12:08:01,559 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:09:06,581 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:003640
+2016-06-22 12:09:06,581 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:09:11,022 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:004010
+2016-06-22 12:09:11,022 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:09:24,878 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:004790
+2016-06-22 12:09:24,878 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:09:39,307 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:005560
+2016-06-22 12:09:39,307 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:09:57,022 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:006440
+2016-06-22 12:09:57,023 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:03,612 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:007200
+2016-06-22 12:10:03,612 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:07,063 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:007480
+2016-06-22 12:10:07,063 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:14,867 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:008080
+2016-06-22 12:10:14,867 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:18,600 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:008540
+2016-06-22 12:10:18,600 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:20,315 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:008720
+2016-06-22 12:10:20,315 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:23,583 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:009010
+2016-06-22 12:10:23,583 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:27,628 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:009280
+2016-06-22 12:10:27,628 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:29,439 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:009380
+2016-06-22 12:10:29,439 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:29,704 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:009385
+2016-06-22 12:10:29,704 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:40,144 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:010460
+2016-06-22 12:10:40,144 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:42,691 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:010670
+2016-06-22 12:10:42,692 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:53,788 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:011800
+2016-06-22 12:10:53,788 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:10:58,366 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:012410
+2016-06-22 12:10:58,366 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:05,275 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:013340
+2016-06-22 12:11:05,275 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:08,369 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:013780
+2016-06-22 12:11:08,369 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:11,811 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:014300
+2016-06-22 12:11:11,811 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:22,674 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:016140
+2016-06-22 12:11:22,674 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:25,302 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:016420
+2016-06-22 12:11:25,302 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:25,975 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:016560
+2016-06-22 12:11:25,975 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:40,181 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:019260
+2016-06-22 12:11:40,181 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:11:48,505 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:021060
+2016-06-22 12:11:48,505 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:10,992 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:025920
+2016-06-22 12:12:10,992 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:13,624 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:026870
+2016-06-22 12:12:13,624 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:19,859 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:028090
+2016-06-22 12:12:19,859 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:29,775 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:031920
+2016-06-22 12:12:29,775 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:47,653 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:034010
+2016-06-22 12:12:47,653 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:53,390 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:035210
+2016-06-22 12:12:53,390 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:12:54,685 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:035450
+2016-06-22 12:12:54,685 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:00,799 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:036210
+2016-06-22 12:13:00,799 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:07,612 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:036920
+2016-06-22 12:13:07,612 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:13,275 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:037630
+2016-06-22 12:13:13,275 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:16,608 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:038320
+2016-06-22 12:13:16,608 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:19,643 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:038720
+2016-06-22 12:13:19,643 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:20,929 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:038990
+2016-06-22 12:13:20,929 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:31,708 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:041060
+2016-06-22 12:13:31,708 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:41,802 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:042820
+2016-06-22 12:13:41,802 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:48,043 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:043890
+2016-06-22 12:13:48,043 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:51,892 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:045050
+2016-06-22 12:13:51,892 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:52,611 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:045260
+2016-06-22 12:13:52,611 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:13:58,648 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:046400
+2016-06-22 12:13:58,648 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:04,919 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:048460
+2016-06-22 12:14:04,919 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:08,199 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:049000
+2016-06-22 12:14:08,199 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:14,986 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:050050
+2016-06-22 12:14:14,986 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:25,997 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:052650
+2016-06-22 12:14:25,997 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:29,295 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:053000
+2016-06-22 12:14:29,295 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:32,663 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:053320
+2016-06-22 12:14:32,663 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:45,398 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:056340
+2016-06-22 12:14:45,398 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:14:46,642 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:056810
+2016-06-22 12:14:46,642 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:08,384 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:064420
+2016-06-22 12:15:08,384 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:20,379 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:066060
+2016-06-22 12:15:20,379 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:27,514 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:067130
+2016-06-22 12:15:27,530 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:43,085 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:070480
+2016-06-22 12:15:43,085 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:45,319 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:071530
+2016-06-22 12:15:45,319 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:45,678 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:071660
+2016-06-22 12:15:45,678 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:51,972 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:073130
+2016-06-22 12:15:51,972 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:54,092 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:073930
+2016-06-22 12:15:54,092 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:15:54,311 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:074000
+2016-06-22 12:15:54,311 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:12,360 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:080030
+2016-06-22 12:16:12,360 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:15,408 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:080970
+2016-06-22 12:16:15,408 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:15,795 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:080980
+2016-06-22 12:16:15,795 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:16,606 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:081190
+2016-06-22 12:16:16,606 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:17,063 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:081200
+2016-06-22 12:16:17,063 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:18,688 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:081940
+2016-06-22 12:16:18,688 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:54,713 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:090540
+2016-06-22 12:16:54,713 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:16:59,428 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:091690
+2016-06-22 12:16:59,428 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:06,799 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:093400
+2016-06-22 12:17:06,799 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:07,312 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:093410
+2016-06-22 12:17:07,312 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:27,136 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:099210
+2016-06-22 12:17:27,136 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:37,444 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:101990
+2016-06-22 12:17:37,444 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:46,529 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:105070
+2016-06-22 12:17:46,529 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:17:56,468 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:110500
+2016-06-22 12:17:56,468 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:14,096 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:121910
+2016-06-22 12:18:14,096 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:14,222 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:121950
+2016-06-22 12:18:14,222 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:15,376 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:122290
+2016-06-22 12:18:15,376 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:18,159 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:122750
+2016-06-22 12:18:18,159 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:20,287 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:123160
+2016-06-22 12:18:20,287 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:20,882 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:123300
+2016-06-22 12:18:20,882 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:23,532 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:123550
+2016-06-22 12:18:23,532 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:26,196 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:123910
+2016-06-22 12:18:26,196 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:26,368 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:123930
+2016-06-22 12:18:26,368 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:26,555 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:124050
+2016-06-22 12:18:26,555 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:27,663 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:126680
+2016-06-22 12:18:27,663 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:18:30,238 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:128910
+2016-06-22 12:18:30,238 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:21:17,764 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:900010
+2016-06-22 12:21:17,764 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:21:21,370 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KOSDAQ:900150
+2016-06-22 12:21:21,370 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:21:22,542 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:950070
+2016-06-22 12:21:22,542 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292
+2016-06-22 12:21:23,072 [31] ERROR - Error Url : http://www.google.com/finance/info?infotype=infoquoteall&q=KRX:950100
+2016-06-22 12:21:23,072 [31] ERROR - System.NullReferenceException: 개체 참조가 개체의 인스턴스로 설정되지 않았습니다.
+   위치: ExternalSourceMoudles.RestReceiver.DecodeHex(String data) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 79
+   위치: ExternalSourceMoudles.RestReceiver.GetData(String config, String query, String type, Int32 interval) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\RestReceiver\RestReceiver.cs:줄 25
+   위치: ExternalModuleManger.ModuleManager.ModuleDistributor(ExternalSourceClass config) 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\ModuleManager\ModuleManager.cs:줄 41
+   위치: DataIntegrationService.DataIntegrationService.<>c__DisplayClass3f.<SetStockCurrent>b__3d() 파일 d:\PrivateSource\작업\DataIntergrationConsoleService\DataIntergrationService\DataIntegrationService.cs:줄 292

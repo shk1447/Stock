@@ -1,0 +1,6 @@
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\bin\Debug\DataIntergrationConsoleService.exe.config
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\bin\Debug\DataIntergrationConsoleService.exe
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\bin\Debug\DataIntergrationConsoleService.pdb
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\obj\Debug\DataIntergrationConsoleService.csprojResolveAssemblyReference.cache
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\obj\Debug\DataIntergrationConsoleService.exe
+C:\Users\Administrator\Desktop\작업\DataIntergrationConsoleService\DataIntergrationConsoleService\obj\Debug\DataIntergrationConsoleService.pdb

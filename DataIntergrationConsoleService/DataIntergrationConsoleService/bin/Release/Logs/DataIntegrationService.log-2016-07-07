@@ -1,0 +1,4 @@
+﻿2016-07-07 14:24:33,705 [15] INFO  - Service is Running on http://172.16.10.65:1447/
+2016-07-07 14:24:33,705 [13] INFO  - Service is Running on urn:docs-oasis-open-org:ws-dd:ns:discovery:2009:01
+2016-07-07 14:25:17,963 [14] INFO  - Service is Running on urn:docs-oasis-open-org:ws-dd:ns:discovery:2009:01
+2016-07-07 14:25:17,963 [13] INFO  - Service is Running on http://172.16.10.65:1447/
