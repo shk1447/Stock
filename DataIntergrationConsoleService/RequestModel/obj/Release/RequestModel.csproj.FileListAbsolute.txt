@@ -1,5 +1,0 @@
-D:\PrivateSource\작업\DataIntergrationConsoleService\RequestModel\bin\Release\RequestModel.dll
-D:\PrivateSource\작업\DataIntergrationConsoleService\RequestModel\bin\Release\RequestModel.pdb
-D:\PrivateSource\작업\DataIntergrationConsoleService\RequestModel\obj\Release\RequestModel.csprojResolveAssemblyReference.cache
-D:\PrivateSource\작업\DataIntergrationConsoleService\RequestModel\obj\Release\RequestModel.dll
-D:\PrivateSource\작업\DataIntergrationConsoleService\RequestModel\obj\Release\RequestModel.pdb

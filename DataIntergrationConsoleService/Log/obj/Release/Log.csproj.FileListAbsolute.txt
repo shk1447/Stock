@@ -1,7 +1,0 @@
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\bin\Release\Log.dll
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\bin\Release\Log.pdb
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\bin\Release\log4net.dll
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\bin\Release\log4net.xml
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\obj\Release\Log.csprojResolveAssemblyReference.cache
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\obj\Release\Log.dll
-D:\PrivateSource\작업\DataIntergrationConsoleService\Log\obj\Release\Log.pdb
