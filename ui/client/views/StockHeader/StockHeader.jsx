@@ -1,7 +1,7 @@
 var n = require('nuxjs');
 
 module.exports = React.createClass({
-    url:'http://172.16.10.65:1447',
+    url:'http://localhost:1447',
     types :["LIST", "HISTORY", "CURRENT", "ANALYSIS"],
     setUrl : function(_comp, _val) {
         HttpRequest._url = this.url = _val;

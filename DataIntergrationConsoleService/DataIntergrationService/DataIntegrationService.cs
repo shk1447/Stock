@@ -201,7 +201,7 @@ namespace DataIntegrationService
 
             var retTable = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", listQuery);
 
-            var historyUrl = "http://www.google.com/finance/getprices?q={ticker}&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
+            var historyUrl = "http://www.google.com/finance/getprices?q={ticker}&i=86400&p=20d&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
 
             Task.Factory.StartNew(() =>
             {
@@ -237,10 +237,8 @@ namespace DataIntegrationService
                             };
                             var test = DataConverter.DynamicToString<SourceClass>(ddd);
                             var mem = new MemoryStream(Encoding.UTF8.GetBytes(test));
-                            Task.Factory.StartNew(() =>
-                            {
-                                SetSource(mem);
-                            });
+                            
+                            SetSource(mem);
                         }
                     }
                     catch (Exception ex)
