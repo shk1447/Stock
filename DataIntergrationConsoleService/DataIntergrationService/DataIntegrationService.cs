@@ -201,7 +201,7 @@ namespace DataIntegrationService
 
             var retTable = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", listQuery);
 
-            var historyUrl = "http://www.google.com/finance/getprices?q={ticker}&i=86400&p=20d&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
+            //var historyUrl = "http://www.google.com/finance/getprices?q={ticker}&i=86400&p=20d&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
 
             Task.Factory.StartNew(() =>
             {
@@ -210,20 +210,60 @@ namespace DataIntegrationService
                 foreach (DataRow items in retTable.Rows)
                 {
                     var code = items.ItemArray[0].ToString();
-                    var url = historyUrl.Replace("{ticker}", code);
+                    var parser = new nvParser(code);
+                    //var url = historyUrl.Replace("{ticker}", code);
                     try
                     {
-                        var exSource = new ExternalSourceClass()
+                        var siseInfo = parser.getSise(800);
+                        //var exSource = new ExternalSourceClass()
+                        //{
+                        //    SourceKey = items.ItemArray[0].ToString(),
+                        //    ModuleName = "RestReceiver",
+                        //    Config = url,
+                        //    DataType = "csv",
+                        //    Query = "DATE,CLOSE,HIGH,LOW,OPEN,VOLUME,CDAYS",
+                        //    Interval = 86400
+                        //};
+                        //var result = ModuleManager.Instance.ModuleDistributor(exSource);
+                        var dict = new Dictionary<object, object>();
+                        var siseList = new List<Dictionary<object, object>>();
+                        var columnInfo = new string[] {"DATE","CLOSE","DIFF","OPEN","HIGH","LOW","VOLUME"};
+                        for (int row = 0; row < siseInfo.Length; row++)
                         {
-                            SourceKey = items.ItemArray[0].ToString(),
-                            ModuleName = "RestReceiver",
-                            Config = url,
-                            DataType = "csv",
-                            Query = "DATE,CLOSE,HIGH,LOW,OPEN,VOLUME,CDAYS",
-                            Interval = 86400
-                        };
+                            var condition = row % 7;
+                            if (condition == 0)
+                                dict = new Dictionary<object, object>();
+                            
+                            switch (condition)
+                            {
+                                case 0 :
+                                    var siseDate = DateTime.Parse(siseInfo[row]).AddHours(15);
+                                    var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
+                                    dict.Add(columnInfo[condition], siseUnix);
+                                    break;
+                                case 1 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    break;
+                                case 2 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    break;
+                                case 3 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    break;
+                                case 4 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    break;
+                                case 5 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    break;
+                                case 6 :
+                                    dict.Add(columnInfo[condition], siseInfo[row]);
+                                    siseList.Add(dict);
+                                    break;
+                            }
+                        }
 
-                        var result = ModuleManager.Instance.ModuleDistributor(exSource);
+                        var result = DataConverter.ObjectToDynamic(siseList);
 
                         if (result is JArray)
                         {
@@ -237,17 +277,18 @@ namespace DataIntegrationService
                             };
                             var test = DataConverter.DynamicToString<SourceClass>(ddd);
                             var mem = new MemoryStream(Encoding.UTF8.GetBytes(test));
-                            
-                            SetSource(mem);
+
+                            Task.Factory.StartNew(() =>
+                            {
+                                SetSource(mem);
+                            });
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log.LogWriter.Error("Error Url : " + url);
+                        Log.LogWriter.Error("Error Code : " + code);
                         Log.LogWriter.Error(ex.ToString());
                     }
-
-                    Thread.Sleep(rand.Next(500));
                 }
             });
 
@@ -323,10 +364,7 @@ namespace DataIntegrationService
                         var test = DataConverter.DynamicToString<SourceClass>(ddd);
                         var mem = new MemoryStream(Encoding.UTF8.GetBytes(test));
 
-                        Task.Factory.StartNew(() =>
-                        {
-                            SetSource(mem);
-                        });
+                        SetSource(mem);
                     }
                     catch (Exception ex)
                     {
@@ -374,7 +412,10 @@ namespace DataIntegrationService
                         };
                         var hoho = DataConverter.DynamicToString<SourceClass>(complete);
                         var what = new MemoryStream(Encoding.UTF8.GetBytes(hoho));
-                        SetSource(what);
+                        Task.Factory.StartNew(() =>
+                        {
+                            SetSource(what);
+                        });
                     }
                     catch(Exception ex)
                     {
