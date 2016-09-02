@@ -1,0 +1,56 @@
+use datasourcebase;
+
+DROP TABLE IF EXISTS `cache`;
+CREATE TEMPORARY TABLE IF NOT EXISTS `cache`
+(
+ 	`idx` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	`source` varchar(50),
+	`quotevolume` varchar(50),
+ 	`quoteclose` varchar(50),
+	`ema_short` decimal(20,2),
+	`ema_long` decimal(20,2),
+	`temp` decimal(20,2),
+	`quotedate` timestamp(3),
+	INDEX `IDX_temporary` (`quotedate`,`quoteclose`,`temp`,`ema_short`,`ema_long`)
+) ENGINE=MEMORY AS SELECT * 
+FROM ( SELECT source, COLUMN_GET(`SourceData`, 'VOLUME' as char) as `quotevolume`, COLUMN_GET(`SourceData`, 'CLOSE' as char) as `quoteclose`, null as ema_short, null as ema_long, null as temp, UnixTimeStamp as quotedate
+FROM sourcedata
+WHERE source ='038060' AND COLUMN_GET(`SourceData`, 'CLOSE' as char) IS NOT NULL GROUP BY UnixTimeStamp DESC) as result
+GROUP BY DATE(quotedate) ASC;
+
+SET @ema_intervals = 20;
+SET @k = 2 / (1 + @ema_intervals);
+SET @prev_ema = 0;
+UPDATE `cache`
+SET temp = @prev_ema := (case when `cache`.idx = 1 then `cache`.quoteclose else `cache`.quoteclose * @k + @prev_ema * (1 - @k) end),
+	ema_short = temp, quotedate = quotedate;
+	
+SET @ema_intervals = 40;
+SET @k = 2 / (1 + @ema_intervals);
+SET @prev_ema = 0;
+UPDATE `cache`
+SET temp = @prev_ema := (case when `cache`.idx = 1 then `cache`.quoteclose else `cache`.quoteclose * @k + @prev_ema * (1 - @k) end),
+	ema_long = temp, quotedate = quotedate;
+	
+DROP TABLE IF EXISTS `cache2`;
+CREATE TEMPORARY TABLE IF NOT EXISTS `cache2`
+(
+ 	`idx` INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	`source` varchar(50),
+	`macd` decimal(20,2),
+	`macd_signal` decimal(20,2),
+	`temp` decimal(20,2),
+	`quotedate` timestamp(3)
+)
+ENGINE=MEMORY AS 
+SELECT source, ema_short - ema_long as macd, null as macd_signal, null as temp, quotedate
+FROM `cache`;
+
+SET @ema_intervals = 9;
+SET @k = 2 / (1 + @ema_intervals);
+SET @prev_ema = 0;
+UPDATE `cache2`
+SET temp = @prev_ema := (case when `cache2`.idx = 1 then `cache2`.macd else `cache2`.macd * @k + @prev_ema * (1 - @k) end),
+	macd_signal = temp, quotedate = quotedate;
+	
+SELECT source, macd - macd_signal as oscillator, quotedate FROM `cache2`;
