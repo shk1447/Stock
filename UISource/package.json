@@ -20,6 +20,7 @@
     "jsdom": "^9.4.5",
     "lodash": "^4.15.0",
     "npm": "^3.10.6",
+    "q": "^1.4.1",
     "request": "^2.74.0",
     "require-directory": "^2.1.1",
     "tabletojson": "^0.4.0"
