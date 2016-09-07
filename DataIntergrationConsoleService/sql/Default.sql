@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS `integrationdata`;
+USE `integrationdata`;
+
 CREATE TABLE `fieldinfo` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`Source` VARCHAR(50) NULL DEFAULT NULL,
@@ -51,7 +54,7 @@ CREATE TABLE `objectdata` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_TEXT`(`x` LONGTEXT, `delim` VARCHAR(12), `pos` INT)
+CREATE FUNCTION `SPLIT_TEXT`(`x` LONGTEXT, `delim` VARCHAR(12), `pos` INT)
 	RETURNS longtext CHARSET utf8
 	LANGUAGE SQL
 	DETERMINISTIC
@@ -63,7 +66,7 @@ RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
        delim, '');
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DynamicQueryExecuter`(IN `queryText` LONGTEXT)
+CREATE PROCEDURE `DynamicQueryExecuter`(IN `queryText` LONGTEXT)
 	LANGUAGE SQL
 	NOT DETERMINISTIC
 	CONTAINS SQL
@@ -81,3 +84,65 @@ BEGIN
 	END WHILE;
 END $$
 DELIMITER ;
+
+
+/*------------------------------------------------------------------------------------------------------------------*/
+
+CREATE TABLE `member` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`id` VARCHAR(50) NULL DEFAULT NULL,
+	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`password` VARCHAR(50) NULL DEFAULT NULL,
+	`privilege` VARCHAR(50) NULL DEFAULT NULL,
+	`email` VARCHAR(50) NULL DEFAULT NULL,
+	`phonenumber` VARCHAR(50) NULL DEFAULT NULL,
+	`privilege` VARCHAR(50) NULL DEFAULT NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	UNIQUE INDEX `unique_columns` (`id`),
+	INDEX `index_columns` (`unixtime`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `dataview` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`viewtype` VARCHAR(50) NULL DEFAULT NULL,
+	`query` TEXT NULL DEFAULT NULL,
+	`options` BLOB NULL DEFAULT NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	UNIQUE INDEX `unique_columns` (`name`),
+	INDEX `index_columns` (`unixtime`, `viewtype`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `dataanalysis` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`query` TEXT NULL DEFAULT NULL,
+	`options` BLOB NULL DEFAULT NULL,
+	`scheduletime` VARCHAR(50) NULL DEFAULT NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	UNIQUE INDEX `unique_columns` (`name`),
+	INDEX `index_columns` (`unixtime`, `viewtype`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `datacollection` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`modulename` VARCHAR(50) NULL DEFAULT NULL,
+	`options` BLOB NULL DEFAULT NULL,
+	`scheduletime` VARCHAR(50) NULL DEFAULT NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	UNIQUE INDEX `unique_columns` (`name`),
+	INDEX `index_columns` (`unixtime`, `viewtype`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;

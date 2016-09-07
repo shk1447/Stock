@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataIntegrationConsoleServi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataIntegrationService", "DataIntergrationService\DataIntegrationService.csproj", "{01F73FD5-0B12-4554-832C-286712CBAB8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataIntegrationWindowsService", "DataIntergrationWindowsService\DataIntegrationWindowsService.csproj", "{7FAC80F7-61A2-44F3-97AA-5C15D67E1FE0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{BD86539D-B1DC-4C82-8606-6CAC641A12EE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{6A288725-4763-49ED-9479-D3AC654B1BA9}"
@@ -45,10 +43,6 @@ Global
 		{01F73FD5-0B12-4554-832C-286712CBAB8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01F73FD5-0B12-4554-832C-286712CBAB8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01F73FD5-0B12-4554-832C-286712CBAB8D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7FAC80F7-61A2-44F3-97AA-5C15D67E1FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7FAC80F7-61A2-44F3-97AA-5C15D67E1FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7FAC80F7-61A2-44F3-97AA-5C15D67E1FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7FAC80F7-61A2-44F3-97AA-5C15D67E1FE0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD86539D-B1DC-4C82-8606-6CAC641A12EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD86539D-B1DC-4C82-8606-6CAC641A12EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD86539D-B1DC-4C82-8606-6CAC641A12EE}.Release|Any CPU.ActiveCfg = Release|Any CPU

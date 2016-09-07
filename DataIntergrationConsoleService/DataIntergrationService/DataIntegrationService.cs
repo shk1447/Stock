@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
@@ -14,8 +12,6 @@ using System.Threading.Tasks;
 using Common;
 using Connector;
 using ExternalModuleManger;
-using Log;
-using log4net.Config;
 using Newtonsoft.Json.Linq;
 using RequestModel;
 using Utils;
@@ -28,21 +24,6 @@ namespace DataIntegrationService
         public DataIntegrationService()
         {
             WebOperationContext.Current.OutgoingResponse.ContentType = "text/json";
-            WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Origin", "*");
-            WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Methods", "POST, GET");
-            WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
-            var currentPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName + ".config").ToString();
-            var xmlConfigPath = this.XmlConfigPath(currentPath);
-            XmlConfigurator.Configure(new FileInfo(xmlConfigPath));
-        }
-
-        private string XmlConfigPath(string currentPath)
-        {
-            var fileInfo = new FileInfo(currentPath);
-            var DirectoryPath = fileInfo.DirectoryName;
-
-            var xmlConfigPath = DirectoryPath + "\\" + "Web.config";
-            return xmlConfigPath;
         }
 
         public string SetSourceData(Stream stream)
