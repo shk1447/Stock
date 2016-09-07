@@ -2,24 +2,65 @@ DATA INTEGRATION SERVICE
 
 1. SetDataSource
 	- 데이터 입력을 위한 API
+	- Request Json
+		{
+			"base": "",
+			"datatype": "",
+			"rawdata": [{}],
+			"unixtime": ""
+		}
+	- Response Json
+		{
+			"code": "",
+			"message": ""
+		}
 
 2. GetDataSource
 	- 데이터 출력을 위한 API
+	- Request Json
+		{
+			"query":""
+		}
+	- Reponse Json
+		{
+			"rawdata":[{}]
+		}
 
 3. GetDataStructure
 	- 현재 저장되어진 데이터의 구조를 출력하기 위한 API
+	- Request Json
+		
+	- Reponse Json
+		[
+			{
+				"base": "",
+				"datatype": [
+					{
+						
+					}
+				]
+			}
+		]
 	
 4. GetCollectionModule
 	- 데이터 수집 모듈에 대한 정보를 출력하기 위한 API
+	- Request Json
+	- Reponse Json
 
 5. ExecuteCollectionModule
 	- 수집 모듈을 실행하기 위한 API
+	- Request Json
+	- Reponse Json
 
 6. SetDataView
 	- DataView 설정을 위한 API
+	- Request Json
+	- Reponse Json
 
 7. GetDataView
 	- 설정된 DataView를 출력하기 위한 API
+	- Request Json
+	- Reponse Json
 
 
 DATA INTEGRATION DATABASE
@@ -28,17 +69,17 @@ DATA INTEGRATION DATABASE
 	- Table
 		- past_ {base}
 			- idx
-			- type
+			- datatype
 			- rawdata
 			- unixtime
 		- current_{base}
 			- idx
-			- type
+			- datatype
 			- rawdata
 			- unixtime
 		- member
 			- idx
-			- id
+			- userid
 			- name
 			- password
 			- privilege
@@ -48,14 +89,23 @@ DATA INTEGRATION DATABASE
 		- dataview
 			- idx
 			- name
-			- type
+			- viewtype
 			- query
 			- option
+			- unixtime
 		- dataanalysis
 			- idx
 			- name
 			- query
+			- scheduletime
+			- unixtime
 		- datacollection
+			- idx
+			- name
+			- modulename
+			- option
+			- scheduletime
+			- unixtime
 			
 
 DATA INTEGRATION WEB UI

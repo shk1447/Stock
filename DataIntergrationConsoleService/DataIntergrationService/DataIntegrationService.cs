@@ -19,6 +19,7 @@ using Utils;
 namespace DataIntegrationService
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall)]
+    [System.Web.Script.Services.ScriptService]
     public partial class DataIntegrationService : IDataIntegrationService
     {
         public DataIntegrationService()
