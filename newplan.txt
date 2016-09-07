@@ -1,0 +1,87 @@
+DATA INTEGRATION SERVICE
+
+1. SetDataSource
+	- 데이터 입력을 위한 API
+
+2. GetDataSource
+	- 데이터 출력을 위한 API
+
+3. GetDataStructure
+	- 현재 저장되어진 데이터의 구조를 출력하기 위한 API
+	
+4. GetCollectionModule
+	- 데이터 수집 모듈에 대한 정보를 출력하기 위한 API
+
+5. ExecuteCollectionModule
+	- 수집 모듈을 실행하기 위한 API
+
+6. SetDataView
+	- DataView 설정을 위한 API
+
+7. GetDataView
+	- 설정된 DataView를 출력하기 위한 API
+
+
+DATA INTEGRATION DATABASE
+
+1. MariaDB를 기본 Database로 사용
+	- Table
+		- past_ {base}
+			- idx
+			- type
+			- rawdata
+			- unixtime
+		- current_{base}
+			- idx
+			- type
+			- rawdata
+			- unixtime
+		- member
+			- idx
+			- id
+			- name
+			- password
+			- privilege
+			- email
+			- phonenumber
+			- unixtime
+		- dataview
+			- idx
+			- name
+			- type
+			- query
+			- option
+		- dataanalysis
+			- idx
+			- name
+			- query
+		- datacollection
+			
+
+DATA INTEGRATION WEB UI
+
+1. Data View
+	- DATA VIEW LIST
+		- Current DataView : 실시간 통합 데이터의 테이블
+		- Past DataView : 과거 통합 데이터의 그래프
+	- DATA VIEW STAGE
+		- SetStage : 스테이지를 설정하는 기능
+
+2. Data Manager
+	- Data Collection : 원천 데이터 수집
+		- GetModule : 데이터수집이 가능한 모듈 정보
+		- Setting Module : 해당 모듈의 필요한 정보를 설정
+		- Start Collection : 설정된 데이터를 통해 DIS에 시작 명령(단발 또는 스케쥴)
+		
+	- Data Analysis : 수집된 원천 데이터를 활용하여 통계 및 분석 데이터 가공
+		- GetDataStructure : 현재 수집된 데이터의 전체 구조를 받아옴
+		- Analysis : 새로운 데이터를 만들수 있는 쿼리 또는 연산식을 설정
+		
+	- Data View : 데이터 뷰를 설정
+		- Set Current Data View : 데이터뷰(테이블)에 보여질 컬럼 설정 및 해당 컬럼에 대한 임계치 설정 가능
+			- Add SearchFilter : 데이터 뷰의 검색 필터를 설정할 수 있어야한다.
+		- Set Past Data View : 데이터뷰(그래프)에 보여질 컬럼 설정 및 범위 설정
+		
+3. Member Management
+	- Login / Logout
+	- Sign Up
