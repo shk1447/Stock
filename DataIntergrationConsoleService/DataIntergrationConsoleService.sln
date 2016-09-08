@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModuleManager", "ModuleMana
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model", "Model", "{4D53CDA0-7EA3-45E4-8D7C-1E4F4ACAEB02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestModel", "RequestModel\RequestModel.csproj", "{1C38A2BA-2449-4B5A-8B98-5729CDB9B10F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "RequestModel\Models.csproj", "{1C38A2BA-2449-4B5A-8B98-5729CDB9B10F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

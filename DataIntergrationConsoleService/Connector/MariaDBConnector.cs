@@ -40,12 +40,10 @@ namespace Connector
 
             try
             {
-                Stopwatch stopWatch = new Stopwatch();
                 string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=15;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    stopWatch.Start();
                     using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
                     {
                         try
@@ -72,8 +70,6 @@ namespace Connector
                         }
                         finally
                         {
-                            stopWatch.Stop();
-                            Console.WriteLine(stopWatch.ElapsedMilliseconds + "ms");
                             transaction.Dispose();
                             connection.Close();
                         }

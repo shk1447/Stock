@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Connector;
 using DataIntegrationService;
+using Log;
 
 namespace DataIntegrationConsoleService
 {
@@ -34,7 +35,7 @@ namespace DataIntegrationConsoleService
             }
             catch (Exception ex)
             {
-                Log.LogWriter.Error(ex.ToString());
+                LogWriter.Error(ex.ToString());
             }
         }
 
@@ -57,7 +58,7 @@ namespace DataIntegrationConsoleService
 
         static void appDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            throw new NotImplementedException();
+            LogWriter.Error(e.ExceptionObject.ToString());
         }
     }
 }

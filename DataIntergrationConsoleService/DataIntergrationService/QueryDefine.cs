@@ -228,5 +228,29 @@ namespace DataIntegrationService
                                         "        emav120 = temp, quotedate = quotedate;" +
                                         "        SELECT quoteclose, quotehigh, quotelow, ema5, ema20, ema60, ema120, quotevolume, emav5, emav20, emav60, emav120, UNIX_TIMESTAMP(quotedate) as createdtime" +
                                         "        FROM `cache` WHERE UNIX_TIMESTAMP(quotedate) >= {start} AND UNIX_TIMESTAMP(quotedate) <= {end}";
+
+        public const string createPastTable = "CREATE TABLE IF NOT EXISTS `{tableName}` (" +
+                                                    " `idx` INT(11) NOT NULL AUTO_INCREMENT," +
+                                                    " `source` VARCHAR(50) NULL DEFAULT NULL," +
+                                                    " `rawdata` BLOB NULL," +
+                                                    " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
+                                                    " PRIMARY KEY (`idx`)," +
+                                                    " INDEX `idx_Columns` (`source`, `unixtime`)" +
+                                                " )" +
+                                                " COLLATE='utf8_general_ci'" +
+                                                " ENGINE=InnoDB;";
+
+        public const string createCurrentTable = "CREATE TABLE IF NOT EXISTS `{tableName}` (" +
+                                                    " `idx` INT(11) NOT NULL AUTO_INCREMENT," +
+                                                    " `source` VARCHAR(50) NULL DEFAULT NULL," +
+                                                    " `rawdata` BLOB NULL," +
+                                                    " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
+                                                    " PRIMARY KEY (`idx`)," +
+                                                    " UNIQUE INDEX `unique_columns` (`source`)," +
+                                                    " INDEX `idx_columns` (`unixtime`)" +
+                                                " )" +
+                                                " COLLATE='utf8_general_ci'" +
+                                                " ENGINE=InnoDB;";
+        
     }
 }

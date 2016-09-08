@@ -47,9 +47,9 @@
       <Project>{c029b70f-a0b8-459b-95bf-627826a0c984}</Project>
       <Name>ModuleInterface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RequestModel\RequestModel.csproj">
+    <ProjectReference Include="..\RequestModel\Models.csproj">
       <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
-      <Name>RequestModel</Name>
+      <Name>Models</Name>
     </ProjectReference>
     <ProjectReference Include="..\RestReceiver\RestReceiver.csproj">
       <Project>{52048549-e84a-403a-ae85-bdf00df18632}</Project>

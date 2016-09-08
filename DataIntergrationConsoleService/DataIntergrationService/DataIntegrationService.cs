@@ -15,6 +15,12 @@ using ExternalModuleManger;
 using Newtonsoft.Json.Linq;
 using RequestModel;
 using Utils;
+using System.Web.Script.Services;
+using System.Web.Script.Serialization;
+using ResponseModel;
+using Newtonsoft.Json;
+using System.Diagnostics; 
+
 
 namespace DataIntegrationService
 {
@@ -24,7 +30,6 @@ namespace DataIntegrationService
     {
         public DataIntegrationService()
         {
-            WebOperationContext.Current.OutgoingResponse.ContentType = "text/json";
         }
 
         public string SetSourceData(Stream stream)
@@ -519,5 +524,145 @@ namespace DataIntegrationService
 
             return new MemoryStream(bytes);
         }
+
+        #region IDataIntegrationService 멤버
+
+
+        public SetDataSourceRes SetDataSource(SetDataSourceReq param)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new SetDataSourceRes();
+
+            if (param != null && !string.IsNullOrWhiteSpace(param.Source) && !string.IsNullOrWhiteSpace(param.Category))
+            {
+                var query = string.Empty;
+                var currentTable = "current_" + param.Source;
+                var pastTable = "past_" + param.Source;
+                query = QueryDefine.createCurrentTable.Replace("{tableName}", currentTable) + QueryDefine.createPastTable.Replace("{tableName}", pastTable);
+                var collectedDate = "CURTIME(3)";
+                var currentQuery = "INSERT INTO "+ currentTable +" (source, rawdata, unixtime) VALUES ";
+                var pastQuery = "INSERT INTO "+ pastTable +" (source, rawdata, unixtime) VALUES ";
+                var lastRawData = new Dictionary<string,object>();
+
+                foreach (var item in param.RawData)
+                {
+                    var itemDict = item.GetDictionary();
+                    if (itemDict.Count == 0) continue;
+                    var relationKV = string.Empty;
+                    if (itemDict.ContainsKey(param.CollectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[param.CollectedAt].ToString() + ")";
+
+                    foreach (var kv in itemDict)
+                    {
+                        relationKV = relationKV + "'" + kv.Key + "','" + kv.Value + "',";
+
+                        if (!lastRawData.ContainsKey(kv.Key))
+                        {
+                            lastRawData.Add(kv.Key, kv.Value);
+                        }
+                        else
+                        {
+                            lastRawData[kv.Key] = kv.Value;
+                        }
+                    }
+
+                    relationKV = relationKV.Substring(0, relationKV.Length - 1);
+                    var createQuery = "COLUMN_CREATE(" + relationKV + ")";
+                    pastQuery = pastQuery + "('" + param.Source + "'," + createQuery + ", " + collectedDate + "),";
+                    currentQuery = currentQuery + "('" + param.Source + "'," + createQuery + ", " + collectedDate + "),";
+                }
+
+                var lastKV = string.Empty;
+                foreach (var updateKV in lastRawData)
+                {
+                    lastKV = lastKV + "'" + updateKV.Key + "','" + updateKV.Value + "',";
+                }
+                lastKV = lastKV.Substring(0, lastKV.Length - 1);
+
+                query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
+                query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = COLUMN_ADD(rawdata, " + lastKV + "),unixtime = " + collectedDate + ";";
+
+                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", query);
+                res.Code = "200";
+                res.Message = "요청 접수 완료";
+            }
+            else
+            {
+                res.Code = "400";
+                res.Message = "잘못된 요청";
+            }
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds + "ms");
+            return res;
+        }
+
+        public GetDataSourceRes GetDataSource(GetDataSourceReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new GetDataSourceRes();
+            res.RawData.Add("test", "test");
+            return res;
+        }
+
+        public GetDataStructureRes GetDataStructure(GetDataStructureReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public GetCollectionModuleRes GetCollectionModule(GetCollectionModuleReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public ExecuteCollectionModuleRes ExecuteCollectionModule(ExecuteCollectionModuleReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public SetDataViewRes SetDataView(SetDataViewReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public GetDataViewRes GetDataView(GetDataViewReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

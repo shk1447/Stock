@@ -4,8 +4,8 @@ DATA INTEGRATION SERVICE
 	- 데이터 입력을 위한 API
 	- Request Json
 		{
-			"base": "",
-			"datatype": "",
+			"source": "",
+			"category": "",
 			"rawdata": [{}],
 			"unixtime": ""
 		}

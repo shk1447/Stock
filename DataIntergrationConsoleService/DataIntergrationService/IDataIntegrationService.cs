@@ -6,6 +6,8 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Threading.Tasks;
+using RequestModel;
+using ResponseModel;
 
 namespace DataIntegrationService
 {
@@ -55,5 +57,33 @@ namespace DataIntegrationService
         [OperationContract]
         [WebGet(UriTemplate = "GetTrix?source={source}&type={type}&trix={trix}&signal={signal}&start={start}&end={end}", RequestFormat = WebMessageFormat.Json)]
         Stream GetTrix(string source, string type, string trix, string signal, string start, string end);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "SetDataSource", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        SetDataSourceRes SetDataSource(SetDataSourceReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "GetDataSource", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetDataSourceRes GetDataSource(GetDataSourceReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "GetDataStructure", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetDataStructureRes GetDataStructure(GetDataStructureReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetCollectionModuleRes GetCollectionModule(GetCollectionModuleReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "ExecuteCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ExecuteCollectionModuleRes ExecuteCollectionModule(ExecuteCollectionModuleReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "SetDataView", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        SetDataViewRes SetDataView(SetDataViewReq param);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "GetDataView", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetDataViewRes GetDataView(GetDataViewReq param);
     }
 }
