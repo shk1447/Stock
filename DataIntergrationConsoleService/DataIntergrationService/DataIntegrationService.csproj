@@ -50,6 +50,10 @@
     <Reference Include="nvParser_COM">
       <HintPath>..\References\nvParser_COM.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Text, Version=4.0.42.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Json\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Discovery" />
@@ -77,6 +81,7 @@
   <ItemGroup>
     <Compile Include="DataIntegrationService.cs" />
     <Compile Include="DataIntegrationServiceStarter.cs" />
+    <Compile Include="Helper\DataConverter.cs" />
     <Compile Include="IDataIntegrationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryDefine.cs" />
@@ -97,10 +102,6 @@
     <ProjectReference Include="..\Connector\Connector.csproj">
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataConverter\DataConverter.csproj">
-      <Project>{5f191972-30b4-4622-9f53-e426de2fd0fc}</Project>
-      <Name>DataConverter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Log\Log.csproj">
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>

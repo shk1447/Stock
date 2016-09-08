@@ -71,7 +71,6 @@ namespace Utils
             try
             {
                 var serializer = new JsonStringSerializer();
-
                 var dict = new List<Dictionary<object, object>>();
                 foreach (DataRow row in dt.Rows)
                 {
