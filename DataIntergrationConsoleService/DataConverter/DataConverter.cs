@@ -10,7 +10,7 @@ using Log;
 using Newtonsoft.Json.Linq;
 using ServiceStack.Text;
 
-namespace Utils
+namespace Helper
 {
     public static class DataConverter
     {
