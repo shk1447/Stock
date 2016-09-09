@@ -108,5 +108,19 @@ namespace ExternalSourceMoudles
             data = data.Replace(@"\x3F", "?");
             return data;
         }
+
+        #region ISourceModule 멤버
+
+        public void SetConfig(string method, Dictionary<string, object> config)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Dictionary<string, Dictionary<string, object>> GetConfig()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

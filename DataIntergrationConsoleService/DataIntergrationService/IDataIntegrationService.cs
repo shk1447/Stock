@@ -71,8 +71,8 @@ namespace DataIntegrationService
         GetDataStructureRes GetDataStructure();
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        GetCollectionModuleRes GetCollectionModule(GetCollectionModuleReq param);
+        [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetCollectionModuleRes GetCollectionModule();
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "ExecuteCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

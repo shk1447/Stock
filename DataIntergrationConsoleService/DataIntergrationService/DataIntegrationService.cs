@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Connector;
-using ExternalModuleManger;
 using Newtonsoft.Json.Linq;
 using Helper;
 using System.Web.Script.Services;
@@ -20,6 +19,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using Model.Response;
 using Model.Request;
+using SourceModuleManager;
 
 
 namespace DataIntegrationService
@@ -642,14 +642,18 @@ namespace DataIntegrationService
             return res;
         }
 
-        public GetCollectionModuleRes GetCollectionModule(GetCollectionModuleReq param)
+        public GetCollectionModuleRes GetCollectionModule()
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            throw new NotImplementedException();
+            var res = new GetCollectionModuleRes();
+
+            res.CollectionModules = ModuleManager.Instance.GetSourceModuleInfo();
+
+            return res;
         }
 
         public ExecuteCollectionModuleRes ExecuteCollectionModule(ExecuteCollectionModuleReq param)
