@@ -539,53 +539,9 @@ namespace DataIntegrationService
 
             if (param != null && !string.IsNullOrWhiteSpace(param.Source) && !string.IsNullOrWhiteSpace(param.Category))
             {
-                var query = string.Empty;
-                var currentTable = "current_" + param.Source;
-                var pastTable = "past_" + param.Source;
-                query = QueryDefine.createCurrentTable.Replace("{tableName}", currentTable) + QueryDefine.createPastTable.Replace("{tableName}", pastTable);
-                var collectedDate = "CURTIME(3)";
-                var currentQuery = "INSERT INTO " + currentTable + " (category, rawdata, unixtime) VALUES ";
-                var pastQuery = "INSERT INTO " + pastTable + " (category, rawdata, unixtime) VALUES ";
-                var lastRawData = new Dictionary<string,object>();
-
-                foreach (var item in param.RawData)
-                {
-                    var itemDict = item.GetDictionary();
-                    if (itemDict.Count == 0) continue;
-                    var relationKV = string.Empty;
-                    if (itemDict.ContainsKey(param.CollectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[param.CollectedAt].ToString() + ")";
-
-                    foreach (var kv in itemDict)
-                    {
-                        relationKV = relationKV + "'" + kv.Key + "','" + kv.Value + "',";
-
-                        if (!lastRawData.ContainsKey(kv.Key))
-                        {
-                            lastRawData.Add(kv.Key, kv.Value);
-                        }
-                        else
-                        {
-                            lastRawData[kv.Key] = kv.Value;
-                        }
-                    }
-
-                    relationKV = relationKV.Substring(0, relationKV.Length - 1);
-                    var createQuery = "COLUMN_CREATE(" + relationKV + ")";
-                    pastQuery = pastQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
-                    currentQuery = currentQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
-                }
-
-                var lastKV = string.Empty;
-                foreach (var updateKV in lastRawData)
-                {
-                    lastKV = lastKV + "'" + updateKV.Key + "','" + updateKV.Value + "',";
-                }
-                lastKV = lastKV.Substring(0, lastKV.Length - 1);
-
-                query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
-                query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = COLUMN_ADD(rawdata, " + lastKV + "),unixtime = " + collectedDate + ";";
-
+                var query = SetDataSourceQueryBuilder(param);
                 MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", query);
+
                 res.Code = "200";
                 res.Message = "요청 접수 완료";
             }
@@ -596,6 +552,55 @@ namespace DataIntegrationService
             }
             
             return res;
+        }
+
+        private static string SetDataSourceQueryBuilder(SetDataSourceReq param)
+        {
+            var currentTable = "current_" + param.Source;
+            var pastTable = "past_" + param.Source;
+            var query = QueryDefine.createCurrentTable.Replace("{tableName}", currentTable) + QueryDefine.createPastTable.Replace("{tableName}", pastTable);
+            var collectedDate = "CURTIME(3)";
+            var currentQuery = "INSERT INTO " + currentTable + " (category, rawdata, unixtime) VALUES ";
+            var pastQuery = "INSERT INTO " + pastTable + " (category, rawdata, unixtime) VALUES ";
+            var lastRawData = new Dictionary<string, object>();
+
+            foreach (var item in param.RawData)
+            {
+                var itemDict = item.GetDictionary();
+                if (itemDict.Count == 0) continue;
+                var relationKV = string.Empty;
+                if (itemDict.ContainsKey(param.CollectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[param.CollectedAt].ToString() + ")";
+
+                foreach (var kv in itemDict)
+                {
+                    relationKV = relationKV + "'" + kv.Key + "','" + kv.Value + "',";
+
+                    if (!lastRawData.ContainsKey(kv.Key))
+                    {
+                        lastRawData.Add(kv.Key, kv.Value);
+                    }
+                    else
+                    {
+                        lastRawData[kv.Key] = kv.Value;
+                    }
+                }
+
+                relationKV = relationKV.Substring(0, relationKV.Length - 1);
+                var createQuery = "COLUMN_CREATE(" + relationKV + ")";
+                pastQuery = pastQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
+                currentQuery = currentQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
+            }
+
+            var lastKV = string.Empty;
+            foreach (var updateKV in lastRawData)
+            {
+                lastKV = lastKV + "'" + updateKV.Key + "','" + updateKV.Value + "',";
+            }
+            lastKV = lastKV.Substring(0, lastKV.Length - 1);
+
+            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
+            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = COLUMN_ADD(rawdata, " + lastKV + "),unixtime = " + collectedDate + ";";
+            return query;
         }
 
         public GetDataSourceRes GetDataSource(GetDataSourceReq param)
