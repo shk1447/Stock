@@ -6,8 +6,8 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Threading.Tasks;
-using RequestModel;
-using ResponseModel;
+using Model.Request;
+using Model.Response;
 
 namespace DataIntegrationService
 {

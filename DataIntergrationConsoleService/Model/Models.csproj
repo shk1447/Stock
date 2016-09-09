@@ -7,8 +7,8 @@
     <ProjectGuid>{1C38A2BA-2449-4B5A-8B98-5729CDB9B10F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RequestModel</RootNamespace>
-    <AssemblyName>RequestModel</AssemblyName>
+    <RootNamespace>Model</RootNamespace>
+    <AssemblyName>Model</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

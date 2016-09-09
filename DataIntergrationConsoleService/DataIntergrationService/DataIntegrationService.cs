@@ -13,13 +13,13 @@ using Common;
 using Connector;
 using ExternalModuleManger;
 using Newtonsoft.Json.Linq;
-using RequestModel;
 using Utils;
 using System.Web.Script.Services;
 using System.Web.Script.Serialization;
-using ResponseModel;
 using Newtonsoft.Json;
-using System.Diagnostics; 
+using System.Diagnostics;
+using Model.Response;
+using Model.Request;
 
 
 namespace DataIntegrationService

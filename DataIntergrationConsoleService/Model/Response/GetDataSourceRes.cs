@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RequestModel;
+using Model.Common;
 
-namespace ResponseModel
+namespace Model.Response
 {
     public class GetDataSourceRes
     {

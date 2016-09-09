@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RequestModel
+namespace Model.Common
 {
     /// <summary>
     /// This key value collection is used to serialize a dictionary into json format and back.

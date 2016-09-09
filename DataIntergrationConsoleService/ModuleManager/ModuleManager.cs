@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ExternalSourceMoudles;
+using Model.Request;
 using ModuleInterface;
-using RequestModel;
 
 namespace ExternalModuleManger
 {
