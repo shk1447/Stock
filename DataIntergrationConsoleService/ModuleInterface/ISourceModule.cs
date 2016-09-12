@@ -13,5 +13,7 @@ namespace ModuleInterface
         Dictionary<string,Dictionary<string, object>> GetConfig();
 
         dynamic GetData(string config, string query, string type, int interval);
+
+        object ExecuteModule(string method);
     }
 }

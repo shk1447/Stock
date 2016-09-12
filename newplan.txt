@@ -46,18 +46,21 @@ DATA INTEGRATION SERVICE
 	- 데이터 수집 모듈에 대한 정보를 출력하기 위한 API
 	- Request Json
 	- Reponse Json
+	
+5. SetCollectionModule
+	- 데이터 수집 모듈 인스턴스 생성 API
 
-5. ExecuteCollectionModule
+6. ExecuteCollectionModule
 	- 수집 모듈을 실행하기 위한 API
 	- Request Json
 	- Reponse Json
 
-6. SetDataView
+7. SetDataView
 	- DataView 설정을 위한 API
 	- Request Json
 	- Reponse Json
 
-7. GetDataView
+8. GetDataView
 	- 설정된 DataView를 출력하기 위한 API
 	- Request Json
 	- Reponse Json
@@ -101,9 +104,10 @@ DATA INTEGRATION DATABASE
 			- unixtime
 		- datacollection
 			- idx
-			- name
+			- collectionid
 			- modulename
-			- option
+			- methodname
+			- options
 			- scheduletime
 			- unixtime
 			

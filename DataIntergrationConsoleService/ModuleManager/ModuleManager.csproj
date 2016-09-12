@@ -44,6 +44,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Connector\Connector.csproj">
+      <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
+      <Name>Connector</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ModuleInterface\ModuleInterface.csproj">
       <Project>{c029b70f-a0b8-459b-95bf-627826a0c984}</Project>
       <Name>ModuleInterface</Name>

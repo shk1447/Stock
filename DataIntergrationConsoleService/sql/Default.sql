@@ -135,14 +135,38 @@ ENGINE=InnoDB;
 
 CREATE TABLE `datacollection` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
-	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`name` VARCHAR(50) NOT NULL,
 	`modulename` VARCHAR(50) NULL DEFAULT NULL,
+	`methodname` VARCHAR(50) NULL DEFAULT NULL,
 	`options` BLOB NULL DEFAULT NULL,
 	`scheduletime` VARCHAR(50) NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),
-	INDEX `index_columns` (`unixtime`, `viewtype`)
+	INDEX `index_columns` (`modulename`, `methodname`, `unixtime`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+
+CREATE TABLE `current_` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`source` VARCHAR(50) NULL DEFAULT NULL,
+	`rawdata` BLOB NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	INDEX `IDX_Columns` (`source`, `unixtime`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `past_` (
+	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`source` VARCHAR(50) NULL DEFAULT NULL,
+	`rawdata` BLOB NULL,
+	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+	PRIMARY KEY (`idx`),
+	INDEX `IDX_Columns` (`source`, `unixtime`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

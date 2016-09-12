@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Connector;
 using ExternalSourceMoudles;
 using Model.Common;
 using Model.Request;
@@ -44,11 +45,6 @@ namespace SourceModuleManager
             this.sourceModules = AssemblyLoader.LoadAll<ISourceModule>();
         }
 
-        public ISourceModule GetSourceModule(string moduleName)
-        {
-            return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
-        }
-
         public Dictionary<string, Dictionary<string, JsonDictionary>> GetSourceModuleInfo()
         {
             var sourceDict = new Dictionary<string,Dictionary<string, JsonDictionary>>();
@@ -68,9 +64,26 @@ namespace SourceModuleManager
             return sourceDict;
         }
 
-        public dynamic ModuleDistributor(ExternalSourceClass config)
+        public void SetCollectionModule(Dictionary<string, object> data)
         {
-            return sourceModules[config.ModuleName].GetData(config.Config, config.Query, config.DataType, config.Interval);
+            var upsertQuery = MariaQueryBuilder.UpsertQuery("datacollection", data);
+
+            MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
+
+        private ISourceModule GetSourceModule(string moduleName)
+        {
+            return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
+        }
+
+        public void ExecuteModule(string collectionId)
+        {
+            var moduleInfo = MariaDBConnector.Instance.GetQuery("");
+
+            //var module = GetSourceModule(moduleInfo);
+            //module.ExecuteModule(methodName);
+            //MariaDBConnector.Instance.SetQuery();
+        }
+
     }
 }

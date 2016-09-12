@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="IConnector.cs" />
     <Compile Include="MariaDBConnector.cs" />
+    <Compile Include="MariaQueryBuilder.cs" />
+    <Compile Include="MariaQueryDefine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +57,10 @@
     <ProjectReference Include="..\Log\Log.csproj">
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
       <Name>Log</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Model\Models.csproj">
+      <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
+      <Name>Models</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

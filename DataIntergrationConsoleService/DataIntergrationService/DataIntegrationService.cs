@@ -539,7 +539,7 @@ namespace DataIntegrationService
 
             if (param != null && !string.IsNullOrWhiteSpace(param.Source) && !string.IsNullOrWhiteSpace(param.Category))
             {
-                var query = SetDataSourceQueryBuilder(param);
+                var query = MariaQueryBuilder.SetDataSource(param);
                 MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", query);
 
                 res.Code = "200";
@@ -552,55 +552,6 @@ namespace DataIntegrationService
             }
             
             return res;
-        }
-
-        private static string SetDataSourceQueryBuilder(SetDataSourceReq param)
-        {
-            var currentTable = "current_" + param.Source;
-            var pastTable = "past_" + param.Source;
-            var query = QueryDefine.createCurrentTable.Replace("{tableName}", currentTable) + QueryDefine.createPastTable.Replace("{tableName}", pastTable);
-            var collectedDate = "CURTIME(3)";
-            var currentQuery = "INSERT INTO " + currentTable + " (category, rawdata, unixtime) VALUES ";
-            var pastQuery = "INSERT INTO " + pastTable + " (category, rawdata, unixtime) VALUES ";
-            var lastRawData = new Dictionary<string, object>();
-
-            foreach (var item in param.RawData)
-            {
-                var itemDict = item.GetDictionary();
-                if (itemDict.Count == 0) continue;
-                var relationKV = string.Empty;
-                if (itemDict.ContainsKey(param.CollectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[param.CollectedAt].ToString() + ")";
-
-                foreach (var kv in itemDict)
-                {
-                    relationKV = relationKV + "'" + kv.Key + "','" + kv.Value + "',";
-
-                    if (!lastRawData.ContainsKey(kv.Key))
-                    {
-                        lastRawData.Add(kv.Key, kv.Value);
-                    }
-                    else
-                    {
-                        lastRawData[kv.Key] = kv.Value;
-                    }
-                }
-
-                relationKV = relationKV.Substring(0, relationKV.Length - 1);
-                var createQuery = "COLUMN_CREATE(" + relationKV + ")";
-                pastQuery = pastQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
-                currentQuery = currentQuery + "('" + param.Category + "'," + createQuery + ", " + collectedDate + "),";
-            }
-
-            var lastKV = string.Empty;
-            foreach (var updateKV in lastRawData)
-            {
-                lastKV = lastKV + "'" + updateKV.Key + "','" + updateKV.Value + "',";
-            }
-            lastKV = lastKV.Substring(0, lastKV.Length - 1);
-
-            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
-            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = COLUMN_ADD(rawdata, " + lastKV + "),unixtime = " + collectedDate + ";";
-            return query;
         }
 
         public GetDataSourceRes GetDataSource(GetDataSourceReq param)
@@ -628,19 +579,11 @@ namespace DataIntegrationService
 
             var res = new GetDataStructureRes();
 
-            var query = QueryDefine.getSourceInformation;
+            var query = MariaQueryDefine.getSourceInformation;
             var tableInfo = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-            var structureQuery = string.Empty;
 
-            var indexing = 1;
-            foreach (DataRow items in tableInfo.Rows)
-            {
-                var source = items["TABLE_NAME"].ToString().Replace("current_", "");
-                structureQuery = structureQuery + QueryDefine.getStructureInformation.Replace("{source}", source);
-                if(tableInfo.Rows.Count != indexing)
-                    structureQuery = structureQuery + " UNION ALL ";
-                indexing++;
-            }
+            var structureQuery = MariaQueryBuilder.GetDataStructure(tableInfo);
+
             var dataStructure = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", structureQuery);
             res.DataStructure = DataConverter.JsonToDataTable(dataStructure);
 
@@ -661,14 +604,31 @@ namespace DataIntegrationService
             return res;
         }
 
-        public ExecuteCollectionModuleRes ExecuteCollectionModule(ExecuteCollectionModuleReq param)
+        public SetCollectionModuleRes SetCollectionModule(SetCollectionModuleReq param)
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            throw new NotImplementedException();
+            var data = new Dictionary<string, object>() { { "name", param.Name }, { "modulename", param.ModuleName },
+                                                          { "methodname", param.MethodName }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
+
+            ModuleManager.Instance.SetCollectionModule(data);
+
+            return null;
+        }
+
+        public ExecuteCollectionModuleRes ExecuteCollectionModule(string collectionId)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            ModuleManager.Instance.ExecuteModule(collectionId);
+
+            return new ExecuteCollectionModuleRes();
         }
 
         public SetDataViewRes SetDataView(SetDataViewReq param)

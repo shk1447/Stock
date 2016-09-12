@@ -50,6 +50,8 @@
     <Compile Include="Request\GetDataViewReq.cs" />
     <Compile Include="Common\JsonDictionary.cs" />
     <Compile Include="Request\QueryClass.cs" />
+    <Compile Include="Request\SetCollectionModuleReq.cs" />
+    <Compile Include="Response\SetCollectionModuleRes.cs" />
     <Compile Include="Request\SetDataSourceReq.cs" />
     <Compile Include="Request\SetDataViewReq.cs" />
     <Compile Include="Request\SourceClass.cs" />

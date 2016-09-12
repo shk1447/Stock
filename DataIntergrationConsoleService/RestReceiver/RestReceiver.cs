@@ -122,5 +122,15 @@ namespace ExternalSourceMoudles
         }
 
         #endregion
+
+        #region ISourceModule 멤버
+
+
+        public object ExecuteModule(string method)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
