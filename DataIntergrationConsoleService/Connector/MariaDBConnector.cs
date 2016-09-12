@@ -9,6 +9,8 @@ using Common;
 using MySql.Data.MySqlClient;
 using Log;
 using System.Diagnostics;
+using System.Collections;
+using Model.Common;
 
 namespace Connector
 {
@@ -34,9 +36,9 @@ namespace Connector
 
         #region IConnector 멤버
 
-        public DataTable GetQuery(string query, object parameterValues = null)
+        public List<JsonDictionary> GetQuery(string query, object parameterValues = null)
         {
-            DataTable ret = new DataTable();
+            List<JsonDictionary> ret = new List<JsonDictionary>();
 
             try
             {
@@ -57,9 +59,26 @@ namespace Connector
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.Parameters.Add("@queryText", parameterValues.ToString());
                             }
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    var dict = new JsonDictionary();
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        object value = null;
+                                        if (reader.GetValue(i).GetType() == typeof(byte[]))
+                                            value = Encoding.UTF8.GetString(reader.GetValue(i) as byte[]);
+                                        else
+                                            value = reader.GetValue(i);
 
-                            MySqlDataAdapter adap = new MySqlDataAdapter(cmd);
-                            adap.Fill(ret);
+                                        dict.Add(reader.GetName(i), value);
+                                    }
+
+                                    ret.Add(dict);
+                                }
+                            }
+                            
                             transaction.Commit();
                         }
                         catch (Exception ex)
@@ -128,7 +147,7 @@ namespace Connector
             }
             catch (Exception ex)
             {
-
+                ret = false;
             }
 
             return ret;

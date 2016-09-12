@@ -4,12 +4,13 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Model.Common;
 
 namespace Connector
 {
     interface IConnector
     {
-        DataTable GetQuery(string query, object parameterValues = null);
+        List<JsonDictionary> GetQuery(string query, object parameterValues = null);
 
         bool SetQuery(string query, object parameterValues = null);
     }

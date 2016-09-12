@@ -131,15 +131,15 @@ namespace Connector
             return kvString;
         }
 
-        public static string GetDataStructure(DataTable tableInfo)
+        public static string GetDataStructure(List<JsonDictionary> listInfo)
         {
             var indexing = 1;
             var resultQuery = string.Empty;
-            foreach (DataRow items in tableInfo.Rows)
+            foreach (JsonDictionary items in listInfo)
             {
                 var source = items["TABLE_NAME"].ToString().Replace("current_", "");
                 resultQuery = resultQuery + MariaQueryDefine.getStructureInformation.Replace("{source}", source);
-                if (tableInfo.Rows.Count != indexing)
+                if (listInfo.Count != indexing)
                     resultQuery = resultQuery + " UNION ALL ";
                 indexing++;
             }

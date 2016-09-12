@@ -35,6 +35,6 @@ namespace Connector
 
         public const string getStructureInformation = "SELECT '{source}' as `source`, category, COLUMN_LIST(rawdata) as `fields` " +
                                                       "FROM current_{source} " +
-                                                      "GROUP BY category;";
+                                                      "GROUP BY category ";
     }
 }

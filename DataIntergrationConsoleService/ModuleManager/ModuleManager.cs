@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,6 +70,11 @@ namespace SourceModuleManager
             var upsertQuery = MariaQueryBuilder.UpsertQuery("datacollection", data);
 
             MariaDBConnector.Instance.SetQuery(upsertQuery);
+        }
+
+        public List<JsonDictionary> GetCollectionModule(string name)
+        {
+            return MariaDBConnector.Instance.GetQuery("SELECT name,modulename,methodname,COLUMN_JSON(options),scheduletime,unixtime FROM datacollection WHERE name = '" + name + "';");
         }
 
         private ISourceModule GetSourceModule(string moduleName)

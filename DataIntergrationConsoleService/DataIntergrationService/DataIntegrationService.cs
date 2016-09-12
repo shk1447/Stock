@@ -563,9 +563,9 @@ namespace DataIntegrationService
 
             var res = new GetDataSourceRes();
 
-            var retTable = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", param.Query);
+            var rawData = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", param.Query);
 
-            res.RawData = DataConverter.JsonToDataTable(retTable);
+            res.RawData = rawData;
             
             return res;
         }
@@ -585,19 +585,19 @@ namespace DataIntegrationService
             var structureQuery = MariaQueryBuilder.GetDataStructure(tableInfo);
 
             var dataStructure = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", structureQuery);
-            res.DataStructure = DataConverter.JsonToDataTable(dataStructure);
+            res.DataStructure = dataStructure;
 
             return res;
         }
 
-        public GetCollectionModuleRes GetCollectionModule()
+        public GetModuleStructureRes GetModuleStructure()
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var res = new GetCollectionModuleRes();
+            var res = new GetModuleStructureRes();
 
             res.CollectionModules = ModuleManager.Instance.GetSourceModuleInfo();
 
@@ -619,14 +619,28 @@ namespace DataIntegrationService
             return null;
         }
 
-        public ExecuteCollectionModuleRes ExecuteCollectionModule(string collectionId)
+        public GetCollectionModuleRes GetCollectionModule(string name)
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            ModuleManager.Instance.ExecuteModule(collectionId);
+            var res = new GetCollectionModuleRes();
+
+            res.CollectionModule = ModuleManager.Instance.GetCollectionModule(name);
+
+            return res;
+        }
+
+        public ExecuteCollectionModuleRes ExecuteCollectionModule(string name)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            ModuleManager.Instance.ExecuteModule(name);
 
             return new ExecuteCollectionModuleRes();
         }

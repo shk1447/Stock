@@ -71,16 +71,20 @@ namespace DataIntegrationService
         GetDataStructureRes GetDataStructure();
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        GetCollectionModuleRes GetCollectionModule();
+        [WebInvoke(Method = "GET", UriTemplate = "GetModuleStructure", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetModuleStructureRes GetModuleStructure();
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         SetCollectionModuleRes SetCollectionModule(SetCollectionModuleReq param);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?collectionId={collectionId}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        ExecuteCollectionModuleRes ExecuteCollectionModule(string collectionId);
+        [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        GetCollectionModuleRes GetCollectionModule(string name);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ExecuteCollectionModuleRes ExecuteCollectionModule(string name);
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetDataView", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
