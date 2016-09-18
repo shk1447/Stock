@@ -80,7 +80,7 @@ namespace Connector
                                                 {
                                                     prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[])), null);
                                                 }
-                                                else if(reader[i].ToString().Contains("[]"))
+                                                else if(reader[i].ToString().Contains("[]:"))
                                                 {
                                                     prop.SetValue(obj, reader[i].ToString().Replace("[]:", "").Split(',').ToList(), null);
                                                 }
