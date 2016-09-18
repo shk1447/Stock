@@ -45,13 +45,14 @@ namespace Connector
                         }
                         else if (kv.Value.GetType().Name == "List`1")
                         {
-                            var test = kv.Value as List<string>;
+                            var list = kv.Value as List<string>;
                             value = "[]:";
-                            foreach (var v in test)
+                            foreach (var v in list)
                             {
                                 value = value + v + ",";
                             }
-                            value = "'" + value.Substring(0, value.Length - 1) + "'";
+                            value = list.Count > 0 ? value.Substring(0, value.Length - 1) : value;
+                            value = "'" + value + "'";
                         }
                         else
                         {
