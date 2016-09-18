@@ -670,16 +670,14 @@ namespace DataIntegrationService
             return null;
         }
 
-        public GetCollectionModuleRes GetCollectionModule()
+        public List<GetCollectionModuleRes> GetCollectionModule()
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var res = new GetCollectionModuleRes();
-
-            //res.CollectionModule = ModuleManager.Instance.GetCollectionModule(name);
+            var res = MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>("SELECT name,modulename,methodname,COLUMN_JSON(options) as options,scheduletime,unixtime FROM datacollection");
 
             return res;
         }

@@ -93,7 +93,7 @@ namespace DataIntegrationService
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        GetCollectionModuleRes GetCollectionModule();
+        List<GetCollectionModuleRes> GetCollectionModule();
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

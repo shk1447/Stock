@@ -79,7 +79,6 @@ namespace Connector
                                                 if (reader[i].GetType() == typeof(byte[]))
                                                 {
                                                     prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[])), null);
-                                                    //DataConverter.JsonToDictionary<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[]))
                                                 }
                                                 else if(reader[i].ToString().Contains("[]"))
                                                 {
