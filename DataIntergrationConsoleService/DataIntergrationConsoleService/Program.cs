@@ -17,7 +17,7 @@ namespace DataIntegrationConsoleService
         static void Main(string[] args)
         {
             var appDomain = AppDomain.CurrentDomain;
-
+            
             appDomain.UnhandledException += appDomain_UnhandledException;
             MariaDBConnector.Instance.ServerIp = ConfigurationManager.AppSettings["DatabaseIP"];
             MariaDBConnector.Instance.ServerPort = ConfigurationManager.AppSettings["DatabasePort"];

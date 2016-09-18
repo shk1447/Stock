@@ -35,18 +35,30 @@ namespace Connector
             {
                 if (columninfo.Contains(kv.Key))
                 {
-                    var value = string.Empty;
-                    if (kv.Value.GetType().Name == "JsonDictionary")
+                    var value = "''";
+                    if (kv.Value != null)
                     {
-                        var test = kv.Value as JsonDictionary;
-                        value = JsonToColumnCreate(test.GetDictionary(), ref lastData);
-                        values = values + value + ",";
+                        if (kv.Value.GetType().Name == "JsonDictionary")
+                        {
+                            var test = kv.Value as JsonDictionary;
+                            value = JsonToColumnCreate(test.GetDictionary(), ref lastData);
+                        }
+                        else if (kv.Value.GetType().Name == "List`1")
+                        {
+                            var test = kv.Value as List<string>;
+                            value = "[]:";
+                            foreach (var v in test)
+                            {
+                                value = value + v + ",";
+                            }
+                            value = "'" + value.Substring(0, value.Length - 1) + "'";
+                        }
+                        else
+                        {
+                            value = "'" + kv.Value.ToString() + "'";
+                        }
                     }
-                    else
-                    {
-                        value = "'" + kv.Value.ToString() + "'";
-                        values = values + value + ",";
-                    }
+                    values = values + value + ",";
                     updateQuery = updateQuery + kv.Key + " = " + value + ",";
                 }
             }

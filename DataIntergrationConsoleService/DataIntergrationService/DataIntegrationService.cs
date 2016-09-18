@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Common;
 using Connector;
 using Newtonsoft.Json.Linq;
-using Helper;
 using System.Web.Script.Services;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
@@ -20,12 +19,13 @@ using System.Diagnostics;
 using Model.Response;
 using Model.Request;
 using SourceModuleManager;
+using Helper;
+using Model.Common;
 
 
 namespace DataIntegrationService
 {
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.PerCall)]
-    [System.Web.Script.Services.ScriptService]
     public partial class DataIntegrationService : IDataIntegrationService
     {
         public DataIntegrationService()
@@ -528,11 +528,17 @@ namespace DataIntegrationService
         #region IDataIntegrationService 멤버
 
 
-        public SetDataSourceRes SetDataSource(SetDataSourceReq param)
+        public SetDataSourceRes SetDataSource(Stream stream)
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
+            }
+            
+            SetDataSourceReq param = null;
+            using (var streamReader = new StreamReader(stream))
+            {
+                param = DataConverter.JsonToDictionary<SetDataSourceReq>(streamReader.ReadToEnd());
             }
 
             var res = new SetDataSourceRes();
@@ -552,6 +558,51 @@ namespace DataIntegrationService
             }
             
             return res;
+        }
+
+        public SetDataAnalysisRes SetDataAnalysis(SetDataAnalysisReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new SetDataAnalysisRes();
+
+            var data = new Dictionary<string, object>() { { "name", param.Name }, { "source", param.Source }, { "categories", param.Categories }, { "collectedat", param.CollectedAt },
+                                                          { "analysisquery", param.AnalysisQuery }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
+
+            var upsertQuery = MariaQueryBuilder.UpsertQuery("dataanalysis", data);
+
+            MariaDBConnector.Instance.SetQuery(upsertQuery);
+
+            return res;
+        }
+
+        public List<GetDataAnalysisRes> GetDataAnalysis()
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+            
+
+            var test = new List<GetDataAnalysisRes>();
+            var haha = new GetDataAnalysisRes();
+            haha.options = new JsonDictionary();
+            object aa = "hoho";
+            haha.options.Add("test", aa);
+            //haha.options.Add("test", new List<string>() { "test", "test1" });
+            test.Add(haha);
+            List<GetDataAnalysisRes> res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis;");
+
+
+            return res;
+        }
+
+        public ExecuteDataAnalysisRes ExecuteDataAnalysis(string name)
+        {
+            throw new NotImplementedException();
         }
 
         public GetDataSourceRes GetDataSource(GetDataSourceReq param)
@@ -619,7 +670,7 @@ namespace DataIntegrationService
             return null;
         }
 
-        public GetCollectionModuleRes GetCollectionModule(string name)
+        public GetCollectionModuleRes GetCollectionModule()
         {
             if (WebOperationContext.Current == null)
             {
@@ -628,7 +679,7 @@ namespace DataIntegrationService
 
             var res = new GetCollectionModuleRes();
 
-            res.CollectionModule = ModuleManager.Instance.GetCollectionModule(name);
+            //res.CollectionModule = ModuleManager.Instance.GetCollectionModule(name);
 
             return res;
         }

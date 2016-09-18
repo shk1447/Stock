@@ -11,6 +11,8 @@ using Log;
 using System.Diagnostics;
 using System.Collections;
 using Model.Common;
+using System.Reflection;
+using Helper;
 
 namespace Connector
 {
@@ -35,6 +37,98 @@ namespace Connector
         }
 
         #region IConnector 멤버
+
+        public List<T> GetQuery<T>(string query, object parameterValues = null) where T : new()
+        {
+            List<T> ret = new List<T>();
+
+            try
+            {
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=15;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            var cmd = connection.CreateCommand();
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = query;
+
+                            if (parameterValues != null)
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.Add("@queryText", parameterValues.ToString());
+                            }
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                var type = typeof(T);
+                                var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                                while (reader.Read())
+                                {
+                                    var obj = new T();
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        string fieldName = reader.GetName(i);
+                                        var prop = props.FirstOrDefault(x => x.Name.ToLower() == fieldName.ToLower());
+                                        if (prop != null)
+                                        {
+                                            if (reader[i] != DBNull.Value)
+                                            {
+                                                if (reader[i].GetType() == typeof(byte[]))
+                                                {
+                                                    prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[])), null);
+                                                    //DataConverter.JsonToDictionary<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[]))
+                                                }
+                                                else if(reader[i].ToString().Contains("[]"))
+                                                {
+                                                    prop.SetValue(obj, reader[i].ToString().Replace("[]:", "").Split(',').ToList(), null);
+                                                }
+                                                else
+                                                {
+                                                    prop.SetValue(obj, reader[i], null);
+                                                }
+                                            }
+                                        }
+                                        object value = null;
+                                        if (reader.GetValue(i).GetType() == typeof(byte[]))
+                                            value = Encoding.UTF8.GetString(reader.GetValue(i) as byte[]);
+                                        else
+                                        {
+                                            value = reader.GetValue(i);
+                                            if (value.GetType().Name == "String" && value.ToString().Contains("[]:"))
+                                                value = value.ToString().Replace("[]:", "").Split(',').ToList();
+                                        }
+                                    }
+                                    ret.Add(obj);
+                                }
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            LogWriter.Error(ex.ToString());
+                            LogWriter.Error("[GET QUERY] " + query);
+                        }
+                        finally
+                        {
+                            transaction.Dispose();
+                            connection.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.Error(ex.ToString());
+                ret = null;
+            }
+
+            return ret;
+        }
 
         public List<JsonDictionary> GetQuery(string query, object parameterValues = null)
         {
@@ -70,7 +164,11 @@ namespace Connector
                                         if (reader.GetValue(i).GetType() == typeof(byte[]))
                                             value = Encoding.UTF8.GetString(reader.GetValue(i) as byte[]);
                                         else
+                                        {
                                             value = reader.GetValue(i);
+                                            if (value.GetType().Name == "String" && value.ToString().Contains("[]:"))
+                                                value = value.ToString().Replace("[]:", "").Split(',').ToList();
+                                        }
 
                                         dict.Add(reader.GetName(i), value);
                                     }

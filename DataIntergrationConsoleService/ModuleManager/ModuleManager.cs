@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Connector;
-using ExternalSourceMoudles;
 using Model.Common;
 using Model.Request;
 using ModuleInterface;
+using Helper;
 
 namespace SourceModuleManager
 {
@@ -72,9 +72,9 @@ namespace SourceModuleManager
             MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
 
-        public List<JsonDictionary> GetCollectionModule(string name)
+        private List<JsonDictionary> GetCollectionModule(string name)
         {
-            return MariaDBConnector.Instance.GetQuery("SELECT name,modulename,methodname,COLUMN_JSON(options),scheduletime,unixtime FROM datacollection WHERE name = '" + name + "';");
+            return MariaDBConnector.Instance.GetQuery("SELECT name,modulename,methodname,COLUMN_JSON(options) as options,scheduletime,unixtime FROM datacollection WHERE name = '" + name + "';");
         }
 
         private ISourceModule GetSourceModule(string moduleName)
@@ -82,11 +82,21 @@ namespace SourceModuleManager
             return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
         }
 
-        public void ExecuteModule(string collectionId)
+        public void ExecuteModule(string name)
         {
-            var moduleInfo = MariaDBConnector.Instance.GetQuery("");
+            var moduleInfo = GetCollectionModule(name);
 
-            //var module = GetSourceModule(moduleInfo);
+            foreach (var item in moduleInfo)
+            {
+                var moduleName = item["modulename"].ToString();
+                var methodName = item["methodname"].ToString();
+                var options = DataConverter.JsonToDictionary<JsonDictionary>(item["options"].ToString()).GetDictionary();
+                 
+                var module = GetSourceModule(moduleName);
+                module.SetConfig(methodName, options);
+                var result = module.ExecuteModule(methodName) as SetDataSourceReq;
+            }
+
             //module.ExecuteModule(methodName);
             //MariaDBConnector.Instance.SetQuery();
         }

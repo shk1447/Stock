@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Log;
 using Newtonsoft.Json.Linq;
 using ServiceStack.Text;
+using Newtonsoft.Json;
 
 namespace Helper
 {
@@ -22,7 +23,7 @@ namespace Helper
                        ).ToDictionary(z => z.Key, z => z.Value.GetType() == typeof(byte[]) ? 
                            Encoding.Default.GetString(z.Value as byte[]) : z.Value)).ToList();
 
-            return JsonSerializer.SerializeToString(lst);
+            return JsonConvert.SerializeObject(lst);
         }
 
         public static string JsonToDataTable(DataTable dt)
@@ -110,12 +111,12 @@ namespace Helper
 
         public static T JsonToDictionary<T>(string json)
         {
-            return JsonSerializer.DeserializeFromString<T>(json);
+            return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static string DynamicToString<T>(T obj)
+        public static string DynamicToString(object obj)
         {
-            return JsonSerializer.SerializeToString<T>(obj);
+            return JsonConvert.SerializeObject(obj);
         }
 
         public static dynamic StringToDynamic(string jsonText)

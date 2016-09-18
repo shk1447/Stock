@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{52048549-E84A-403A-AE85-BDF00DF18632}</ProjectGuid>
+    <ProjectGuid>{139B591E-4FDA-4E0F-83EF-CC217A776753}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RestReceiver</RootNamespace>
-    <AssemblyName>RestReceiver</AssemblyName>
+    <RootNamespace>Finance</RootNamespace>
+    <AssemblyName>Finance</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\Modules\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\Modules\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -39,20 +39,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Tools\RequestHelper.cs" />
-    <Compile Include="RestReceiver.cs" />
+    <Compile Include="HtmlParser.cs" />
+    <Compile Include="Finance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\..\Common\Common.csproj">
       <Project>{bd86539d-b1dc-4c82-8606-6cac641a12ee}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataConverter\DataConverter.csproj">
-      <Project>{5f191972-30b4-4622-9f53-e426de2fd0fc}</Project>
-      <Name>DataConverter</Name>
+    <ProjectReference Include="..\..\Model\Models.csproj">
+      <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
+      <Name>Models</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ModuleInterface\ModuleInterface.csproj">
+    <ProjectReference Include="..\..\ModuleInterface\ModuleInterface.csproj">
       <Project>{c029b70f-a0b8-459b-95bf-627826a0c984}</Project>
       <Name>ModuleInterface</Name>
     </ProjectReference>

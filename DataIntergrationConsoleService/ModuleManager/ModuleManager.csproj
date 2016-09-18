@@ -48,6 +48,10 @@
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataConverter\DataConverter.csproj">
+      <Project>{5f191972-30b4-4622-9f53-e426de2fd0fc}</Project>
+      <Name>DataConverter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ModuleInterface\ModuleInterface.csproj">
       <Project>{c029b70f-a0b8-459b-95bf-627826a0c984}</Project>
       <Name>ModuleInterface</Name>
@@ -55,10 +59,6 @@
     <ProjectReference Include="..\Model\Models.csproj">
       <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
       <Name>Models</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RestReceiver\RestReceiver.csproj">
-      <Project>{52048549-e84a-403a-ae85-bdf00df18632}</Project>
-      <Name>RestReceiver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

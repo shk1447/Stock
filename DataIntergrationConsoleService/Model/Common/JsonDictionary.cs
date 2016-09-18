@@ -16,23 +16,23 @@ namespace Model.Common
         /// <summary>
         /// Holds the internal dictionary.
         /// </summary>
-        private readonly Dictionary<string, object> _dictionary;
+        private readonly Dictionary<String, object> _dictionary;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValueCollection"/> class.
         /// </summary>
         public JsonDictionary()
         {
-            this._dictionary = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            this._dictionary = new Dictionary<String, object>(StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyValueCollection"/> class.
         /// </summary>
         /// 
-        public JsonDictionary(Dictionary<string, object> dictionary)
+        public JsonDictionary(Dictionary<String, object> dictionary)
         {
-            this._dictionary = new Dictionary<string, object>(dictionary, StringComparer.InvariantCultureIgnoreCase);
+            this._dictionary = new Dictionary<String, object>(dictionary, StringComparer.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Model.Common
         /// <summary>
         /// Gets or sets the <see cref="System.String"/> with the specified key.
         /// </summary>
-        public object this[string key]
+        public object this[String key]
         {
             get
             {
@@ -67,9 +67,9 @@ namespace Model.Common
         /// Gets the internal dictionary as copy.
         /// </summary>
         /// <returns>The internal dictionary as copy.</returns>
-        public Dictionary<string, object> GetDictionary()
+        public Dictionary<String, object> GetDictionary()
         {
-            return new Dictionary<string, object>(this._dictionary);
+            return new Dictionary<String, object>(this._dictionary);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Model.Common
         /// </summary>
         /// 
         /// 
-        public void Add(string key, object value)
+        public void Add(String key, object value)
         {
             this[key] = value;
         }

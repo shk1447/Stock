@@ -121,14 +121,17 @@ ENGINE=InnoDB;
 
 CREATE TABLE `dataanalysis` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
-	`name` VARCHAR(50) NULL DEFAULT NULL,
-	`query` TEXT NULL DEFAULT NULL,
+	`name` VARCHAR(50) NOT NULL,
+	`source` VARCHAR(50) NULL DEFAULT NULL,
+	`categories` VARCHAR(500) NULL DEFAULT NULL,
+	`collectedat` VARCHAR(50) NULL DEFAULT NULL,
+	`analysisquery` TEXT NULL DEFAULT NULL,
 	`options` BLOB NULL DEFAULT NULL,
 	`scheduletime` VARCHAR(50) NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),
-	INDEX `index_columns` (`unixtime`, `viewtype`)
+	INDEX `index_columns` (`source`, `unixtime`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
