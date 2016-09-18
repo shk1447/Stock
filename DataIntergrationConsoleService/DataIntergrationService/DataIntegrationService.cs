@@ -586,23 +586,47 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
             
-
-            var test = new List<GetDataAnalysisRes>();
-            var haha = new GetDataAnalysisRes();
-            haha.options = new JsonDictionary();
-            object aa = "hoho";
-            haha.options.Add("test", aa);
-            //haha.options.Add("test", new List<string>() { "test", "test1" });
-            test.Add(haha);
-            List<GetDataAnalysisRes> res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis;");
-
+            var res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis;");
 
             return res;
         }
 
         public ExecuteDataAnalysisRes ExecuteDataAnalysis(string name)
         {
-            throw new NotImplementedException();
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new ExecuteDataAnalysisRes();
+
+            var dataanalysis = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis WHERE name = '" + name  +"';");
+
+            foreach (var analysis in dataanalysis)
+            {
+                foreach (var category in analysis.categories)
+                {
+                    var query = analysis.analysisquery.Replace("{category}", category);
+                    foreach (var kv in analysis.options.GetDictionary())
+                    {
+                        var key = "{" + kv.Key.ToLower() + "}";
+                        query = query.Replace(key, kv.Value.ToString());
+                        var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
+                        var setSource = new SetDataSourceReq()
+                        {
+                            RawData = data,
+                            Category = category,
+                            Source = analysis.source,
+                            CollectedAt = analysis.collectedAt
+                        };
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
+                }
+            }
+            //var query = analysis
+
+            return res;
         }
 
         public GetDataSourceRes GetDataSource(GetDataSourceReq param)

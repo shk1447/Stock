@@ -15,6 +15,12 @@ namespace Model.Response
 
         public List<string> categories { get; set; }
 
+        public string analysisquery { get; set; }
+
         public JsonDictionary options { get; set; }
+
+        public string collectedAt { get; set; }
+
+        public string scheduletime { get; set; }
     }
 }
