@@ -90,7 +90,7 @@ namespace SourceModuleManager
             {
                 var moduleName = item["modulename"].ToString();
                 var methodName = item["methodname"].ToString();
-                var options = DataConverter.JsonToDictionary<JsonDictionary>(item["options"].ToString()).GetDictionary();
+                var options = item["options"] == null ? new Dictionary<string, object>() : (item["options"] as JsonDictionary).GetDictionary();
                  
                 var module = GetSourceModule(moduleName);
                 module.SetConfig(methodName, options);

@@ -78,7 +78,9 @@ namespace Connector
                                             {
                                                 if (reader[i].GetType() == typeof(byte[]))
                                                 {
-                                                    prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(Encoding.UTF8.GetString(reader[i] as byte[])), null);
+                                                    var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
+                                                    if(!string.IsNullOrWhiteSpace(jsonString))
+                                                        prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(jsonString), null);
                                                 }
                                                 else if(reader[i].ToString().Contains("[]:"))
                                                 {
@@ -161,7 +163,11 @@ namespace Connector
                                     {
                                         object value = null;
                                         if (reader.GetValue(i).GetType() == typeof(byte[]))
-                                            value = Encoding.UTF8.GetString(reader.GetValue(i) as byte[]);
+                                        {
+                                            var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
+                                            if (!string.IsNullOrWhiteSpace(jsonString))
+                                                value = DataConverter.Deserializer<JsonDictionary>(jsonString);
+                                        }
                                         else
                                         {
                                             value = reader.GetValue(i);

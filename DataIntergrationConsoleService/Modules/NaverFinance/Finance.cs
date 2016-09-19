@@ -219,7 +219,10 @@ namespace Finance
                         Method = "POST",
                         PostMessage = test
                     };
-                    HttpsRequest.Instance.GetAsyncResponseByHttps(param, aaa);
+                    Task.Factory.StartNew(() =>
+                    {
+                        HttpsRequest.Instance.GetAsyncResponseByHttps(param, aaa);
+                    });
                 }
             }
         }

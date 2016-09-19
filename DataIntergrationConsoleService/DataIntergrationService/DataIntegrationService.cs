@@ -611,20 +611,20 @@ namespace DataIntegrationService
                     {
                         var key = "{" + kv.Key.ToLower() + "}";
                         query = query.Replace(key, kv.Value.ToString());
-                        var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-                        var setSource = new SetDataSourceReq()
-                        {
-                            RawData = data,
-                            Category = category,
-                            Source = analysis.source,
-                            CollectedAt = analysis.collectedAt
-                        };
-                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                     }
+
+                    var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
+                    var setSource = new SetDataSourceReq()
+                    {
+                        RawData = data,
+                        Category = category,
+                        Source = analysis.source,
+                        CollectedAt = analysis.collectedAt
+                    };
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                 }
             }
-            //var query = analysis
 
             return res;
         }

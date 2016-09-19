@@ -129,7 +129,9 @@ DATA INTEGRATION WEB UI
 		
 	- Data Analysis : 수집된 원천 데이터를 활용하여 통계 및 분석 데이터 가공
 		- GetDataStructure : 현재 수집된 데이터의 전체 구조를 받아옴
-		- Analysis : 새로운 데이터를 만들수 있는 쿼리 또는 연산식을 설정
+		- SetDataAnalysis : 데이터 분석에 대한 쿼리 및 옵션 정보를 저장
+		- GetDataAnalysis : 저장되어진 데이터 분석에 대한 모든 정보를 받아옴
+		- ExecuteDataAnalysis : 새로운 데이터를 만들수 있는 쿼리 또는 연산식을 설정
 		
 	- Data View : 데이터 뷰를 설정
 		- Set Current Data View : 데이터뷰(테이블)에 보여질 컬럼 설정 및 해당 컬럼에 대한 임계치 설정 가능

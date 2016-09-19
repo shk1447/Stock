@@ -35,7 +35,7 @@ namespace Connector
             {
                 if (columninfo.Contains(kv.Key))
                 {
-                    var value = "''";
+                    var value = "\"\"";
                     if (kv.Value != null)
                     {
                         if (kv.Value.GetType().Name == "JsonDictionary")
@@ -52,11 +52,11 @@ namespace Connector
                                 value = value + v + ",";
                             }
                             value = list.Count > 0 ? value.Substring(0, value.Length - 1) : value;
-                            value = "'" + value + "'";
+                            value = "\"" + value + "\"";
                         }
                         else
                         {
-                            value = "'" + kv.Value.ToString() + "'";
+                            value = "\"" + kv.Value.ToString() + "\"";
                         }
                     }
                     values = values + value + ",";
@@ -87,8 +87,8 @@ namespace Connector
 
                 var createQuery = JsonToColumnCreate(itemDict, ref lastRawData);
 
-                pastQuery = pastQuery + "('" + dynamicCategory + "'," + createQuery + ", " + collectedDate + "),";
-                currentQuery = currentQuery + "('" + dynamicCategory + "'," + createQuery + ", " + collectedDate + "),";
+                pastQuery = pastQuery + "(\"" + dynamicCategory + "\"," + createQuery + ", " + collectedDate + "),";
+                currentQuery = currentQuery + "(\"" + dynamicCategory + "\"," + createQuery + ", " + collectedDate + "),";
             }
 
             var updateQuery = JsonToColumnAdd(lastRawData, "rawdata");
@@ -113,7 +113,7 @@ namespace Connector
 
             foreach (var kv in jsonObj)
             {
-                kvString = kvString + "'" + kv.Key + "','" + kv.Value + "',";
+                kvString = kvString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
 
                 if (!lastData.ContainsKey(kv.Key))
                 {
@@ -136,7 +136,7 @@ namespace Connector
 
             foreach (var kv in jsonObj)
             {
-                kvString = kvString + "'" + kv.Key + "','" + kv.Value + "',";
+                kvString = kvString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
             }
 
             kvString = kvString.Substring(0, kvString.Length - 1) + ")"; ;
