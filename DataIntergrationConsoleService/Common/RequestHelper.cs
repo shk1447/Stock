@@ -143,7 +143,6 @@ namespace Common
                 request.Timeout = Timeout.Infinite;
                 request.ReadWriteTimeout = Timeout.Infinite;
                 request.ServicePoint.Expect100Continue = false;
-                request.ServicePoint.UseNagleAlgorithm = false;
 
                 if (connectionInfo.header.Count > 0)
                 {

@@ -9,6 +9,7 @@ using Model.Common;
 using Model.Request;
 using ModuleInterface;
 using Helper;
+using Model.Response;
 
 namespace SourceModuleManager
 {
@@ -72,9 +73,12 @@ namespace SourceModuleManager
             MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
 
-        private List<JsonDictionary> GetCollectionModule(string name)
+        private List<GetCollectionModuleRes> GetCollectionModule(string name)
         {
-            return MariaDBConnector.Instance.GetQuery("SELECT name,modulename,methodname,COLUMN_JSON(options) as options,scheduletime,unixtime FROM datacollection WHERE name = '" + name + "';");
+            var selectedItems = new List<string>() { "name", "modulename", "methodname", "column_json(options) as options", "scheduletime", "unixtime" };
+            var whereKV = new Dictionary<string, string>() { { "name", name } };
+            var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems, whereKV);
+            return MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>(query); 
         }
 
         private ISourceModule GetSourceModule(string moduleName)
@@ -86,20 +90,28 @@ namespace SourceModuleManager
         {
             var moduleInfo = GetCollectionModule(name);
 
-            foreach (var item in moduleInfo)
+            var whereDict = new Dictionary<string, string>() { { "name", name } };
+            var setDict = new Dictionary<string, string>() { { "status", "running" } };
+            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
+            MariaDBConnector.Instance.SetQuery(statusUpdate);
+
+            Task.Factory.StartNew(() =>
             {
-                var moduleName = item["modulename"].ToString();
-                var methodName = item["methodname"].ToString();
-                var options = item["options"] == null ? new Dictionary<string, object>() : (item["options"] as JsonDictionary).GetDictionary();
-                 
-                var module = GetSourceModule(moduleName);
-                module.SetConfig(methodName, options);
-                var result = module.ExecuteModule(methodName) as SetDataSourceReq;
-            }
+                foreach (var item in moduleInfo)
+                {
+                    var moduleName = item.ModuleName;
+                    var methodName = item.MethodName;
+                    var options = item.Options == null ? new Dictionary<string, object>() : item.Options.GetDictionary();
 
-            //module.ExecuteModule(methodName);
-            //MariaDBConnector.Instance.SetQuery();
+                    var module = GetSourceModule(moduleName);
+                    module.SetConfig(methodName, options);
+                    var result = module.ExecuteModule(methodName) as SetDataSourceReq;
+                }
+
+                setDict["status"] = "done";
+                statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
+                MariaDBConnector.Instance.SetQuery(statusUpdate);
+            });
         }
-
     }
 }

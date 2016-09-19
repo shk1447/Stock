@@ -89,7 +89,7 @@ namespace DataIntegrationService
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        SetCollectionModuleRes SetCollectionModule(SetCollectionModuleReq param);
+        SetCollectionModuleRes SetCollectionModule(List<SetCollectionModuleReq> param);
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

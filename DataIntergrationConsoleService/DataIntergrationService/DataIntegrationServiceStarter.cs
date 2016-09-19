@@ -27,7 +27,6 @@ namespace DataIntegrationService
             var restHost = new WebServiceHost(typeof(DataIntegrationService), new Uri(serviceUrl));
 
             System.Net.ServicePointManager.Expect100Continue = false;
-            System.Net.ServicePointManager.UseNagleAlgorithm = false;
             System.Net.ServicePointManager.DefaultConnectionLimit = 16;
 
             var webHttpBinding = new WebHttpBinding()

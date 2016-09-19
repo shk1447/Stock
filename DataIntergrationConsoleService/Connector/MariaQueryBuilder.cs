@@ -18,9 +18,53 @@ namespace Connector
             return query;
         }
 
-        public static string UpdateQuery(string table, string key, KeyValuePair<string, string> updateKV)
+        public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, string> whereKV = null)
         {
-            return string.Empty;
+            var query = "SELECT ";
+
+            var count = 1;
+            foreach (var item in selectedItems)
+            {
+                var separator = count < selectedItems.Count ? ", " : "";
+                query = query + item + separator;
+                count++;
+            }
+            query = query + " FROM " + table;
+            if (whereKV != null)
+            {
+                query = query + " WHERE ";
+                count = 1;
+                foreach (var kv in whereKV)
+                {
+                    var separator = count < whereKV.Keys.Count ? "AND " : "";
+                    query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
+                    count++;
+                }
+            }
+            return query + ";";
+        }
+
+        public static string UpdateQuery(string table, Dictionary<string, string> whereKV, Dictionary<string, string> setKV)
+        {
+            var query = "UPDATE " + table + " SET ";
+
+            var count = 1;
+            foreach (var kv in setKV)
+            {
+                var separator = count < setKV.Keys.Count ? ", " : "";
+                query = query + kv.Key + " = \"" + kv.Value + "\"" + separator;
+                count++;
+            }
+            query = query + " WHERE ";
+            count = 1;
+            foreach (var kv in whereKV)
+            {
+                var separator = count < whereKV.Keys.Count ? "AND " : "";
+                query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
+                count++;
+            }
+
+            return query;
         }
 
         public static string UpsertQuery(string table, Dictionary<string, object> row)
@@ -84,6 +128,8 @@ namespace Connector
 
             foreach (var item in rawData)
             {
+                if (item == null) continue;
+                
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
                 var dynamicCategory = category;

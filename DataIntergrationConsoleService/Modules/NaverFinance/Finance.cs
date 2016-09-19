@@ -159,77 +159,79 @@ namespace Finance
                         json.Add("PER", PER); json.Add("PBR", PBR);
 
                         var stockData = string.Empty;
-
-                        var googleUrl = "http://www.google.com/finance/getprices?q={code}&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
-                        var reqParam = new RequestParameter()
-                        {
-                            Url = googleUrl.Replace("{code}", 종목코드),
-                            ContentType = "application/json",
-                            EncodingOption = "UTF8",
-                            Method = "GET"
-                        };
-
-                        stockData = this.DecodeHex(HttpsRequest.Instance.GetResponseByHttps(reqParam));
-
-                        var histroyCsv = Regex.Split(stockData, @"\n");
-                        var query = "날짜,종가,고가,저가,시가,거래량,CDAYS";
-                        var standardTime = string.Empty;
-                        for (int i = 7; i < histroyCsv.Length - 1; i++)
-                        {
-                            var keyArr = query.Split(',');
-                            var dDict = new JsonDictionary();
-                            var row = histroyCsv[i].Split(',');
-                            for (int k = 0; k < row.Length - 1; k++)
-                            {
-                                if (k == 0)
-                                {
-                                    if (row[k].Trim().Contains("a"))
-                                    {
-                                        standardTime = row[k].Trim().Replace("a", "");
-                                        dDict.Add(keyArr[k].Trim(), standardTime);
-                                    }
-                                    else
-                                    {
-                                        dDict.Add(keyArr[k].Trim(), (int.Parse(standardTime) + (86400 * int.Parse(row[k]))).ToString());
-                                    }
-                                    continue;
-                                }
-
-                                dDict.Add(keyArr[k].Trim(), row[k].Trim());
-                            }
-                            dDict.Add("종목코드", 종목코드);
-                            result.RawData.Add(dDict);
-                        }
+                        
+                        NaverStock(result, 종목코드, stockData);
+                        result.RawData.Add(json);
 
                         Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.RawData.Count);
+
+                        var test = DataConverter.DynamicToString(result);
+                        var selfUrl = "http://localhost:1447/SetDataSource";
+                        var param = new RequestParameter()
+                        {
+                            Url = selfUrl,
+                            ContentType = "text",
+                            EncodingOption = "UTF8",
+                            Method = "POST",
+                            PostMessage = test
+                        };
+                        Task.Factory.StartNew(() =>
+                        {
+                            HttpsRequest.Instance.GetResponseByHttps(param);
+                        });
+                        
                     }
                     catch (Exception ex)
                     {
                         continue;
                     }
-                    result.RawData.Add(json);
-
-                    var test = DataConverter.DynamicToString(result);
-                    var selfUrl = "http://localhost:1447/SetDataSource";
-                    var param = new RequestParameter()
-                    {
-                        Url = selfUrl,
-                        ContentType = "text",
-                        EncodingOption = "UTF8",
-                        Method = "POST",
-                        PostMessage = test
-                    };
-                    Task.Factory.StartNew(() =>
-                    {
-                        HttpsRequest.Instance.GetAsyncResponseByHttps(param, aaa);
-                    });
                 }
             }
         }
 
-        private void aaa(IAsyncResult ar)
+        private string GoogleStock(SetDataSourceReq result, string 종목코드, string stockData)
         {
-            Console.Write(ar.AsyncState as RequestState);
+            var googleUrl = "http://www.google.com/finance/getprices?q={code}&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0&ei=Ef6XUYDfCqSTiAKEMg";
+            var reqParam = new RequestParameter()
+            {
+                Url = googleUrl.Replace("{code}", 종목코드),
+                ContentType = "application/json",
+                EncodingOption = "UTF8",
+                Method = "GET"
+            };
+
+            stockData = this.DecodeHex(HttpsRequest.Instance.GetResponseByHttps(reqParam));
+
+            var histroyCsv = Regex.Split(stockData, @"\n");
+            var query = "날짜,종가,고가,저가,시가,거래량,CDAYS";
+            var standardTime = string.Empty;
+            for (int i = 7; i < histroyCsv.Length - 1; i++)
+            {
+                var keyArr = query.Split(',');
+                var dDict = new JsonDictionary();
+                var row = histroyCsv[i].Split(',');
+                for (int k = 0; k < row.Length - 1; k++)
+                {
+                    if (k == 0)
+                    {
+                        if (row[k].Trim().Contains("a"))
+                        {
+                            standardTime = row[k].Trim().Replace("a", "");
+                            dDict.Add(keyArr[k].Trim(), standardTime);
+                        }
+                        else
+                        {
+                            dDict.Add(keyArr[k].Trim(), (int.Parse(standardTime) + (86400 * int.Parse(row[k]))).ToString());
+                        }
+                        continue;
+                    }
+
+                    dDict.Add(keyArr[k].Trim(), row[k].Trim());
+                }
+                dDict.Add("종목코드", 종목코드);
+                result.RawData.Add(dDict);
+            }
+            return stockData;
         }
 
         private string DecodeHex(string data)
@@ -266,20 +268,19 @@ namespace Finance
             data = data.Replace(@"\x3F", "?");
             return data;
         }
-
+        private readonly object lockList = new object();
         private string NaverStock(SetDataSourceReq result, string 종목코드, string html)
         {
-
             var url = "http://finance.naver.com/item/sise_day.nhn?code={code}&page={pageNumber}";
-            var request = WebRequest.Create(url.Replace("{code}", 종목코드).Replace("{pageNumber}", "1"));
-            request.Proxy = null;
-            using (var response = request.GetResponse())
-            {
-                using (StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.Default))
+
+            var reqParam = new RequestParameter()
                 {
-                    html = sr.ReadToEnd();
-                }
-            }
+                    Url =url.Replace("{code}", 종목코드).Replace("{pageNumber}", "1"),
+                    ContentType = "text/html",
+                    EncodingOption = "Default",
+                    Method = "GET"
+                };
+            html = HttpsRequest.Instance.GetResponseByHttps(reqParam);
 
             var lastPattern = "<td class=\"pgRR\"[^>]*>(.*?)</td>";
             var lastMatches = Regex.Match(html, lastPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase);
@@ -287,45 +288,54 @@ namespace Finance
             var pagePattern = "page=(.*?)\"";
             var page = Regex.Match(lastMatches.Value, pagePattern);
             var lastNumber = int.Parse(page.Value.Replace("page=", "").Replace("\"", ""));
-
+            
             for (int i = lastNumber; i > 0; i--)
             {
-                request = WebRequest.Create(url.Replace("{code}", 종목코드).Replace("{pageNumber}", i.ToString()));
-                request.Proxy = null;
-                using (var response = request.GetResponse())
+                var pageNum = i.ToString();
+                reqParam.Url = url.Replace("{code}", 종목코드).Replace("{pageNumber}", pageNum);
+                html = HttpsRequest.Instance.GetResponseByHttps(reqParam);
+                try
                 {
-                    using (StreamReader sr = new StreamReader(response.GetResponseStream(), Encoding.Default))
+                    MatchCollection a = Regex.Matches(WithoutComments(html), TablePattern, ExpressionOptions);
+                    string b = WithoutComments(a[0].Value);
+                    MatchCollection c = Regex.Matches(b, RowPattern, ExpressionOptions);
+                    for (int q = c.Count - 1; q >= 0; q--)
                     {
-                        html = sr.ReadToEnd();
+                        var row = c[q];
+                        if (!row.Value.Contains("<th"))
+                        {
+                            try
+                            {
+                                MatchCollection cell = Regex.Matches(row.Value, CellPattern, ExpressionOptions);
+                                if (cell.Count < 7) continue;
+                                var json2 = new JsonDictionary();
+                                var spanPattern = "<span[^>]*>(.*?)</span>";
+                                var 날짜 = Regex.Match(cell[0].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value;
+                                var unixtime = Convert.ToInt32((DateTime.Parse(날짜).AddHours(18).ToUniversalTime() - unixBase).TotalSeconds);
+                                var 종가 = Regex.Match(cell[1].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
+                                var 시가 = Regex.Match(cell[3].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
+                                var 고가 = Regex.Match(cell[4].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
+                                var 저가 = Regex.Match(cell[5].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
+                                var 거래량 = Regex.Match(cell[6].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
+                                json2.Add("종목코드", 종목코드); json2.Add("종가", 종가); json2.Add("시가", 시가); json2.Add("고가", 고가); json2.Add("저가", 저가);
+                                json2.Add("거래량", 거래량); json2.Add("날짜", unixtime);
+
+                                result.RawData.Add(json2);
+                            }
+                            catch (Exception ex)
+                            {
+                                continue;
+                            }
+                        }
                     }
                 }
-
-                MatchCollection a = Regex.Matches(WithoutComments(html), TablePattern, ExpressionOptions);
-                string b = WithoutComments(a[0].Value);
-                MatchCollection c = Regex.Matches(b, RowPattern, ExpressionOptions);
-
-                foreach (Match row in c)
+                catch (Exception ex)
                 {
-                    if (!row.Value.Contains("<th"))
-                    {
-                        MatchCollection cell = Regex.Matches(row.Value, CellPattern, ExpressionOptions);
-                        if (cell.Count < 7) continue;
-                        var json2 = new JsonDictionary();
-                        var spanPattern = "<span[^>]*>(.*?)</span>";
-                        var 날짜 = Regex.Match(cell[0].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value;
-                        var unixtime = Convert.ToInt64((DateTime.Parse(날짜).AddHours(18).ToUniversalTime() - unixBase).TotalSeconds * 1000);
-                        var 종가 = Regex.Match(cell[1].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
-                        var 시가 = Regex.Match(cell[3].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
-                        var 고가 = Regex.Match(cell[4].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
-                        var 저가 = Regex.Match(cell[5].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
-                        var 거래량 = Regex.Match(cell[6].Groups[1].Value, spanPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase).Groups[1].Value.Replace(",", "");
-                        json2.Add("종목코드", 종목코드); json2.Add("종가", 종가); json2.Add("시가", 시가); json2.Add("고가", 고가); json2.Add("저가", 저가);
-                        json2.Add("거래량", 거래량); json2.Add("날짜", unixtime);
-
-                        result.RawData.Add(json2);
-                    }
+                    Console.WriteLine(ex.ToString());
                 }
+
             }
+            
             return html;
         }
 

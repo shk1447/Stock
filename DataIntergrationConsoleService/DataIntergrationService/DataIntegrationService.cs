@@ -560,6 +560,42 @@ namespace DataIntegrationService
             return res;
         }
 
+        public GetDataSourceRes GetDataSource(GetDataSourceReq param)
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new GetDataSourceRes();
+
+            var rawData = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", param.Query);
+
+            res.RawData = rawData;
+
+            return res;
+        }
+
+        public GetDataStructureRes GetDataStructure()
+        {
+            if (WebOperationContext.Current == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var res = new GetDataStructureRes();
+
+            var query = MariaQueryDefine.getSourceInformation;
+            var tableInfo = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
+
+            var structureQuery = MariaQueryBuilder.GetDataStructure(tableInfo);
+
+            var dataStructure = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", structureQuery);
+            res.DataStructure = dataStructure;
+
+            return res;
+        }
+
         public SetDataAnalysisRes SetDataAnalysis(List<SetDataAnalysisReq> parameters)
         {
             if (WebOperationContext.Current == null)
@@ -588,8 +624,10 @@ namespace DataIntegrationService
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
-            
-            var res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis;");
+
+            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var selectQuery = MariaQueryBuilder.SelectQuery("dataanalysis", selectedItems);
+            var res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>(selectQuery);
 
             return res;
         }
@@ -603,15 +641,23 @@ namespace DataIntegrationService
 
             var res = new ExecuteDataAnalysisRes();
 
-            var dataanalysis = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis WHERE name = '" + name  +"';");
-            
+            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var whereKV = new Dictionary<string, string>() { { "name", name } };
+            var selectQuery = MariaQueryBuilder.SelectQuery("dataanalysis", selectedItems, whereKV);
+            var dataanalysis = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>(selectQuery);
+
+            var whereDict = new Dictionary<string, string>() { { "name", name } };
+            var setDict = new Dictionary<string, string>() { { "status", "running" } };
+            var statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+            MariaDBConnector.Instance.SetQuery(statusUpdate);
+
             Task.Factory.StartNew(() =>
             {
                 foreach (var analysis in dataanalysis)
                 {
                     foreach (var category in analysis.categories)
                     {
-                        var query = analysis.analysisquery.Replace("{category}", category);
+                        var query = analysis.analysisquery.Replace("{category}", category).Replace("{analysis.name}", analysis.name);
                         foreach (var kv in analysis.options.GetDictionary())
                         {
                             var key = "{" + kv.Key.ToLower() + "}";
@@ -629,44 +675,12 @@ namespace DataIntegrationService
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                     }
+
+                    setDict["status"] = "done";
+                    statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                    MariaDBConnector.Instance.SetQuery(statusUpdate);
                 }
             });
-
-            return res;
-        }
-
-        public GetDataSourceRes GetDataSource(GetDataSourceReq param)
-        {
-            if (WebOperationContext.Current == null)
-            {
-                throw new Exception("Can not get current WebOpreationContext.");
-            }
-
-            var res = new GetDataSourceRes();
-
-            var rawData = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", param.Query);
-
-            res.RawData = rawData;
-            
-            return res;
-        }
-
-        public GetDataStructureRes GetDataStructure()
-        {
-            if (WebOperationContext.Current == null)
-            {
-                throw new Exception("Can not get current WebOpreationContext.");
-            }
-
-            var res = new GetDataStructureRes();
-
-            var query = MariaQueryDefine.getSourceInformation;
-            var tableInfo = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-
-            var structureQuery = MariaQueryBuilder.GetDataStructure(tableInfo);
-
-            var dataStructure = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", structureQuery);
-            res.DataStructure = dataStructure;
 
             return res;
         }
@@ -685,17 +699,20 @@ namespace DataIntegrationService
             return res;
         }
 
-        public SetCollectionModuleRes SetCollectionModule(SetCollectionModuleReq param)
+        public SetCollectionModuleRes SetCollectionModule(List<SetCollectionModuleReq> parameters)
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var data = new Dictionary<string, object>() { { "name", param.Name }, { "modulename", param.ModuleName },
+            foreach (var param in parameters)
+            {
+                var data = new Dictionary<string, object>() { { "name", param.Name }, { "modulename", param.ModuleName },
                                                           { "methodname", param.MethodName }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
 
-            ModuleManager.Instance.SetCollectionModule(data);
+                ModuleManager.Instance.SetCollectionModule(data);
+            }
 
             return null;
         }
@@ -706,8 +723,9 @@ namespace DataIntegrationService
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
-
-            var res = MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>("SELECT name,modulename,methodname,COLUMN_JSON(options) as options,scheduletime,unixtime FROM datacollection");
+            var selectedItems = new List<string>() { "name", "modulename", "methodname", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems);
+            var res = MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>(query);
 
             return res;
         }

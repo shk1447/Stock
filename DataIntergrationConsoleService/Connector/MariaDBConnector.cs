@@ -92,15 +92,6 @@ namespace Connector
                                                 }
                                             }
                                         }
-                                        object value = null;
-                                        if (reader.GetValue(i).GetType() == typeof(byte[]))
-                                            value = Encoding.UTF8.GetString(reader.GetValue(i) as byte[]);
-                                        else
-                                        {
-                                            value = reader.GetValue(i);
-                                            if (value.GetType().Name == "String" && value.ToString().Contains("[]:"))
-                                                value = value.ToString().Replace("[]:", "").Split(',').ToList();
-                                        }
                                     }
                                     ret.Add(obj);
                                 }
