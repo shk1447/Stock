@@ -65,7 +65,7 @@ namespace DataIntegrationService
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetDataAnalysis", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        SetDataAnalysisRes SetDataAnalysis(SetDataAnalysisReq stream);
+        SetDataAnalysisRes SetDataAnalysis(List<SetDataAnalysisReq> stream);
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "GetDataAnalysis", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

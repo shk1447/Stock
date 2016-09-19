@@ -560,7 +560,7 @@ namespace DataIntegrationService
             return res;
         }
 
-        public SetDataAnalysisRes SetDataAnalysis(SetDataAnalysisReq param)
+        public SetDataAnalysisRes SetDataAnalysis(List<SetDataAnalysisReq> parameters)
         {
             if (WebOperationContext.Current == null)
             {
@@ -569,12 +569,15 @@ namespace DataIntegrationService
 
             var res = new SetDataAnalysisRes();
 
-            var data = new Dictionary<string, object>() { { "name", param.Name }, { "source", param.Source }, { "categories", param.Categories }, { "collectedat", param.CollectedAt },
+            foreach (var param in parameters)
+            {
+                var data = new Dictionary<string, object>() { { "name", param.Name }, { "source", param.Source }, { "categories", param.Categories }, { "collectedat", param.CollectedAt },
                                                           { "analysisquery", param.AnalysisQuery }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
 
-            var upsertQuery = MariaQueryBuilder.UpsertQuery("dataanalysis", data);
+                var upsertQuery = MariaQueryBuilder.UpsertQuery("dataanalysis", data);
 
-            MariaDBConnector.Instance.SetQuery(upsertQuery);
+                MariaDBConnector.Instance.SetQuery(upsertQuery);
+            }
 
             return res;
         }
@@ -601,30 +604,33 @@ namespace DataIntegrationService
             var res = new ExecuteDataAnalysisRes();
 
             var dataanalysis = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>("SELECT name,source,categories,collectedat,analysisquery,COLUMN_JSON(options) as options,scheduletime,unixtime FROM dataanalysis WHERE name = '" + name  +"';");
-
-            foreach (var analysis in dataanalysis)
+            
+            Task.Factory.StartNew(() =>
             {
-                foreach (var category in analysis.categories)
+                foreach (var analysis in dataanalysis)
                 {
-                    var query = analysis.analysisquery.Replace("{category}", category);
-                    foreach (var kv in analysis.options.GetDictionary())
+                    foreach (var category in analysis.categories)
                     {
-                        var key = "{" + kv.Key.ToLower() + "}";
-                        query = query.Replace(key, kv.Value.ToString());
-                    }
+                        var query = analysis.analysisquery.Replace("{category}", category);
+                        foreach (var kv in analysis.options.GetDictionary())
+                        {
+                            var key = "{" + kv.Key.ToLower() + "}";
+                            query = query.Replace(key, kv.Value.ToString());
+                        }
 
-                    var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-                    var setSource = new SetDataSourceReq()
-                    {
-                        RawData = data,
-                        Category = category,
-                        Source = analysis.source,
-                        CollectedAt = analysis.collectedAt
-                    };
-                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
+                        var setSource = new SetDataSourceReq()
+                        {
+                            RawData = data,
+                            Category = category,
+                            Source = analysis.source,
+                            CollectedAt = analysis.collectedAt
+                        };
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
                 }
-            }
+            });
 
             return res;
         }

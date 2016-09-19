@@ -18,6 +18,11 @@ namespace Connector
             return query;
         }
 
+        public static string UpdateQuery(string table, string key, KeyValuePair<string, string> updateKV)
+        {
+            return string.Empty;
+        }
+
         public static string UpsertQuery(string table, Dictionary<string, object> row)
         {
             var query = "INSERT INTO " + table;
