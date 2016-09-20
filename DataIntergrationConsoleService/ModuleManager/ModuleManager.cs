@@ -102,7 +102,6 @@ namespace SourceModuleManager
                     var moduleName = item.ModuleName;
                     var methodName = item.MethodName;
                     var options = item.Options == null ? new Dictionary<string, object>() : item.Options.GetDictionary();
-
                     var module = GetSourceModule(moduleName);
                     module.SetConfig(methodName, options);
                     var result = module.ExecuteModule(methodName) as SetDataSourceReq;

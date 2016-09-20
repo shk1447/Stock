@@ -27,7 +27,7 @@ namespace Finance
             this.config = new Dictionary<string, Dictionary<string, object>>();
             this.functionDict = new Dictionary<string, Delegate>();
             var StockInformationConfig = new Dictionary<string,object>();
-
+            StockInformationConfig.Add("nvParser", null);
             this.config.Add("StockInformation", StockInformationConfig);
             this.functionDict.Add("StockInformation", new Func<bool>(StockInformation));
         }
@@ -43,9 +43,9 @@ namespace Finance
         {
             foreach (var kv in config)
             {
-                if(this.config.ContainsKey(kv.Key))
+                if (this.config.ContainsKey(method))
                 {
-                    if(this.config.ContainsKey(method))
+                    if(this.config[method].ContainsKey(kv.Key))
                     {
                         this.config[method][kv.Key] = kv.Value;
                     }
@@ -84,7 +84,7 @@ namespace Finance
         private bool StockInformation()
         {
             string htmlCode = "";
-            
+
             for (int k = 0; k < 2; k++)
             {
                 var url = "http://finance.naver.com/sise/sise_market_sum.nhn?sosok={exchange}&page={pageNumber}";
@@ -107,7 +107,14 @@ namespace Finance
                 var page = Regex.Match(lastMatches.Value, pagePattern);
                 var lastNumber = int.Parse(page.Value.Replace("page=", "").Replace("\"", ""));
 
-                SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥");
+                try
+                {
+                    SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
 
                 for (int i = 2; i <= lastNumber; i++)
                 {
@@ -159,24 +166,42 @@ namespace Finance
                         json.Add("PER", PER); json.Add("PBR", PBR);
 
                         var stockData = string.Empty;
-                        
-                        NaverStock(result, 종목코드, stockData);
-                        result.RawData.Add(json);
 
-                        Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.RawData.Count);
-
-                        var test = DataConverter.DynamicToString(result);
-                        var selfUrl = "http://localhost:1447/SetDataSource";
-                        var param = new RequestParameter()
-                        {
-                            Url = selfUrl,
-                            ContentType = "text",
-                            EncodingOption = "UTF8",
-                            Method = "POST",
-                            PostMessage = test
-                        };
+                        var nvParser = new nvParser(종목코드);
+                        var siseInfo = nvParser.getSise(500);
+                        var columnInfo = new string[] {"날짜","종가","전일비","시가","고가","저가","거래량"};
                         Task.Factory.StartNew(() =>
                         {
+                            for (int s = siseInfo.Length - 7; s >= 0; s = s - 7)
+                            {
+                                var sise = new JsonDictionary();
+                                var siseDate = DateTime.Parse(siseInfo[s]).AddHours(18);
+                                var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
+                                sise.Add("종목코드", 종목코드);
+                                sise.Add(columnInfo[0], siseUnix);
+                                sise.Add(columnInfo[1], siseInfo[s + 1]);
+                                sise.Add(columnInfo[2], siseInfo[s + 2]);
+                                sise.Add(columnInfo[3], siseInfo[s + 3]);
+                                sise.Add(columnInfo[4], siseInfo[s + 4]);
+                                sise.Add(columnInfo[5], siseInfo[s + 5]);
+                                sise.Add(columnInfo[6], siseInfo[s + 6]);
+                                result.RawData.Add(sise);
+                            }
+                            result.RawData.Add(json);
+
+                            Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.RawData.Count);
+
+                            var message = DataConverter.DynamicToString(result);
+                            var selfUrl = "http://localhost:1447/SetDataSource";
+                            var param = new RequestParameter()
+                            {
+                                Url = selfUrl,
+                                ContentType = "text",
+                                EncodingOption = "UTF8",
+                                Method = "POST",
+                                PostMessage = message
+                            };
+
                             HttpsRequest.Instance.GetResponseByHttps(param);
                         });
                         
