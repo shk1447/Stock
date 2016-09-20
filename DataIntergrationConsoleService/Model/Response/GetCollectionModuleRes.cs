@@ -14,7 +14,8 @@ namespace Model.Response
         private string moduleName;
         private string methodName;
         private JsonDictionary options;
-        private string scheduletime;
+        private JsonDictionary schedule;
+        private string status;
 
         public string Name
         {
@@ -64,15 +65,27 @@ namespace Model.Response
             }
         }
 
-        public string ScheduleTime
+        public JsonDictionary Schedule
         {
             get
             {
-                return this.scheduletime;
+                return this.schedule;
             }
             set
             {
-                this.scheduletime = value;
+                this.schedule = value;
+            }
+        }
+
+        public string Status
+        {
+            get
+            {
+                return this.status;
+            }
+            set
+            {
+                this.status = value;
             }
         }
     }

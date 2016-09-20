@@ -42,15 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Request\ExecuteCollectionModuleReq.cs" />
-    <Compile Include="Request\ExternalSourceClass.cs" />
     <Compile Include="Request\GetCollectionModuleReq.cs" />
     <Compile Include="Request\GetDataAnalysisReq.cs" />
     <Compile Include="Request\GetDataSourceReq.cs" />
     <Compile Include="Request\GetDataStructureReq.cs" />
     <Compile Include="Request\GetDataViewReq.cs" />
     <Compile Include="Common\JsonDictionary.cs" />
-    <Compile Include="Request\QueryClass.cs" />
     <Compile Include="Request\SetCollectionModuleReq.cs" />
     <Compile Include="Request\SetDataAnalysisReq.cs" />
     <Compile Include="Response\ExecuteDataAnalysisRes.cs" />

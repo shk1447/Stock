@@ -115,7 +115,7 @@ namespace DataIntegrationService
             foreach (var param in parameters)
             {
                 var data = new Dictionary<string, object>() { { "name", param.Name }, { "source", param.Source }, { "categories", param.Categories }, { "collectedat", param.CollectedAt },
-                                                          { "analysisquery", param.AnalysisQuery }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
+                                                          { "analysisquery", param.AnalysisQuery }, { "options", param.Options }, { "schedule", param.Schedule } };
 
                 var upsertQuery = MariaQueryBuilder.UpsertQuery("dataanalysis", data);
 
@@ -132,14 +132,15 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery",
+                                                     "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "unixtime" };
             var selectQuery = MariaQueryBuilder.SelectQuery("dataanalysis", selectedItems);
             var res = MariaDBConnector.Instance.GetQuery<GetDataAnalysisRes>(selectQuery);
 
             return res;
         }
 
-        public ExecuteDataAnalysisRes ExecuteDataAnalysis(string name)
+        public ExecuteDataAnalysisRes ExecuteDataAnalysis(string name, string command)
         {
             if (WebOperationContext.Current == null)
             {
@@ -148,18 +149,27 @@ namespace DataIntegrationService
 
             var res = new ExecuteDataAnalysisRes();
 
-            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var selectedItems = new List<string>() { "name", "source", "categories", "collectedat", "analysisquery",
+                                                     "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "status", "unixtime" };
             var whereKV = new Dictionary<string, string>() { { "name", name } };
             var selectQuery = MariaQueryBuilder.SelectQuery("dataanalysis", selectedItems, whereKV);
             var analysis = MariaDBConnector.Instance.GetOneQuery<GetDataAnalysisRes>(selectQuery);
 
-            var whereDict = new Dictionary<string, string>() { { "name", name } };
-            var setDict = new Dictionary<string, string>() { { "status", "running" } };
-            var statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
-            MariaDBConnector.Instance.SetQuery(statusUpdate);
+            var status = analysis.status.ToLower();
 
-            Task.Factory.StartNew(() =>
+            if (command != "stop" && status == "running" || status == "waiting") return res;
+
+            var whereDict = new Dictionary<string, string>() { { "name", name } };
+            var setDict = new Dictionary<string, string>() { { "status", status } };
+
+            var action = new Func<string,bool>((switchMode) =>
             {
+                if (switchMode == "waiting")
+                {
+                    setDict["status"] = "running";
+                    var statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                }
+                
                 foreach (var category in analysis.categories)
                 {
                     var query = analysis.analysisquery.Replace("{category}", category).Replace("{analysis.name}", analysis.name);
@@ -180,11 +190,72 @@ namespace DataIntegrationService
                     var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
                     MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                 }
-
-                setDict["status"] = "done";
-                statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
-                MariaDBConnector.Instance.SetQuery(statusUpdate);
+                return true;
             });
+
+            switch (command.ToLower())
+            {
+                case "start":
+                    {
+                        var statusUpdate = string.Empty;
+                        var thread = new Thread(new ThreadStart(() =>
+                        {
+                            var switchMode = "waiting";
+                            if (analysis.schedule != null)
+                            {
+                                var start = DateTime.Parse(analysis.schedule["start"].ToString()).TimeOfDay;
+                                var end = DateTime.Parse(analysis.schedule["end"].ToString()).TimeOfDay;
+                                //MON,TUE,WED,THU,FRI,SAT,SUN
+                                var weekDays = analysis.schedule["weekdays"].ToString().Split(',').ToList();
+                                var interval = int.Parse(analysis.schedule["interval"].ToString());
+                                
+                                while (true)
+                                {
+                                    var nowWeekDay = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToUpper();
+                                    var nowTime = DateTime.Now.TimeOfDay;
+
+                                    if (weekDays.Contains(nowWeekDay) && nowTime > start && nowTime < end)
+                                    {
+                                        action.BeginInvoke(switchMode,new AsyncCallback((result) =>
+                                        {
+                                            setDict["status"] = "done";
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                            MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                            switchMode = "done";
+                                        }), null);
+                                    }
+                                    else
+                                    {
+                                        if (switchMode == "done")
+                                        {
+                                            setDict["status"] = "waiting";
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                            MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                        }
+                                        
+                                        switchMode = "waiting";
+                                    }
+                                    Thread.Sleep(interval);
+                                }
+                            }
+                            else
+                            {
+                                action.BeginInvoke(switchMode, new AsyncCallback((result) =>
+                                {
+                                    setDict["status"] = "done";
+                                    statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                    MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                }), null);
+                            }
+                        }));
+                        thread.Start();
+                        break;
+                    }
+                case "stop":
+                    {
+                        break;
+                    }
+            }
 
             return res;
         }
@@ -213,7 +284,7 @@ namespace DataIntegrationService
             foreach (var param in parameters)
             {
                 var data = new Dictionary<string, object>() { { "name", param.Name }, { "modulename", param.ModuleName },
-                                                          { "methodname", param.MethodName }, { "options", param.Options }, { "scheduletime", param.ScheduleTime } };
+                                                          { "methodname", param.MethodName }, { "options", param.Options }, { "schedule", param.Schedule } };
 
                 ModuleManager.Instance.SetCollectionModule(data);
             }
@@ -227,7 +298,7 @@ namespace DataIntegrationService
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
-            var selectedItems = new List<string>() { "name", "modulename", "methodname", "COLUMN_JSON(options) as options", "scheduletime", "unixtime" };
+            var selectedItems = new List<string>() { "name", "modulename", "methodname", "COLUMN_JSON(options) as options", "schedule", "unixtime" };
             var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems);
             var res = MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>(query);
 
@@ -241,7 +312,19 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            ModuleManager.Instance.ExecuteModule(name);
+            var selectedItems = new List<string>() { "name", "modulename", "methodname", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
+            var whereKV = new Dictionary<string, string>() { { "name", name } };
+            var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems, whereKV);
+            var moduleInfo = MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query);
+
+            var status =moduleInfo.Status.ToLower();
+            if (status == "running" || status == "scheduling") return new ExecuteCollectionModuleRes();
+
+            var setKV = new Dictionary<string, string>() { { "status", moduleInfo.Schedule == null ? "running" : "scheduling" } };
+            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setKV);
+            MariaDBConnector.Instance.SetQuery(statusUpdate);
+
+            ModuleManager.Instance.ExecuteModule(moduleInfo);
 
             return new ExecuteCollectionModuleRes();
         }

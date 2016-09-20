@@ -21,6 +21,8 @@ namespace Model.Response
 
         public string collectedAt { get; set; }
 
-        public string scheduletime { get; set; }
+        public JsonDictionary schedule { get; set; }
+
+        public string status { get; set; }
     }
 }

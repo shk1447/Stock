@@ -33,7 +33,7 @@ namespace Connector
 
         public const string getSourceInformation = "SELECT TABLE_NAME FROM information_schema.`TABLES` WHERE TABLE_SCHEMA = 'datasourcebase' AND TABLE_NAME like 'current_%'";
 
-        public const string getStructureInformation = "SELECT '{source}' as `source`, category, COLUMN_LIST(rawdata) as `fields` " +
+        public const string getStructureInformation = "SELECT '{source}' as `source`, category, CAST(COLUMN_LIST(rawdata) as char) as `fields` " +
                                                       "FROM current_{source} " +
                                                       "GROUP BY category ";
     }

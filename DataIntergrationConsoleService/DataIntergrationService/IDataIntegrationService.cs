@@ -28,8 +28,8 @@ namespace DataIntegrationService
         List<GetDataAnalysisRes> GetDataAnalysis();
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "ExecuteDataAnalysis?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        ExecuteDataAnalysisRes ExecuteDataAnalysis(string name);
+        [WebInvoke(Method = "GET", UriTemplate = "ExecuteDataAnalysis?name={name}&command={command}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ExecuteDataAnalysisRes ExecuteDataAnalysis(string name, string command);
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "GetDataSource", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

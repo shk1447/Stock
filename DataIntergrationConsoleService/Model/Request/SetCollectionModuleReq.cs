@@ -13,7 +13,7 @@ namespace Model.Request
         private string moduleName;
         private string methodName;
         private JsonDictionary options;
-        private string scheduletime;
+        private JsonDictionary schedule;
 
         public string Name
         {
@@ -63,15 +63,15 @@ namespace Model.Request
             }
         }
 
-        public string ScheduleTime
+        public JsonDictionary Schedule
         {
             get
             {
-                return this.scheduletime;
+                return this.schedule;
             }
             set
             {
-                this.scheduletime = value;
+                this.schedule = value;
             }
         }
     }

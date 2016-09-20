@@ -73,28 +73,13 @@ namespace SourceModuleManager
             MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
 
-        private GetCollectionModuleRes GetCollectionModule(string name)
-        {
-            var selectedItems = new List<string>() { "name", "modulename", "methodname", "column_json(options) as options", "scheduletime", "unixtime" };
-            var whereKV = new Dictionary<string, string>() { { "name", name } };
-            var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems, whereKV);
-            return MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query); 
-        }
-
         private ISourceModule GetSourceModule(string moduleName)
         {
             return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
         }
 
-        public void ExecuteModule(string name)
+        public void ExecuteModule(GetCollectionModuleRes moduleInfo)
         {
-            var moduleInfo = GetCollectionModule(name);
-
-            var whereDict = new Dictionary<string, string>() { { "name", name } };
-            var setDict = new Dictionary<string, string>() { { "status", "running" } };
-            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
-            MariaDBConnector.Instance.SetQuery(statusUpdate);
-
             Task.Factory.StartNew(() =>
             {
                 var moduleName = moduleInfo.ModuleName;
@@ -105,8 +90,9 @@ namespace SourceModuleManager
                 module.SetConfig(methodName, options);
                 module.ExecuteModule(methodName);
 
-                setDict["status"] = "done";
-                statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
+                var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.Name } };
+                var setDict = new Dictionary<string, string>() { { "status", "done" } };
+                var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
                 MariaDBConnector.Instance.SetQuery(statusUpdate);
             });
         }
