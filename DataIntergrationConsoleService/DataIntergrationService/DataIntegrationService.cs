@@ -357,6 +357,7 @@ namespace DataIntegrationService
                         {
                             Scheduler("datacollection", whereKV, moduleInfo.Schedule, setDict, action);
                         }));
+                        thread.Start();
                         break;
                     }
                 case "stop":

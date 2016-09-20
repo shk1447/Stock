@@ -27,7 +27,8 @@ namespace Finance
             this.config = new Dictionary<string, Dictionary<string, object>>();
             this.functionDict = new Dictionary<string, Delegate>();
             var StockInformationConfig = new Dictionary<string,object>();
-            StockInformationConfig.Add("nvParser", null);
+            StockInformationConfig.Add("days", 1);
+            StockInformationConfig.Add("method", "history");
             this.config.Add("StockInformation", StockInformationConfig);
             this.functionDict.Add("StockInformation", new Func<bool>(StockInformation));
         }
@@ -146,7 +147,7 @@ namespace Finance
                     result.RawData = new List<JsonDictionary>();
                     result.Source = "Finance";
                     result.Category = "종목코드";
-                    result.CollectedAt = "날짜";
+                    result.CollectedAt = this.config["StockInformation"]["method"].ToString() == "history" ? "날짜" : "";
                     var json = new JsonDictionary();
 
                     try
@@ -164,18 +165,17 @@ namespace Finance
                         json.Add("종목코드", 종목코드); json.Add("종목유형", 종목유형); json.Add("종목명", 종목명); json.Add("액면가", 액면가);
                         json.Add("시가총액", 시가총액); json.Add("매출액", 매출액); json.Add("영업이익", 영업이익); json.Add("당기순이익", 당기순이익);
                         json.Add("PER", PER); json.Add("PBR", PBR);
-
+                        
                         var stockData = string.Empty;
-
                         var nvParser = new nvParser(종목코드);
-                        var siseInfo = nvParser.getSise(500);
+                        var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ToString()));
                         var columnInfo = new string[] {"날짜","종가","전일비","시가","고가","저가","거래량"};
                         Task.Factory.StartNew(() =>
                         {
                             for (int s = siseInfo.Length - 7; s >= 0; s = s - 7)
                             {
                                 var sise = new JsonDictionary();
-                                var siseDate = DateTime.Parse(siseInfo[s]).AddHours(18);
+                                var siseDate = DateTime.Parse(siseInfo[s]).AddHours(16);
                                 var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
                                 sise.Add("종목코드", 종목코드);
                                 sise.Add(columnInfo[0], siseUnix);

@@ -1,0 +1,37 @@
+[{
+"MethodName": "StockInformation",
+"ModuleName": "Finance",
+"Name": "All",
+"Options":{
+	"days":1000,
+	"method":"history"
+}
+},{
+"MethodName": "StockInformation",
+"ModuleName": "Finance",
+"Name": "Today",
+"Options":{
+	"days":1,
+	"method":"history"
+},
+"Schedule":{
+	"start":"17:00:00",
+	"end":"17:00:01",
+	"weekdays":"MON,TUE,WED,THU,FRI",
+	"interval":"1000"
+}
+},{
+"MethodName": "StockInformation",
+"ModuleName": "Finance",
+"Name": "RealTime",
+"Options":{
+	"days":1,
+	"method":"realtime"
+},
+"Schedule":{
+	"start":"09:00:00",
+	"end":"16:00:00",
+	"weekdays":"MON,TUE,WED,THU,FRI",
+	"interval":"60000"
+}
+}]

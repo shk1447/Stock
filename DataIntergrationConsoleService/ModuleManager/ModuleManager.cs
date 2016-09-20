@@ -80,6 +80,7 @@ namespace SourceModuleManager
 
         public void ExecuteModule(GetCollectionModuleRes moduleInfo)
         {
+            var assembly = new nvParser();
             var moduleName = moduleInfo.ModuleName;
             var methodName = moduleInfo.MethodName;
             var options = moduleInfo.Options == null ? new Dictionary<string, object>() : moduleInfo.Options.GetDictionary();
