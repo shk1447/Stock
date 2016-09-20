@@ -80,21 +80,18 @@ namespace SourceModuleManager
 
         public void ExecuteModule(GetCollectionModuleRes moduleInfo)
         {
-            Task.Factory.StartNew(() =>
-            {
-                var moduleName = moduleInfo.ModuleName;
-                var methodName = moduleInfo.MethodName;
-                var options = moduleInfo.Options == null ? new Dictionary<string, object>() : moduleInfo.Options.GetDictionary();
+            var moduleName = moduleInfo.ModuleName;
+            var methodName = moduleInfo.MethodName;
+            var options = moduleInfo.Options == null ? new Dictionary<string, object>() : moduleInfo.Options.GetDictionary();
 
-                var module = GetSourceModule(moduleName);
-                module.SetConfig(methodName, options);
-                module.ExecuteModule(methodName);
+            var module = GetSourceModule(moduleName);
+            module.SetConfig(methodName, options);
+            module.ExecuteModule(methodName);
 
-                var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.Name } };
-                var setDict = new Dictionary<string, string>() { { "status", "done" } };
-                var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
-                MariaDBConnector.Instance.SetQuery(statusUpdate);
-            });
+            var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.Name } };
+            var setDict = new Dictionary<string, string>() { { "status", "done" } };
+            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
+            MariaDBConnector.Instance.SetQuery(statusUpdate);
         }
     }
 }

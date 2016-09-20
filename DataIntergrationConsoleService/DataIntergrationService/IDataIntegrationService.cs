@@ -52,8 +52,8 @@ namespace DataIntegrationService
         List<GetCollectionModuleRes> GetCollectionModule();
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        ExecuteCollectionModuleRes ExecuteCollectionModule(string name);
+        [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?name={name}&command={command}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        ExecuteCollectionModuleRes ExecuteCollectionModule(string name, string command);
 
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetDataView", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]

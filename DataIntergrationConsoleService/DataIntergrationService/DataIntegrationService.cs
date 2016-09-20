@@ -41,7 +41,7 @@ namespace DataIntegrationService
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
-            
+
             SetDataSourceReq param = null;
             using (var streamReader = new StreamReader(stream))
             {
@@ -63,7 +63,7 @@ namespace DataIntegrationService
                 res.Code = "400";
                 res.Message = "잘못된 요청";
             }
-            
+
             return res;
         }
 
@@ -159,17 +159,17 @@ namespace DataIntegrationService
 
             if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            var whereDict = new Dictionary<string, string>() { { "name", name } };
             var setDict = new Dictionary<string, string>() { { "status", status } };
 
-            var action = new Func<string,bool>((switchMode) =>
+            var action = new Func<string, bool>((switchMode) =>
             {
                 if (switchMode == "waiting")
                 {
                     setDict["status"] = "running";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                    var statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereKV, setDict);
+                    MariaDBConnector.Instance.SetQuery(statusUpdate);
                 }
-                
+
                 foreach (var category in analysis.categories)
                 {
                     var query = analysis.analysisquery.Replace("{category}", category).Replace("{analysis.name}", analysis.name);
@@ -208,7 +208,7 @@ namespace DataIntegrationService
                                 //MON,TUE,WED,THU,FRI,SAT,SUN
                                 var weekDays = analysis.schedule["weekdays"].ToString().Split(',').ToList();
                                 var interval = int.Parse(analysis.schedule["interval"].ToString());
-                                
+
                                 while (true)
                                 {
                                     var nowWeekDay = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToUpper();
@@ -216,10 +216,10 @@ namespace DataIntegrationService
 
                                     if (weekDays.Contains(nowWeekDay) && nowTime > start && nowTime < end)
                                     {
-                                        action.BeginInvoke(switchMode,new AsyncCallback((result) =>
+                                        action.BeginInvoke(switchMode, new AsyncCallback((result) =>
                                         {
                                             setDict["status"] = "done";
-                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereKV, setDict);
                                             MariaDBConnector.Instance.SetQuery(statusUpdate);
                                             switchMode = "done";
                                         }), null);
@@ -229,10 +229,10 @@ namespace DataIntegrationService
                                         if (switchMode == "done")
                                         {
                                             setDict["status"] = "waiting";
-                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereKV, setDict);
                                             MariaDBConnector.Instance.SetQuery(statusUpdate);
                                         }
-                                        
+
                                         switchMode = "waiting";
                                     }
                                     Thread.Sleep(interval);
@@ -243,7 +243,7 @@ namespace DataIntegrationService
                                 action.BeginInvoke(switchMode, new AsyncCallback((result) =>
                                 {
                                     setDict["status"] = "done";
-                                    statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereDict, setDict);
+                                    statusUpdate = MariaQueryBuilder.UpdateQuery("dataanalysis", whereKV, setDict);
                                     MariaDBConnector.Instance.SetQuery(statusUpdate);
                                 }), null);
                             }
@@ -305,28 +305,102 @@ namespace DataIntegrationService
             return res;
         }
 
-        public ExecuteCollectionModuleRes ExecuteCollectionModule(string name)
+        public ExecuteCollectionModuleRes ExecuteCollectionModule(string name, string command)
         {
             if (WebOperationContext.Current == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }
-
+            var res = new ExecuteCollectionModuleRes();
             var selectedItems = new List<string>() { "name", "modulename", "methodname", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
             var whereKV = new Dictionary<string, string>() { { "name", name } };
             var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems, whereKV);
             var moduleInfo = MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query);
 
-            var status =moduleInfo.Status.ToLower();
-            if (status == "running" || status == "scheduling") return new ExecuteCollectionModuleRes();
+            var status = moduleInfo.Status.ToLower();
 
-            var setKV = new Dictionary<string, string>() { { "status", moduleInfo.Schedule == null ? "running" : "scheduling" } };
-            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setKV);
-            MariaDBConnector.Instance.SetQuery(statusUpdate);
+            if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            ModuleManager.Instance.ExecuteModule(moduleInfo);
+            var setDict = new Dictionary<string, string>() { { "status", status } };
 
-            return new ExecuteCollectionModuleRes();
+            var action = new Func<string, bool>((switchMode) =>
+            {
+                if (switchMode == "waiting")
+                {
+                    setDict["status"] = "running";
+                    var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setDict);
+                    MariaDBConnector.Instance.SetQuery(statusUpdate);
+                }
+
+                ModuleManager.Instance.ExecuteModule(moduleInfo);
+
+                return true;
+            });
+
+            switch (command.ToLower())
+            {
+                case "start":
+                    {
+                        var statusUpdate = string.Empty;
+                        var thread = new Thread(new ThreadStart(() =>
+                        {
+                            var switchMode = "waiting";
+                            if (moduleInfo.Schedule != null)
+                            {
+                                var start = DateTime.Parse(moduleInfo.Schedule["start"].ToString()).TimeOfDay;
+                                var end = DateTime.Parse(moduleInfo.Schedule["end"].ToString()).TimeOfDay;
+                                //MON,TUE,WED,THU,FRI,SAT,SUN
+                                var weekDays = moduleInfo.Schedule["weekdays"].ToString().Split(',').ToList();
+                                var interval = int.Parse(moduleInfo.Schedule["interval"].ToString());
+
+                                while (true)
+                                {
+                                    var nowWeekDay = DateTime.Now.DayOfWeek.ToString().Substring(0, 3).ToUpper();
+                                    var nowTime = DateTime.Now.TimeOfDay;
+
+                                    if (weekDays.Contains(nowWeekDay) && nowTime > start && nowTime < end)
+                                    {
+                                        action.BeginInvoke(switchMode, new AsyncCallback((result) =>
+                                        {
+                                            setDict["status"] = "done";
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setDict);
+                                            MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                            switchMode = "done";
+                                        }), null);
+                                    }
+                                    else
+                                    {
+                                        if (switchMode == "done")
+                                        {
+                                            setDict["status"] = "waiting";
+                                            statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setDict);
+                                            MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                        }
+
+                                        switchMode = "waiting";
+                                    }
+                                    Thread.Sleep(interval);
+                                }
+                            }
+                            else
+                            {
+                                action.BeginInvoke(switchMode, new AsyncCallback((result) =>
+                                {
+                                    setDict["status"] = "done";
+                                    statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereKV, setDict);
+                                    MariaDBConnector.Instance.SetQuery(statusUpdate);
+                                }), null);
+                            }
+                        }));
+                        break;
+                    }
+                case "stop":
+                    {
+                        break;
+                    }
+            }
+
+            return res;
         }
 
         public SetDataViewRes SetDataView(SetDataViewReq param)
