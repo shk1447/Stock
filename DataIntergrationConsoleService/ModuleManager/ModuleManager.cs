@@ -73,12 +73,12 @@ namespace SourceModuleManager
             MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
 
-        private List<GetCollectionModuleRes> GetCollectionModule(string name)
+        private GetCollectionModuleRes GetCollectionModule(string name)
         {
             var selectedItems = new List<string>() { "name", "modulename", "methodname", "column_json(options) as options", "scheduletime", "unixtime" };
             var whereKV = new Dictionary<string, string>() { { "name", name } };
             var query = MariaQueryBuilder.SelectQuery("datacollection", selectedItems, whereKV);
-            return MariaDBConnector.Instance.GetQuery<GetCollectionModuleRes>(query); 
+            return MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query); 
         }
 
         private ISourceModule GetSourceModule(string moduleName)
@@ -97,15 +97,13 @@ namespace SourceModuleManager
 
             Task.Factory.StartNew(() =>
             {
-                foreach (var item in moduleInfo)
-                {
-                    var moduleName = item.ModuleName;
-                    var methodName = item.MethodName;
-                    var options = item.Options == null ? new Dictionary<string, object>() : item.Options.GetDictionary();
-                    var module = GetSourceModule(moduleName);
-                    module.SetConfig(methodName, options);
-                    var result = module.ExecuteModule(methodName) as SetDataSourceReq;
-                }
+                var moduleName = moduleInfo.ModuleName;
+                var methodName = moduleInfo.MethodName;
+                var options = moduleInfo.Options == null ? new Dictionary<string, object>() : moduleInfo.Options.GetDictionary();
+
+                var module = GetSourceModule(moduleName);
+                module.SetConfig(methodName, options);
+                module.ExecuteModule(methodName);
 
                 setDict["status"] = "done";
                 statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);

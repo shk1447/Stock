@@ -83,7 +83,6 @@
     <Compile Include="DataIntegrationServiceStarter.cs" />
     <Compile Include="IDataIntegrationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryDefine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web.Debug.config">

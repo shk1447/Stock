@@ -38,6 +38,86 @@ namespace Connector
 
         #region IConnector 멤버
 
+        public T GetOneQuery<T>(string query, object parameterValues = null) where T : new()
+        {
+            T ret = default(T);
+            try
+            {
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=15;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            var cmd = connection.CreateCommand();
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = query;
+
+                            if (parameterValues != null)
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.Add("@queryText", parameterValues.ToString());
+                            }
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                var type = typeof(T);
+                                var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                                reader.Read();
+                                var obj = new T();
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                {
+                                    string fieldName = reader.GetName(i);
+                                    var prop = props.FirstOrDefault(x => x.Name.ToLower() == fieldName.ToLower());
+                                    if (prop != null)
+                                    {
+                                        if (reader[i] != DBNull.Value)
+                                        {
+                                            if (reader[i].GetType() == typeof(byte[]))
+                                            {
+                                                var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
+                                                if (!string.IsNullOrWhiteSpace(jsonString))
+                                                    prop.SetValue(obj, DataConverter.Deserializer<JsonDictionary>(jsonString), null);
+                                            }
+                                            else if (reader[i].ToString().Contains("[]:"))
+                                            {
+                                                prop.SetValue(obj, reader[i].ToString().Replace("[]:", "").Split(',').ToList(), null);
+                                            }
+                                            else
+                                            {
+                                                prop.SetValue(obj, reader[i], null);
+                                            }
+                                        }
+                                    }
+                                }
+                                ret = obj;
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            LogWriter.Error(ex.ToString());
+                            LogWriter.Error("[GET QUERY] " + query);
+                        }
+                        finally
+                        {
+                            transaction.Dispose();
+                            connection.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.Error(ex.ToString());
+            }
+
+            return ret;
+        }
+
         public List<T> GetQuery<T>(string query, object parameterValues = null) where T : new()
         {
             List<T> ret = new List<T>();
