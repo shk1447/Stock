@@ -93,8 +93,8 @@ DATA INTEGRATION DATABASE
 			- idx
 			- name
 			- viewtype
-			- query
-			- option
+			- viewquery
+			- options
 			- unixtime
 		- dataanalysis
 			- idx
