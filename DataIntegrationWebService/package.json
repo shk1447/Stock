@@ -21,9 +21,26 @@
   },
   "homepage": "https://github.com/shk1447/Stock#readme",
   "dependencies": {
+    "browserify": "^13.1.0",
+    "ejs": "^2.5.2",
     "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "node-jsx": "^0.13.3",
+    "react": "^15.3.2",
+    "react-bootstrap": "^0.30.3",
+    "react-dom": "^15.3.2",
+    "react-redux": "^4.4.5",
+    "redux": "^3.6.0",
     "request": "^2.75.0",
     "require-directory": "^2.1.1",
     "socket.io": "^1.4.8"
+  },
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1"
   }
 }
