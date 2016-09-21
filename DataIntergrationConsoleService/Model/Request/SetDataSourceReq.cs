@@ -9,57 +9,12 @@ namespace Model.Request
 {
     public class SetDataSourceReq
     {
-        private string source;
-        private string category;
-        private List<JsonDictionary> rawdata;
-        private string collectedAt;
+        public string source { get; set; }
 
-        public string Source
-        {
-            get
-            {
-                return this.source;
-            }
-            set
-            {
-                this.source = value;
-            }
-        }
+        public string category { get; set; }
 
-        public string Category
-        {
-            get
-            {
-                return this.category;
-            }
-            set
-            {
-                this.category = value;
-            }
-        }
+        public List<JsonDictionary> rawdata { get; set; }
 
-        public List<JsonDictionary> RawData
-        {
-            get
-            {
-                return this.rawdata;
-            }
-            set
-            {
-                this.rawdata = value;
-            }
-        }
-
-        public string CollectedAt
-        {
-            get
-            {
-                return this.collectedAt;
-            }
-            set
-            {
-                this.collectedAt = value;
-            }
-        }
+        public string collected_at { get; set; }
     }
 }

@@ -9,19 +9,7 @@ namespace Model.Response
 {
     public class GetDataSourceRes
     {
-        private List<JsonDictionary> rawdata;
-
-        public List<JsonDictionary> RawData
-        {
-            get
-            {
-                return this.rawdata;
-            }
-            set
-            {
-                this.rawdata = value;
-            }
-        }
+        public List<JsonDictionary> rawdata { get; set; }
 
         public GetDataSourceRes()
         {

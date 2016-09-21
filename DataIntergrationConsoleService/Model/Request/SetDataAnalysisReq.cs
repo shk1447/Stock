@@ -9,96 +9,18 @@ namespace Model.Request
 {
     public class SetDataAnalysisReq
     {
-        private string name;
-        private string source;
-        private List<string> categories;
-        private string collectedAt;
-        private string analysisQuery;
-        private JsonDictionary options;
-        private JsonDictionary schedule;
+        public string name { get; set; }
 
-        public string Name
-        {
-            get
-            {
-                return this.name;
-            }
-            set
-            {
-                this.name = value;
-            }
-        }
+        public string source { get; set; }
 
-        public string Source
-        {
-            get
-            {
-                return this.source;
-            }
-            set
-            {
-                this.source = value;
-            }
-        }
+        public List<string> categories { get; set; }
 
-        public List<string> Categories
-        {
-            get
-            {
-                return this.categories;
-            }
-            set
-            {
-                this.categories = value;
-            }
-        }
+        public string collected_at { get; set; }
 
-        public string CollectedAt
-        {
-            get
-            {
-                return this.collectedAt;
-            }
-            set
-            {
-                this.collectedAt = value;
-            }
-        }
+        public string analysis_query { get; set; }
 
-        public string AnalysisQuery
-        {
-            get
-            {
-                return this.analysisQuery;
-            }
-            set
-            {
-                this.analysisQuery = value;
-            }
-        }
+        public JsonDictionary options { get; set; }
 
-        public JsonDictionary Options
-        {
-            get
-            {
-                return this.options;
-            }
-            set
-            {
-                this.options = value;
-            }
-        }
-
-        public JsonDictionary Schedule
-        {
-            get
-            {
-                return this.schedule;
-            }
-            set
-            {
-                this.schedule = value;
-            }
-        }
+        public JsonDictionary schedule { get; set; }
     }
 }

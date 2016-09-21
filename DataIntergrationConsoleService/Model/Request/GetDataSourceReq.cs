@@ -8,18 +8,6 @@ namespace Model.Request
 {
     public class GetDataSourceReq
     {
-        private string query;
-
-        public string Query
-        {
-            get
-            {
-                return this.query;
-            }
-            set
-            {
-                this.query = value;
-            }
-        }
+        public string query { get; set; }
     }
 }

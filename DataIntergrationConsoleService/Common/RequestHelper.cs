@@ -139,7 +139,6 @@ namespace Common
                 request.Proxy = null;
                 request.Method = connectionInfo.Method.ToUpper();
                 request.ContentType = connectionInfo.ContentType;
-                request.ServicePoint.ConnectionLimit = 1000;
                 request.Timeout = Timeout.Infinite;
                 request.ReadWriteTimeout = Timeout.Infinite;
                 request.ServicePoint.Expect100Continue = false;

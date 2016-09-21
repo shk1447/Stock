@@ -13,8 +13,8 @@ namespace Connector
     {
         public static string SetDataSource(SetDataSourceReq param)
         {
-            var query = CreateSourceTable(param.Source);
-            query = InsertSource(param.Source, param.Category, param.RawData, param.CollectedAt, query);
+            var query = CreateSourceTable(param.source);
+            query = InsertSource(param.source, param.category, param.rawdata, param.collected_at, query);
             return query;
         }
 

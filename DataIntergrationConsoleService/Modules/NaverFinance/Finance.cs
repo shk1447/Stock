@@ -14,6 +14,7 @@ using ModuleInterface;
 using System.Threading;
 using Common;
 using Helper;
+using Connector;
 
 namespace Finance
 {
@@ -144,10 +145,10 @@ namespace Finance
                     if (cellMatches.Count < 10) continue;
 
                     var result = new SetDataSourceReq();
-                    result.RawData = new List<JsonDictionary>();
-                    result.Source = "Finance";
-                    result.Category = "종목코드";
-                    result.CollectedAt = this.config["StockInformation"]["method"].ToString() == "history" ? "날짜" : "";
+                    result.rawdata = new List<JsonDictionary>();
+                    result.source = "Finance";
+                    result.category = "종목코드";
+                    result.collected_at = this.config["StockInformation"]["method"].ToString() == "history" ? "날짜" : "";
                     var json = new JsonDictionary();
 
                     try
@@ -185,24 +186,14 @@ namespace Finance
                                 sise.Add(columnInfo[4], siseInfo[s + 4]);
                                 sise.Add(columnInfo[5], siseInfo[s + 5]);
                                 sise.Add(columnInfo[6], siseInfo[s + 6]);
-                                result.RawData.Add(sise);
+                                result.rawdata.Add(sise);
                             }
-                            result.RawData.Add(json);
+                            result.rawdata.Add(json);
 
-                            Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.RawData.Count);
+                            Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.rawdata.Count);
 
-                            var message = DataConverter.DynamicToString(result);
-                            var selfUrl = "http://localhost:1447/SetDataSource";
-                            var param = new RequestParameter()
-                            {
-                                Url = selfUrl,
-                                ContentType = "text",
-                                EncodingOption = "UTF8",
-                                Method = "POST",
-                                PostMessage = message
-                            };
-
-                            HttpsRequest.Instance.GetResponseByHttps(param);
+                            var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                         });
                         
                     }
@@ -254,7 +245,7 @@ namespace Finance
                     dDict.Add(keyArr[k].Trim(), row[k].Trim());
                 }
                 dDict.Add("종목코드", 종목코드);
-                result.RawData.Add(dDict);
+                result.rawdata.Add(dDict);
             }
             return stockData;
         }

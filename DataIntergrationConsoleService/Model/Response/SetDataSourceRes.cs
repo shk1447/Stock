@@ -8,30 +8,7 @@ namespace Model.Response
 {
     public class SetDataSourceRes
     {
-        private string code;
-        private string message;
-
-        public string Code
-        {
-            get
-            {
-                return this.code;
-            }
-            set
-            {
-                this.code = value;
-            }
-        }
-        public string Message
-        {
-            get
-            {
-                return this.message;
-            }
-            set
-            {
-                this.message = value;
-            }
-        }
+        public string code { get; set; }
+        public string message { get; set; }
     }
 }

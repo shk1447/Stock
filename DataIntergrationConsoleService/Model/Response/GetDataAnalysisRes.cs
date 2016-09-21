@@ -15,11 +15,11 @@ namespace Model.Response
 
         public List<string> categories { get; set; }
 
-        public string analysisquery { get; set; }
+        public string analysis_query { get; set; }
 
         public JsonDictionary options { get; set; }
 
-        public string collectedAt { get; set; }
+        public string collected_at { get; set; }
 
         public JsonDictionary schedule { get; set; }
 

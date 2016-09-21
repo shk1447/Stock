@@ -9,23 +9,11 @@ namespace Model.Response
 {
     public class GetModuleStructureRes
     {
-        private Dictionary<string, Dictionary<string, JsonDictionary>> collectionModule;
-
-        public Dictionary<string, Dictionary<string, JsonDictionary>> CollectionModules
-        {
-            get
-            {
-                return this.collectionModule;
-            }
-            set
-            {
-                this.collectionModule = value;
-            }
-        }
+        public Dictionary<string, Dictionary<string, JsonDictionary>> collection_modules { get; set; }
 
         public GetModuleStructureRes()
         {
-            this.collectionModule = new Dictionary<string, Dictionary<string, JsonDictionary>>();
+            this.collection_modules = new Dictionary<string, Dictionary<string, JsonDictionary>>();
         }
     }
 }

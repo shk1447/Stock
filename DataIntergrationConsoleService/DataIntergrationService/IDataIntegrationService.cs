@@ -24,8 +24,8 @@ namespace DataIntegrationService
         SetDataAnalysisRes SetDataAnalysis(List<SetDataAnalysisReq> stream);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "GetDataAnalysis", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        List<GetDataAnalysisRes> GetDataAnalysis();
+        [WebInvoke(Method = "GET", UriTemplate = "GetDataAnalysisList", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        List<GetDataAnalysisRes> GetDataAnalysisList();
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "ExecuteDataAnalysis?name={name}&command={command}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
@@ -48,8 +48,8 @@ namespace DataIntegrationService
         SetCollectionModuleRes SetCollectionModule(List<SetCollectionModuleReq> param);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModule", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        List<GetCollectionModuleRes> GetCollectionModule();
+        [WebInvoke(Method = "GET", UriTemplate = "GetCollectionModuleList", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        List<GetCollectionModuleRes> GetCollectionModuleList();
 
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "ExecuteCollectionModule?name={name}&command={command}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
@@ -60,7 +60,11 @@ namespace DataIntegrationService
         SetDataViewRes SetDataView(SetDataViewReq param);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "GetDataView", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        GetDataViewRes GetDataView(GetDataViewReq param);
+        [WebInvoke(Method = "GET", UriTemplate = "GetDataViewList", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        List<GetDataViewRes> GetDataViewList();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", UriTemplate = "GetDataView?name={name}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        List<JsonDictionary> GetDataView(string name);
     }
 }

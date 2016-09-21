@@ -9,23 +9,11 @@ namespace Model.Response
 {
     public class GetDataStructureRes
     {
-        private List<JsonDictionary> dataStructure;
-
-        public List<JsonDictionary> DataStructure
-        {
-            get
-            {
-                return this.dataStructure;
-            }
-            set
-            {
-                this.dataStructure = value;
-            }
-        }
+        public List<JsonDictionary> data_structure { get; set; }
 
         public GetDataStructureRes()
         {
-            this.dataStructure = new List<JsonDictionary>();
+            this.data_structure = new List<JsonDictionary>();
         }
     }
 }

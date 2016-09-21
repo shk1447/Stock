@@ -68,7 +68,8 @@ namespace SourceModuleManager
 
         public void SetCollectionModule(Dictionary<string, object> data)
         {
-            var upsertQuery = MariaQueryBuilder.UpsertQuery("datacollection", data);
+            var tableName = "data_collection";
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(tableName, data);
 
             MariaDBConnector.Instance.SetQuery(upsertQuery);
         }
@@ -81,17 +82,18 @@ namespace SourceModuleManager
         public void ExecuteModule(GetCollectionModuleRes moduleInfo)
         {
             var assembly = new nvParser();
-            var moduleName = moduleInfo.ModuleName;
-            var methodName = moduleInfo.MethodName;
-            var options = moduleInfo.Options == null ? new Dictionary<string, object>() : moduleInfo.Options.GetDictionary();
+            var moduleName = moduleInfo.module_name;
+            var methodName = moduleInfo.method_name;
 
             var module = GetSourceModule(moduleName);
-            module.SetConfig(methodName, options);
+            if (moduleInfo.options != null)
+                module.SetConfig(methodName, moduleInfo.options.GetDictionary());
+
             module.ExecuteModule(methodName);
 
-            var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.Name } };
+            var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.name } };
             var setDict = new Dictionary<string, string>() { { "status", "done" } };
-            var statusUpdate = MariaQueryBuilder.UpdateQuery("datacollection", whereDict, setDict);
+            var statusUpdate = MariaQueryBuilder.UpdateQuery("data_collection", whereDict, setDict);
             MariaDBConnector.Instance.SetQuery(statusUpdate);
         }
     }
