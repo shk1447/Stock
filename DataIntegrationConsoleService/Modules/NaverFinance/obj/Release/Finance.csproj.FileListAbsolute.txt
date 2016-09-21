@@ -1,5 +1,0 @@
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\bin\Release\Modules\Finance.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\bin\Release\Modules\Finance.pdb
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Release\Finance.csprojResolveAssemblyReference.cache
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Release\Finance.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Release\Finance.pdb

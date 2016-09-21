@@ -1,5 +1,0 @@
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\ModuleInterface\bin\Release\ModuleInterface.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\ModuleInterface\bin\Release\ModuleInterface.pdb
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.csprojResolveAssemblyReference.cache
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\ModuleInterface\obj\Release\ModuleInterface.pdb

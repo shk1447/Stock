@@ -1,7 +1,0 @@
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Release\Model.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Release\Model.pdb
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Release\Newtonsoft.Json.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Release\Newtonsoft.Json.xml
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Release\Models.csprojResolveAssemblyReference.cache
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Release\Model.dll
-D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Release\Model.pdb
