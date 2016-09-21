@@ -1,0 +1,50 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "시작",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/server/libs/cli.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": true,
+            "outDir": null
+        },
+        {
+            "name": "연결",
+            "type": "node",
+            "request": "attach",
+            "port": 5858,
+            "address": "localhost",
+            "restart": false,
+            "sourceMaps": false,
+            "outDir": null,
+            "localRoot": "${workspaceRoot}",
+            "remoteRoot": null
+        },
+        {
+            "name": "Launch",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/",
+            "runtimeArgs": [
+                "--new-window",
+                "--user-data-dir=C:/temp/", 
+                "--remote-debugging-port=9222"
+            ],
+            "webRoot": "${workspaceRoot}", 
+            "sourceMaps": true
+        }
+    ]
+}

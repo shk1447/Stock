@@ -1,0 +1,29 @@
+{
+  "name": "dis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shk1447/Stock.git"
+  },
+  "keywords": [
+    "data",
+    "integration"
+  ],
+  "author": "shkim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shk1447/Stock/issues"
+  },
+  "homepage": "https://github.com/shk1447/Stock#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "request": "^2.75.0",
+    "require-directory": "^2.1.1",
+    "socket.io": "^1.4.8"
+  }
+}
