@@ -1,0 +1,14 @@
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Debug\Model.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Debug\Model.pdb
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Debug\Newtonsoft.Json.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\bin\Debug\Newtonsoft.Json.xml
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Debug\Models.csprojResolveAssemblyReference.cache
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Debug\Model.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Model\obj\Debug\Model.pdb
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\bin\Debug\Model.dll
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\bin\Debug\Model.pdb
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\bin\Debug\Newtonsoft.Json.dll
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\bin\Debug\Newtonsoft.Json.xml
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\obj\Debug\Models.csprojResolveAssemblyReference.cache
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\obj\Debug\Model.dll
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Model\obj\Debug\Model.pdb

@@ -1,0 +1,7 @@
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\bin\Release\WebSocket.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\bin\Release\WebSocket.pdb
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\obj\Release\WebSocket.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\obj\Release\WebSocket.pdb
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\bin\Release\websocket-sharp.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\obj\Release\WebSocket.csprojResolveAssemblyReference.cache
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\WebSocket\bin\Release\websocket-sharp.xml

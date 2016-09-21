@@ -1,0 +1,10 @@
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\bin\Debug\Modules\Finance.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\bin\Debug\Modules\Finance.pdb
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.csprojResolveAssemblyReference.cache
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.dll
+D:\PrivateSource\private_git\Stock\DataIntergrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.pdb
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\bin\Debug\Modules\Finance.dll
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\bin\Debug\Modules\Finance.pdb
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.csprojResolveAssemblyReference.cache
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.dll
+D:\PrivateSource\private_git\Stock\DataIntegrationConsoleService\Modules\NaverFinance\obj\Debug\Finance.pdb
