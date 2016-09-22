@@ -18,15 +18,15 @@ try {
     console.log(err.message, err.stack);
     process.exit(1);
 }
-// var cluster = require('cluster');
-// var numCPUs = require('os').cpus().length;
-// if(cluster.isMaster) {
-//     for(var i = 0; i < numCPUs; i++) {
-//         cluster.fork();
-//     }
-// } else {
+var cluster = require('cluster');
+var numCPUs = require('os').cpus().length;
+if(cluster.isMaster) {
+    for(var i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
+} else {
     
-// }
+}
 
 var app = server(config);
 require('./router/api')(app);
@@ -37,13 +37,12 @@ var httpServer = http.createServer(app).listen(config.listen.port, config.listen
 });
 
 var io = require('socket.io').listen(httpServer);
-
+var count = 0;
 io.sockets.on('connection', function(socket){
-    socket.on('fromclient', function(data){
-        socket.emit('fromserver', {"command":"getdata"});
-    });
+    socket.emit('RequestData', {"data_view_name":"CurrentAllView"});
 
-    socket.on('getdata', function(data){
-        console.log(data);
+    socket.on('ReponseData', function(data){
+        console.log(count++);
+        //socket.emit('RequestData', {"data_view_name":"CurrentAllView"});
     })
 });

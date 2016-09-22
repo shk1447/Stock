@@ -50,6 +50,10 @@
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Model\Models.csproj">
+      <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
+      <Name>Models</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

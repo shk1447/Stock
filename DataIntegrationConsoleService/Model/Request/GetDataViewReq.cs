@@ -8,5 +8,6 @@ namespace Model.Request
 {
     public class GetDataViewReq
     {
+        public string data_view_name { get; set; }
     }
 }
