@@ -113,6 +113,10 @@
       <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
       <Name>Models</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WebSocket\DIWebSocket.csproj">
+      <Project>{14e86247-86da-4467-8f37-358b0f6ab6d7}</Project>
+      <Name>DIWebSocket</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

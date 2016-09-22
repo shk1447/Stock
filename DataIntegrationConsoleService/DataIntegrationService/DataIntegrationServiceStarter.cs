@@ -14,6 +14,8 @@ using System.Xml;
 using System.Xml.Linq;
 using Log;
 using log4net.Config;
+using DIWebSocket;
+using System.Configuration;
 
 namespace DataIntegrationService
 {
@@ -64,6 +66,9 @@ namespace DataIntegrationService
             Console.WriteLine(" \t" + serviceUrl);
 
             this.Run();
+
+            DIWebSocketServer.Instance.Start(ConfigurationManager.AppSettings["WebSocketServerPort"]);
+            //var socket_io_client = new DIWebSocketClient(ConfigurationManager.AppSettings["WebServiceUrl"]);
         }
 
         // <summary>

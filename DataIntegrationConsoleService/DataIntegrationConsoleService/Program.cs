@@ -26,10 +26,9 @@ namespace DataIntegrationConsoleService
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
 
-            var socket_io = new DIWebSocketClient(ConfigurationManager.AppSettings["DataIntegrationWebService"]);
             try
             {
-                serviceStarter = new DataIntegrationServiceStarter(CheckUrl(ConfigurationManager.AppSettings["DataIntegrationServiceUrl"]));
+                serviceStarter = new DataIntegrationServiceStarter(CheckUrl(ConfigurationManager.AppSettings["ServiceUrl"]));
 
                 if (serviceStarter.HostOpenInfo())
                 {

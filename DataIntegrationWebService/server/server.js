@@ -2,6 +2,7 @@ var cmd = require('commander');
 var configure = require('./libs/configure');
 var server = require('./libs/server.setting.js');
 var http = require('http');
+var WebSocketClient = require('websocket').client;
 var config;
 cmd
     .version('0.0.1')
@@ -35,6 +36,23 @@ var httpServer = http.createServer(app).listen(config.listen.port, config.listen
 }).on('error', function(err) {
     console.log(err.message);
 });
+
+var client = new WebSocketClient();
+client.on('connect',function(connection){
+    console.log('WebSocket Client Connected');
+    connection.on('error', function(error) {
+        console.log("Connection Error: " + error.toString());
+    });
+    connection.on('close', function() {
+        console.log('echo-protocol Connection Closed');
+    });
+    connection.on('message', function(message) {
+        if (message.type === 'utf8') {
+            console.log("Received: '" + message.utf8Data + "'");
+        }
+    });
+});
+client.connect("ws://localhost:1448/DIService");
 
 var io = require('socket.io').listen(httpServer);
 var count = 0;
