@@ -5,7 +5,7 @@
             "name": "시작",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/server/libs/cli.js",
+            "program": "${workspaceRoot}/server/server.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Connector;
 using DataIntegrationService;
+using DIWebSocket;
 using Log;
 
 namespace DataIntegrationConsoleService
@@ -24,6 +25,8 @@ namespace DataIntegrationConsoleService
             MariaDBConnector.Instance.Uid = ConfigurationManager.AppSettings["DatabaseUid"];
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
+
+            var socket_io = new DIWebSocketClient(ConfigurationManager.AppSettings["DataIntegrationWebService"]);
             try
             {
                 serviceStarter = new DataIntegrationServiceStarter(CheckUrl(ConfigurationManager.AppSettings["DataIntegrationServiceUrl"]));
