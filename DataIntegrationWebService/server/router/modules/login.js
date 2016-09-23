@@ -1,9 +1,12 @@
 var jwt = require('jsonwebtoken');
-
+var secret = null;
 module.exports = {
-	create: function(_profile, secret) {
+	secret: function(key){
+		secret = key;
+	},
+	access: function(_profile) {
 		var profile = {
-			name: _profile.name,
+			id: _profile.id,
 			password: _profile.password
 		};
 
@@ -12,7 +15,7 @@ module.exports = {
 		});
 	},
 	
-	verify: function(_token, secret, _callback) {
+	verify: function(_token, _callback) {
 		// invalid token
 		jwt.verify(_token, secret, _callback);
 	}

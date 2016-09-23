@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Helper;
+using Model.Common;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -22,7 +24,10 @@ namespace DIWebSocket.Services
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            Console.WriteLine(e.Data);
+            var reqInfo = DataConverter.Deserializer<DIServiceRequestModel>(e.Data);
+            
+            //var retInfo = DataConverter.Serializer<DIServiceRequestModel>(reqInfo);
+            this.Send("OK");
         }
     }
 }

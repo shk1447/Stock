@@ -30,6 +30,7 @@ namespace DataIntegrationService
     {
         public DataIntegrationService()
         {
+            
         }
 
         #region IDataIntegrationService 멤버

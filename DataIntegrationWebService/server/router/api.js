@@ -1,23 +1,23 @@
 var path = require('path');
-var tokenAPI = require('./modules/AccessToken');
+var loginAPI = require('./modules/login');
 
 module.exports = function(app) {
-    var secret = app.get('secret');
-    app.get('/', function(req,res){
-        if (req.cookies.accessToken) {
-            tokenAPI.verify(req.cookies.accessToken, secret, function(_err, _profile) {
-				if (_profile) {
-					res.redirect('/login');
-				} else {
-					res.clearCookie('accessToken');
-					res.redirect('/login');
-				}
-			});
-        } else {
-            res.redirect('/login');
-        }
-    });
+    loginAPI.secret(app.get('secret'));
     app.get('*', function(req, res){
+        if(req.path != "/login") {
+            if (req.cookies.accessToken) {
+                loginAPI.verify(req.cookies.accessToken, function(_err, _profile) {
+                    if (_profile) {
+                        res.redirect('/login');
+                    } else {
+                        res.clearCookie('accessToken');
+                        res.redirect('/login');
+                    }
+                });
+            } else {
+                res.redirect('/login');
+            }
+        }
         res.sendFile(path.join(__dirname, '../../client/index.html'));
     });
 }

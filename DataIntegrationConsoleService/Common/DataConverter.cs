@@ -3,6 +3,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Json;
+using System.Web.Script.Serialization;
 
 namespace Helper
 {
@@ -20,6 +21,23 @@ namespace Helper
                 var serializer = new DataContractJsonSerializer(typeof(T));
                 return (T)serializer.ReadObject(ms);
             }
+        }
+
+        public static string Serializer<T>(T obj)
+        {
+            var retString = string.Empty;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
+                ser.WriteObject(stream, obj);
+                stream.Position = 0;
+                using(StreamReader sr = new StreamReader(stream))
+                {
+                    retString = sr.ReadToEnd();
+                }
+            }
+            return retString;
         }
 
         public static string DynamicToString(object obj)

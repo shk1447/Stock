@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using Connector;
 using DataIntegrationService;
-using DIWebSocket;
 using Log;
 
 namespace DataIntegrationConsoleService

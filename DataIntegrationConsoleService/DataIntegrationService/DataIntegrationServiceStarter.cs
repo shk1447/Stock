@@ -68,7 +68,6 @@ namespace DataIntegrationService
             this.Run();
 
             DIWebSocketServer.Instance.Start(ConfigurationManager.AppSettings["WebSocketServerPort"]);
-            //var socket_io_client = new DIWebSocketClient(ConfigurationManager.AppSettings["WebServiceUrl"]);
         }
 
         // <summary>

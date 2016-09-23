@@ -69,10 +69,6 @@
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
       <Name>Log</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebSocket\DIWebSocket.csproj">
-      <Project>{14e86247-86da-4467-8f37-358b0f6ab6d7}</Project>
-      <Name>DIWebSocket</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

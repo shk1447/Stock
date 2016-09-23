@@ -14,8 +14,9 @@ module.exports = {
             bind : 'localhost',
             port : 80,
         },
-        dis : {
-            url : 'http://localhost:1447'
+        url : {
+            wsUrl : 'ws://localhost:1448/DIService',
+            httpUrl : 'http://localhost:1447'
         }
     },
     set: function(cmd) {
@@ -27,8 +28,9 @@ module.exports = {
                     bind: cmd.bind,
                     port: cmd.port
                 },
-                dis: {
-                    url: cmd.url
+                url: {
+                    wsUrl: cmd.wsUrl,
+                    httpUrl: cmd.httpUrl
                 }
             });
         }
