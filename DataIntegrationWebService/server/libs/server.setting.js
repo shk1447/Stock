@@ -12,7 +12,8 @@ var bodyParser = require('body-parser');
 module.exports = function(config) {
     var app = express();
 
-    app.use(express.static(path.resolve(__dirname, '../')));
+    app.use('/semantic', express.static(path.resolve(__dirname, '../../semantic')));
+    app.use('/public', express.static(path.resolve(__dirname, '../../public')));
     app.use(cookieParser());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
