@@ -1,5 +1,6 @@
 var React = require('react');
 var io = require('socket.io-client');
+var {Form} = require('stardust')
 
 module.exports = React.createClass({
     displayName: 'DataManager',
@@ -14,7 +15,8 @@ module.exports = React.createClass({
 	},
     render : function () {
         return (
-            <div></div>
+            <Form onSubmit={this.handleSubmit}>
+            </Form>
         )
     }
 });

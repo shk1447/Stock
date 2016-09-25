@@ -23,19 +23,11 @@ module.exports = React.createClass({
                         <img src='http://semantic-ui.com/images/logo.png' />
                     </Menu.Item>
 
-                    <Menu.Item
-                    name='dataviewer'
-                    active={activeItem === 'dataviewer'}
-                    onClick={this.handleItemClick}
-                    >
+                    <Menu.Item name='dataviewer' active={activeItem === 'dataviewer'} onClick={this.handleItemClick}>
                     Data Viewer
                     </Menu.Item>
 
-                    <Menu.Item
-                    name='datamanager'
-                    active={activeItem === 'datamanager'}
-                    onClick={this.handleItemClick}
-                    >
+                    <Menu.Item name='datamanager' active={activeItem === 'datamanager'} onClick={this.handleItemClick}>
                     Data Manager
                     </Menu.Item>
 
