@@ -3,7 +3,10 @@ var io = require('socket.io-client');
 var { Table } = require('stardust');
 
 module.exports = React.createClass({
-    displayName: 'DataView',
+    displayName: 'DataViewer',
+    contextTypes: {
+        router: React.PropTypes.object.isRequired
+    },
     componentDidMount : function() {
     },
     componentWillUnmount : function () {
@@ -27,6 +30,7 @@ module.exports = React.createClass({
 		return {data : hh};
 	},
     render : function () {
+        console.log('render data view');
         const { data } = this.state;
         return (
             <div>

@@ -1,10 +1,13 @@
 var React = require('react');
 var Router = require('react-router');
 var io = require('socket.io-client');
-var { Header, Icon, Image, Segment, Button, Divider } = require('stardust');
+var { Form, Label, Header, Icon, Image, Segment, Button, Divider } = require('stardust');
 
 module.exports = React.createClass({
     displayName: 'Login',
+    contextTypes: {
+        router: React.PropTypes.object.isRequired
+    },
     componentDidMount : function() {
     },
     componentWillUnmount : function () {
@@ -33,13 +36,22 @@ module.exports = React.createClass({
         return (
             <div className="outer">
                 <div className="middle">
-                    <div className="inner" style={{width:'400px'}}>
+                    <div className="inner" style={{width:'300px'}}>
                         <Header as='h2' icon textAlign='center'>
                         <Icon name='users' circular />
                         <Header.Content>
                             Big Ants
                         </Header.Content>
                         </Header>
+                        <Form>
+                            <Form.Field>
+                                <input type='text' placeholder='User ID' />
+                            </Form.Field>
+
+                            <Form.Field>
+                                <input type='password' placeholder='Password' />
+                            </Form.Field>
+                        </Form>
                         <Segment padded>
                             <Button onClick={this.handleLogin} primary fluid>Login</Button>
                             <Divider horizontal>Or</Divider>
@@ -53,7 +65,7 @@ module.exports = React.createClass({
     handleLogin: function (e) {
         // var data = {"broadcast":false,"target":"login.access", "parameters":{"id":"shkim","password":"inno1029#"}};
         // this.socket.emit('fromclient', data);
-        this.props.history.push('/App');
+        this.context.router.replace('/App/');
         console.log(this);
     }
 });
