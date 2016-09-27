@@ -34,7 +34,7 @@ module.exports = React.createClass({
         console.log('render data view');
         const { data } = this.state;
         return (
-            <div>
+            <div style={{height:'800px'}}>
                 <DataTable />
             </div>
         )

@@ -32,7 +32,7 @@ module.exports = React.createClass({
                     <Menu.Item>
                         <img src='http://semantic-ui.com/images/logo.png' />
                     </Menu.Item>
-
+                    
                     <Dropdown as={Menu.Item} text='Data Viewer' name='dataview' >
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={this.handleDataView}>RealTime</Dropdown.Item>
