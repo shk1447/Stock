@@ -1,6 +1,13 @@
 var React = require('react');
 var { Button, Menu, Select, Input, Dropdown } =  require('stardust');
-
+//var $ = require('jQuery');
+const options = [
+            {value:">", text:"초과"},
+            {value:"<", text:"미만"},
+            {value:">=", text:"이상"},
+            {value:"<=", text:"이하"},
+            {value:"=", text:"동일"}
+        ]; 
 module.exports = React.createClass({
     displayName: 'DataTable',
     componentDidMount : function() {
@@ -12,50 +19,22 @@ module.exports = React.createClass({
         this.refs.table_contents_container.style.width = this.refs.table_contents.offsetWidth + 'px';
     },
     getInitialState: function() {
-        var exampleData = [
-            {
-                "key1":"value1",
-                "key2":"value2",
-                "key3":"value3"
-            },
-            {
-                "key1":"value1",
-                "key2":"value2",
-                "key3":"value3"
-            }
-        ];
-		return {data: this.props.data, updatable:this.props.updatable, selectable:this.props.selectable };
+		return {fields:this.props.fields, data: this.props.data, updatable:this.props.updatable, selectable:this.props.selectable};
 	},
     render : function () {
-        const options = [
-            {value:">", text:"초과"},
-            {value:"<", text:"미만"},
-            {value:">=", text:"이상"},
-            {value:"<=", text:"이하"},
-            {value:"=", text:"동일"}
-        ];
-        const fields = [
-            {value:'field01', text:"field01"},
-            {value:'field02', text:"field02"},
-            {value:'field03', text:"field03"},
-            {value:'field04', text:"field04"},
-            {value:'field05', text:"field05"},
-            {value:'field06', text:"field06"},
-            {value:'field07', text:"field07"},
-            {value:'field08', text:"field08"},
-            {value:'field09', text:"field09"},
-            {value:'field10', text:"field10"},
-            {value:'field11', text:"field11"},
-            {value:'field12', text:"field12"},
-            {value:'field13', text:"field13"},
-            {value:'field14', text:"field14"},
-            {value:'field15', text:"field15"},
-            {value:'field16', text:"field16"},
-            {value:'field17', text:"field17"},
-            {value:'field18', text:"field18"},
-            {value:'field19', text:"field19"}
-        ];
-        const activeItem = '1';
+        const { data, fields, updatable, selectable } = this.state;
+        var updateControl = <div style={{float:'right',marginRight:'10px'}}></div>
+        if(updatable) {
+            updateControl = <div style={{float:'right',marginRight:'10px'}}>
+                                <Button.Group basic size='small'>
+                                    <Button icon='file' />
+                                    <Button icon='save' />
+                                    <Button icon='upload' />
+                                    <Button icon='download' />
+                                </Button.Group>
+                            </div>;
+        }
+        
         return (
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%',marginBottom:'10px'}}>
@@ -81,151 +60,36 @@ module.exports = React.createClass({
                             <Button type='submit'>Search</Button>
                         </Input>
                     </div>
-                    <div style={{float:'right',marginRight:'10px'}}>
-                        <Button.Group basic size='small'>
-                            <Button icon='file' />
-                            <Button icon='save' />
-                            <Button icon='upload' />
-                            <Button icon='download' />
-                        </Button.Group>
-                    </div>
+                    {updateControl}
                 </div>
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden'}}>
                     <table className="table-container" ref="table_headers">
                         <thead>
                             <tr>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
-                                <th>Column 01</th>
-                                <th>Column 02</th>
-                                <th>Column 03</th>
+                                {fields.map(function(row, i){
+                                    var columnId = row["key"];
+                                    var columnName = row["text"];
+                                    return <th key={columnId}>{columnName}</th>
+                                })}
                             </tr>
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
                         <table className="table-container" ref="table_contents">
                             <tbody>
-                                <tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr>
-                                <tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr>
-                                <tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr><tr>
-                                    <td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td><td>DataRow02_01</td><td>DataRow02_02</td><td>DataRow02_03</td>                            
-                                </tr>
+                                {data.map(function(row, i){
+                                    var tds = []; 
+                                    fields.map(function(col,j){
+                                        var dataId = i + '_' + j;
+                                        var data = row[col['key']];
+                                        tds.push(React.createElement('td',{key:dataId,children:data}));
+                                    });
+                                    
+                                    return React.createElement('tr', null, tds);
+                                })}
                             </tbody>
-                            
                         </table>
                     </div>
-                </div>
-                <div style={{width:'100%'}}>
-                    
                 </div>
             </div>
         )

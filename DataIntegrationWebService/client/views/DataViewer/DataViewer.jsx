@@ -18,24 +18,29 @@ module.exports = React.createClass({
         const hh = [{
             name:"shkim",
             phone:'01057721447',
-            state:'서울시 동작구'
+            address:'서울시 동작구'
         },{
             name:"shkim",
             phone:'01057721447',
-            state:'서울시 동작구'
+            address:'서울시 동작구'
         },{
             name:"shkim",
             phone:'01057721447',
-            state:'서울시 동작구'
+            address:'서울시 동작구'
         }]
-		return {data : hh};
+        const fields = [
+            {key:'name', text:"이름"},
+            {key:'phone', text:"전화번호"},
+            {key:'address', text:"주소"}
+        ];
+		return {data : hh, fields:fields};
 	},
     render : function () {
         console.log('render data view');
-        const { data } = this.state;
+        const { data, fields } = this.state;
         return (
             <div style={{height:'800px'}}>
-                <DataTable />
+                <DataTable data={data} fields={fields} updatable={false} selectable={true}/>
             </div>
         )
     },

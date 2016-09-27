@@ -16,11 +16,10 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.ProvidePlugin({
             _: 'lodash',
-            $: 'jquery',
-            jQuery: 'jquery',
+            $: 'jQuery',
+            jQuery: 'jQuery',
             React : 'react',
-            ReactDOM : 'react-dom',
-            n : 'nuxjs'
+            ReactDOM : 'react-dom'
         })
     ],
     externals: {
