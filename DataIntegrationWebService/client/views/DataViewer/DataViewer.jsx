@@ -18,20 +18,24 @@ module.exports = React.createClass({
         const hh = [{
             name:"shkim",
             phone:'01057721447',
-            address:'서울시 동작구'
+            address:'서울시 동작구',
+            age:10
         },{
             name:"shkim",
             phone:'01057721447',
-            address:'서울시 동작구'
+            address:'서울시 동작구',
+            age:12
         },{
             name:"shkim",
             phone:'01057721447',
-            address:'서울시 동작구'
+            address:'서울시 동작구',
+            age:14
         }]
         const fields = [
-            {key:'name', text:"이름"},
-            {key:'phone', text:"전화번호"},
-            {key:'address', text:"주소"}
+            {value:'name', text:"이름"},
+            {value:'phone', text:"전화번호"},
+            {value:'address', text:"주소"},
+            {value:'age', text:"나이"}
         ];
 		return {data : hh, fields:fields};
 	},
@@ -40,7 +44,7 @@ module.exports = React.createClass({
         const { data, fields } = this.state;
         return (
             <div style={{height:'800px'}}>
-                <DataTable data={data} fields={fields} updatable={false} selectable={true}/>
+                <DataTable key={'dataview'} data={data} fields={fields} updatable={true} selectable={true}/>
             </div>
         )
     },
