@@ -35,7 +35,10 @@ module.exports = React.createClass({
             {value:'name', text:"이름"},
             {value:'phone', text:"전화번호"},
             {value:'address', text:"주소"},
-            {value:'age', text:"나이"}
+            {value:'age', text:"나이"},
+            {value:'age2', text:"나이2"},
+            {value:'age3', text:"나이3"},
+            {value:'age4', text:"나이4"},
         ];
 		return {data : hh, fields:fields};
 	},

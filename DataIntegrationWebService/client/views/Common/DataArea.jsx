@@ -21,12 +21,12 @@ module.exports = React.createClass({
                         fields.map(function(col,j){
                             let key =i + '_' + j;
                             let value = row[col['value']];
-                            
-                            tds.push(<td key={key}>{value}</td>);
+                            tds.splice(0,0,<td key={key}>{value}</td>);
                         });
                         let trProps = {
                             key:i
                         };
+                        console.log(tds);
                         return React.createElement('tr', trProps, tds);
                     })}
                 </tbody>
