@@ -66,9 +66,9 @@ module.exports = React.createClass({
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                <Container>
+                <div>
                     { children }
-                </Container>
+                </div>
             </div>
         )
     },

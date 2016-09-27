@@ -1,6 +1,7 @@
 var React = require('react');
 var io = require('socket.io-client');
 var { Table } = require('stardust');
+var DataTable = require('../Common/DataTable');
 
 module.exports = React.createClass({
     displayName: 'DataViewer',
@@ -34,11 +35,7 @@ module.exports = React.createClass({
         const { data } = this.state;
         return (
             <div>
-                <Table className='selectable' data={data} onSelectRow={this.handleSelectRow}>
-                    <Table.Column dataKey='name' />
-                    <Table.Column dataKey='phone' />
-                    <Table.Column dataKey='state' />
-                </Table>
+                <DataTable />
             </div>
         )
     },
