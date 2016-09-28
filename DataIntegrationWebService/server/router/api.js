@@ -1,5 +1,5 @@
 var path = require('path');
-var loginAPI = require('./modules/login');
+var loginAPI = require('./modules/member');
 
 module.exports = function(app) {
     loginAPI.secret(app.get('secret'));

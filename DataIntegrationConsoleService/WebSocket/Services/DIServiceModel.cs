@@ -15,4 +15,11 @@ namespace DIWebSocket.Services
 
         public JsonDictionary parameters { get; set; }
     }
+
+    public class DIServiceResponseModel
+    {
+        public CommonResponse message { get; set; }
+
+        public List<JsonDictionary> result { get; set; }
+    }
 }

@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\CommonResponse.cs" />
     <Compile Include="Request\GetCollectionModuleReq.cs" />
     <Compile Include="Request\GetDataAnalysisReq.cs" />
     <Compile Include="Request\GetDataSourceReq.cs" />
