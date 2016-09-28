@@ -33,6 +33,13 @@ module.exports = React.createClass({
 	},
     render : function () {
         const {fields,filters} = this.state;
+        var fieldsOptions = [];
+        _.each(fields,function(data,index){
+            fieldsOptions.push({
+                text : data.text,
+                value : data.value
+            })
+        }) 
         return (
             <div>
                 <div style={{float:'left',padding:'8px'}}>
@@ -52,7 +59,7 @@ module.exports = React.createClass({
                 </div>
                 <div style={{float:'left',padding:'8px'}}>
                     <Input className='small left icon action' icon='search' onChange={this.changeValue} placeholder='Input Value'>
-                        <Select compact options={fields} defaultValue=''  onChange={this.changeTarget}/>
+                        <Select compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
                         <Select compact options={options} defaultValue='' onChange={this.changeComparison} />
                         <Button type='submit' onClick={this.addFilter}>Add Filter</Button>
                     </Input>

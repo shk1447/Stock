@@ -32,22 +32,23 @@ module.exports = React.createClass({
             age:14
         }]
         const fields = [
-            {value:'name', text:"이름"},
-            {value:'phone', text:"전화번호"},
-            {value:'address', text:"주소"},
-            {value:'age', text:"나이"},
-            {value:'age2', text:"나이2"},
-            {value:'age3', text:"나이3"},
-            {value:'age4', text:"나이4"},
+            {value:'name', text:"이름", group:1},
+            {value:'phone', text:"전화번호", group:1},
+            {value:'address', text:"주소", group:1},
+            {value:'age', text:"나이", group:2},
+            {value:'gender', text:"성별", type:"Select", options:[{value:'male',text:'남성'},{value:'female',text:'여성'}],group:2},
+            {value:'query', text:"SQL QUERY", type:"TextArea",group:3},
+            {value:'useSQL', text:"USE SQL", type:"Checkbox",group:4}
         ];
 		return {data : hh, fields:fields};
 	},
     render : function () {
         console.log('render data view');
         const { data, fields } = this.state;
+        const filters = [];
         return (
             <div style={{height:'800px'}}>
-                <DataTable key={'dataview'} data={data} fields={fields} updatable={true} selectable={true}/>
+                <DataTable key={'dataview'} data={data} fields={fields} filters={filters} updatable={false} selectable={true}/>
             </div>
         )
     },

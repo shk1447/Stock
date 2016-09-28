@@ -26,6 +26,7 @@ namespace DIWebSocket.Services
         {
             var reqInfo = DataConverter.Deserializer<DIServiceRequestModel>(e.Data);
             
+            //var dataIntegrationService = new DataIntegrationService
             //var retInfo = DataConverter.Serializer<DIServiceRequestModel>(reqInfo);
             this.Send("OK");
         }

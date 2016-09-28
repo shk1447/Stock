@@ -15,26 +15,17 @@ module.exports = React.createClass({
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
     },
     getInitialState: function() {
-		return {fields:this.props.fields, data: this.props.data, updatable:this.props.updatable, selectable:this.props.selectable};
+		return {filters:this.props.filters, fields:this.props.fields, data: this.props.data, updatable:this.props.updatable, selectable:this.props.selectable};
 	},
     render : function () {
-        const { data, fields, updatable, selectable } = this.state;
-        // var updateControl = <div style={{float:'right',padding:'5px'}}></div>
-        // if(updatable) {
-        //     updateControl = <div style={{float:'right',padding:'5px'}}>
-        //                         <Button.Group basic size='small'>
-        //                             <Button icon='save' />
-        //                             <Button icon='upload' />
-        //                             <Button icon='download' />
-        //                         </Button.Group>
-        //                     </div>;
-        // }
-        const filters = [];
+        console.log('render DataTable');
+        const { data, fields, updatable, selectable, filters } = this.state;
+        
         return (
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%'}}>
                     <SearchFilter fields={fields} filters={filters}/>
-                    <UpdateControl />
+                    <UpdateControl title={'Input Data'} fields={fields} active={false} />
                 </div>
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'4px'}}>
                     <table className="table-container" ref="table_headers">

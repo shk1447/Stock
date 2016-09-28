@@ -84,3 +84,10 @@ table.table-container tbody tr:hover {
     background-clip:content-box;
     background-color: #e8eef1; 
 }
+
+.ui.form .field.transparency>label {
+    color:white;
+}
+.ui.form .field.transparency>div>label {
+    color:white;
+}
