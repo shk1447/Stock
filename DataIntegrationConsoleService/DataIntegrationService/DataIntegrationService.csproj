@@ -101,6 +101,10 @@
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataIntegrationServiceLogic\DataIntegrationServiceLogic.csproj">
+      <Project>{9570ff02-84b9-4d1e-b47b-b20beafe2ea1}</Project>
+      <Name>DataIntegrationServiceLogic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Log\Log.csproj">
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
       <Name>Log</Name>

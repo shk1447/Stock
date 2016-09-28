@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DIWebSocketServer.cs" />
-    <Compile Include="Logic\DIServiceLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DIService.cs" />
     <Compile Include="Services\DIServiceModel.cs" />
@@ -52,6 +51,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{bd86539d-b1dc-4c82-8606-6cac641a12ee}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataIntegrationServiceLogic\DataIntegrationServiceLogic.csproj">
+      <Project>{9570ff02-84b9-4d1e-b47b-b20beafe2ea1}</Project>
+      <Name>DataIntegrationServiceLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\Log\Log.csproj">
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
