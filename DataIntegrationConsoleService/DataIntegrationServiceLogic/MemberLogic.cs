@@ -4,29 +4,54 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Model.Common;
+using Connector;
+using Model.Response;
+using Helper;
 
 namespace DataIntegrationServiceLogic
 {
     public class MemberLogic
     {
-        public CommonResponse Access(string userId, string password)
+        private const string TableName = "member";
+
+        public string Access(string member_id, string password)
         {
-            var res = new CommonResponse()
+            var selectedItems = new List<string>() { "member_id", "member_name", "password", "privilege", "email", "phone_number" };
+            var whereKV = new Dictionary<string, string>() { { "member_id", member_id }, { "password", password } };
+            var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
+            var member = MariaDBConnector.Instance.GetOneQuery<Member>(selectQuery);
+
+            if (member == null)
             {
-                code = "200",
-                message = "test"
-            };
-            return res;
+                member = new Member();
+                member.code = "400";
+                member.message = "Fail";
+            }
+            else
+            {
+                member.code = "200";
+                member.message = "Success";
+            }
+
+            return DataConverter.Serializer<Member>(member);
         }
 
-        public CommonResponse Create(string member_id, string member_name, string password, string privilege, string email, string phone_number_)
+        public string Create(JsonDictionary jsonObj)
         {
             var res = new CommonResponse()
             {
                 code = "200",
-                message = "test"
+                message = "Success"
             };
-            return res;
+
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
+
+            if (!MariaDBConnector.Instance.SetQuery(upsertQuery))
+            {
+                res.code = "400";
+                res.message = "동일한 아이디가 존재합니다.";
+            }
+            return DataConverter.Serializer<CommonResponse>(res);
         }
     }
 }

@@ -53,6 +53,7 @@
     <Compile Include="Request\SetDataAnalysisReq.cs" />
     <Compile Include="Response\ExecuteDataAnalysisRes.cs" />
     <Compile Include="Response\GetDataAnalysisRes.cs" />
+    <Compile Include="Response\Member.cs" />
     <Compile Include="Response\GetModuleStructureRes.cs" />
     <Compile Include="Response\SetCollectionModuleRes.cs" />
     <Compile Include="Request\SetDataSourceReq.cs" />

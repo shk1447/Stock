@@ -6,7 +6,7 @@ module.exports = {
 	},
 	access: function(_profile) {
 		var profile = {
-			id: _profile.id,
+			id: _profile.member_id,
 			password: _profile.password
 		};
 

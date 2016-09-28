@@ -67,7 +67,7 @@ namespace Connector
             return query;
         }
 
-        public static string UpsertQuery(string table, Dictionary<string, object> row)
+        public static string UpsertQuery(string table, Dictionary<string, object> row, bool upsert = true)
         {
             var query = "INSERT INTO " + table;
             var columninfo = "(";
@@ -114,7 +114,7 @@ namespace Connector
             }
             query = query + values.Substring(0, values.Length - 1) + ")";
 
-            query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
+            if(upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
 
             return query;
         }

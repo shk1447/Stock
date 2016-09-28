@@ -87,7 +87,6 @@ module.exports = React.createClass({
         this.setState({active:true});
     },
     hide : function() {
-        console.log(ReactDOM.findDOMNode(this.refs.UpdateDataForm));
         this.setState({active:false});
     }
 });

@@ -202,6 +202,77 @@ namespace Connector
             return ret;
         }
 
+        public JsonDictionary GetOneQuery(string query, object parameterValues = null)
+        {
+            JsonDictionary ret = new JsonDictionary();
+
+            try
+            {
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=15;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            var cmd = connection.CreateCommand();
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = query;
+
+                            if (parameterValues != null)
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.Add("@queryText", parameterValues.ToString());
+                            }
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                reader.Read();
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                {
+                                    object value = null;
+                                    if (reader.GetValue(i).GetType() == typeof(byte[]))
+                                    {
+                                        var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
+                                        if (!string.IsNullOrWhiteSpace(jsonString))
+                                            value = DataConverter.Deserializer<JsonDictionary>(jsonString);
+                                    }
+                                    else
+                                    {
+                                        value = reader.GetValue(i);
+                                        if (value.GetType().Name == "String" && value.ToString().Contains("[]:"))
+                                            value = value.ToString().Replace("[]:", "").Split(',').ToList();
+                                    }
+
+                                    ret.Add(reader.GetName(i), value);
+                                }
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            LogWriter.Error(ex.ToString());
+                            LogWriter.Error("[GET QUERY] " + query);
+                        }
+                        finally
+                        {
+                            transaction.Dispose();
+                            connection.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.Error(ex.ToString());
+                ret = null;
+            }
+
+            return ret;
+        }
+
         public List<JsonDictionary> GetQuery(string query, object parameterValues = null)
         {
             List<JsonDictionary> ret = new List<JsonDictionary>();

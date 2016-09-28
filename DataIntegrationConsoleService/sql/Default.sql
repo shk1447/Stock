@@ -90,19 +90,22 @@ DELIMITER ;
 
 CREATE TABLE `member` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
-	`id` VARCHAR(50) NULL DEFAULT NULL,
-	`name` VARCHAR(50) NULL DEFAULT NULL,
+	`member_id` VARCHAR(50) NULL DEFAULT NULL,
+	`member_name` VARCHAR(50) NULL DEFAULT NULL,
 	`password` VARCHAR(50) NULL DEFAULT NULL,
 	`privilege` VARCHAR(50) NULL DEFAULT NULL,
 	`email` VARCHAR(50) NULL DEFAULT NULL,
 	`phone_number` VARCHAR(50) NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
-	UNIQUE INDEX `unique_columns` (`id`),
-	INDEX `index_columns` (`unixtime`)
+	UNIQUE INDEX `unique_columns` (`member_id`),
+	INDEX `index_columns` (`member_name`,`unixtime`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
+
+
+INSERT INTO member (member_id, member_name, password, privilege, email, phone_number) values ('admin', 'admin', 'soul1087', 'super','sukan8822@gmail.com', '01057721447');
 
 CREATE TABLE `data_view` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,

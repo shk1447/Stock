@@ -16,7 +16,11 @@ module.exports = function (httpServer, config) {
       ws.on('message', function(message) {
         var msg = JSON.parse(message);
         var target = d.target.split('.');
-        modules[target[0]][target[1]](msg);
+        try {
+          if(msg.code == "200") modules[target[0]][target[1]](msg);
+        } catch(e) {
+          console.log(e);
+        }
         if(d.broadcast) {
           io.sockets.emit(d.target, msg);
         } else {

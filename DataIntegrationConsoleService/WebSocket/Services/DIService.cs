@@ -26,7 +26,7 @@ namespace DIWebSocket.Services
         protected override void OnMessage(MessageEventArgs e)
         {
             var reqInfo = DataConverter.Deserializer<DIServiceRequestModel>(e.Data);
-            var resInfo = new DIServiceResponseModel();
+            var returnString = string.Empty;
             var target = reqInfo.target.Split('.');
             switch (target[0].ToLower())
             {
@@ -38,20 +38,14 @@ namespace DIWebSocket.Services
                             {                                
                                 var member_id = reqInfo.parameters["member_id"].ToString();
                                 var password = reqInfo.parameters["password"].ToString();
-                                var message = memberLoic.Access(member_id, password);
-                                resInfo.message = message;
+                                var result = memberLoic.Access(member_id, password);
+                                returnString = result;
                                 break;
                             }
                         case "create":
                             {
-                                var member_id = reqInfo.parameters["member_id"].ToString();
-                                var member_name = reqInfo.parameters["member_name"].ToString();
-                                var password = reqInfo.parameters["password"].ToString();
-                                var privilege = reqInfo.parameters["privilege"].ToString();
-                                var email = reqInfo.parameters["email"].ToString();
-                                var phone_number = reqInfo.parameters["phone_number"].ToString();
-                                var message = memberLoic.Create(member_id, member_name, password, privilege, email, phone_number);
-                                resInfo.message = message;
+                                var result = memberLoic.Create(reqInfo.parameters);
+                                returnString = result;
                                 break;
                             }
                         case "modify":
@@ -65,8 +59,8 @@ namespace DIWebSocket.Services
                     }
                     break;
             }
-            var retInfo = DataConverter.Serializer<DIServiceResponseModel>(resInfo);
-            this.Send(retInfo);
+
+            this.Send(returnString);
         }
     }
 }
