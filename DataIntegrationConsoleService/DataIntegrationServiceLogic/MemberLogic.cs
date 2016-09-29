@@ -14,44 +14,25 @@ namespace DataIntegrationServiceLogic
     {
         private const string TableName = "member";
 
-        public string Access(string member_id, string password)
+        public string Access(JsonDictionary where)
         {
             var selectedItems = new List<string>() { "member_id", "member_name", "password", "privilege", "email", "phone_number" };
-            var whereKV = new Dictionary<string, string>() { { "member_id", member_id }, { "password", password } };
+            var whereKV = where.GetDictionary();
             var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
-            var member = MariaDBConnector.Instance.GetOneQuery<Member>(selectQuery);
+            var member = MariaDBConnector.Instance.GetQuery<Member>(selectQuery);
 
-            if (member == null)
-            {
-                member = new Member();
-                member.code = "400";
-                member.message = "Fail";
-            }
-            else
-            {
-                member.code = "200";
-                member.message = "Success";
-            }
-
-            return DataConverter.Serializer<Member>(member);
+            var members = member == null ? new Members(true, member) : new Members(false);
+            
+            return DataConverter.Serializer<Members>(members);
         }
 
         public string Create(JsonDictionary jsonObj)
         {
-            var res = new CommonResponse()
-            {
-                code = "200",
-                message = "Success"
-            };
-
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
 
-            if (!MariaDBConnector.Instance.SetQuery(upsertQuery))
-            {
-                res.code = "400";
-                res.message = "동일한 아이디가 존재합니다.";
-            }
-            return DataConverter.Serializer<CommonResponse>(res);
+            var res = !MariaDBConnector.Instance.SetQuery(upsertQuery) ? new CodeMessage(false) : new CodeMessage(true);
+            
+            return DataConverter.Serializer<CodeMessage>(res);
         }
     }
 }

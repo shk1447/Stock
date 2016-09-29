@@ -35,16 +35,16 @@ module.exports = React.createClass({
                     
                     <Dropdown as={Menu.Item} text='Data Viewer' name='dataview' >
                         <Dropdown.Menu>
-                            <Dropdown.Item onClick={this.handleDataView}>RealTime</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDataViewer}>RealTime</Dropdown.Item>
                             <Dropdown.Item>History</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
 
-                    <Dropdown as={Menu.Item} text='Data Manager' onChange={this.handleItemClick}>
+                    <Dropdown as={Menu.Item} text='Data Manager'>
                         <Dropdown.Menu>
-                            <Dropdown.Item>Collection</Dropdown.Item>
-                            <Dropdown.Item>Analysis</Dropdown.Item>
-                            <Dropdown.Item>DataView</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDataManager}>Collection</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDataManager}>Analysis</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDataManager}>View</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
 
@@ -76,10 +76,11 @@ module.exports = React.createClass({
         console.log('Sign Out');
         this.context.router.replace('/Login/');
     },
-    handleItemClick : function(e) {
-        console.log(e);
+    handleDataViewer : function(){
+        this.context.router.replace('/App/DataViewer/DataView');
     },
-    handleDataView : function(){
-        this.context.router.replace('/App/DataViewer/current');
+    handleDataManager : function(e,v){
+        var route = '/App/DataManager/' + e.target.innerText
+        this.context.router.replace(route);
     }
 });

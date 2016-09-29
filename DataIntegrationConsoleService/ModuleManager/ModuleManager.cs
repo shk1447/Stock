@@ -91,8 +91,8 @@ namespace SourceModuleManager
 
             module.ExecuteModule(methodName);
 
-            var whereDict = new Dictionary<string, string>() { { "name", moduleInfo.name } };
-            var setDict = new Dictionary<string, string>() { { "status", "done" } };
+            var whereDict = new Dictionary<string, object>() { { "name", moduleInfo.name } };
+            var setDict = new Dictionary<string, object>() { { "status", "done" } };
             var statusUpdate = MariaQueryBuilder.UpdateQuery("data_collection", whereDict, setDict);
             MariaDBConnector.Instance.SetQuery(statusUpdate);
         }

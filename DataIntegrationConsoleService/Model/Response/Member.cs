@@ -15,8 +15,5 @@ namespace Model.Response
         public string privilege { get; set; }
         public string email { get; set; }
         public string phone_number { get; set; }
-
-        public string code { get; set; }
-        public string message { get; set; }
     }
 }

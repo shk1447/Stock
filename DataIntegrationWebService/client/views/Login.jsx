@@ -13,14 +13,14 @@ module.exports = React.createClass({
         var self = this;
         self.socket = io.connect();
         self.socket.on('member.access',function(data) {
-            if(data.code == "200") {
+            if(data.reponse.code == "200") {
                 self.context.router.replace('/App/');
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (LOGIN MEMBER)',message:data.message, active : true})
             }
         });
         self.socket.on('member.create',function(data) {
-            if(data.code == "200") {
+            if(data.reponse.code == "200") {
                 self.setState({active:false});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
@@ -60,7 +60,7 @@ module.exports = React.createClass({
                             <Segment padded>
                                 <Button type='submit' primary fluid>Login</Button>
                                 <Divider horizontal>Or</Divider>
-                                <Button secondary fluid onClick={this.show}>Sign Up Now</Button>
+                                <Button secondary type='button' fluid onClick={this.show}>Sign Up Now</Button>
                             </Segment>
                         </Form>
 
@@ -97,8 +97,9 @@ module.exports = React.createClass({
     },
     handleSubmit: function(e, serializedForm) {
         e.preventDefault();
-        var data = {"broadcast":false,"target":"member.access", "parameters":serializedForm};
-        this.socket.emit('fromclient', data);
+        // var data = {"broadcast":false,"target":"member.access", "parameters":serializedForm};
+        // this.socket.emit('fromclient', data);
+        this.context.router.replace('/App/');
     },
     show : function(e,v) {
         this.setState({active:true});

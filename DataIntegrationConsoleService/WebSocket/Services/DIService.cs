@@ -38,7 +38,7 @@ namespace DIWebSocket.Services
                             {                                
                                 var member_id = reqInfo.parameters["member_id"].ToString();
                                 var password = reqInfo.parameters["password"].ToString();
-                                var result = memberLoic.Access(member_id, password);
+                                var result = memberLoic.Access(reqInfo.parameters);
                                 returnString = result;
                                 break;
                             }
@@ -46,6 +46,33 @@ namespace DIWebSocket.Services
                             {
                                 var result = memberLoic.Create(reqInfo.parameters);
                                 returnString = result;
+                                break;
+                            }
+                        case "modify":
+                            {
+                                break;
+                            }
+                        case "delete":
+                            {
+                                break;
+                            }
+                    }
+                    break;
+                case "collection" :
+                    var collectionLogic = new CollectionLogic();
+                    switch (target[1].ToLower())
+                    {
+                        case "getlist":
+                            {
+                                returnString = collectionLogic.GetList();
+                                break;
+                            }
+                        case "getstructure":
+                            {
+                                break;
+                            }
+                        case "create":
+                            {
                                 break;
                             }
                         case "modify":

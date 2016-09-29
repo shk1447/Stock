@@ -42,7 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\CommonResponse.cs" />
+    <Compile Include="Common\CodeMessage.cs" />
+    <Compile Include="Common\FieldSchema.cs" />
     <Compile Include="Request\GetCollectionModuleReq.cs" />
     <Compile Include="Request\GetDataAnalysisReq.cs" />
     <Compile Include="Request\GetDataSourceReq.cs" />
@@ -51,10 +52,13 @@
     <Compile Include="Common\JsonDictionary.cs" />
     <Compile Include="Request\SetCollectionModuleReq.cs" />
     <Compile Include="Request\SetDataAnalysisReq.cs" />
+    <Compile Include="Response\Collection.cs" />
+    <Compile Include="Response\Collections.cs" />
     <Compile Include="Response\ExecuteDataAnalysisRes.cs" />
     <Compile Include="Response\GetDataAnalysisRes.cs" />
     <Compile Include="Response\Member.cs" />
     <Compile Include="Response\GetModuleStructureRes.cs" />
+    <Compile Include="Response\Members.cs" />
     <Compile Include="Response\SetCollectionModuleRes.cs" />
     <Compile Include="Request\SetDataSourceReq.cs" />
     <Compile Include="Request\SetDataViewReq.cs" />

@@ -20,7 +20,10 @@ module.exports = React.createClass({
     render : function () {
         console.log('render DataTable');
         const { data, fields, updatable, selectable, filters } = this.state;
-        
+        var thArr = [];
+        _.each(data[0], function(value,key){
+            thArr.push(<th key={key}>{key}</th>)
+        });
         return (
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%'}}>
@@ -31,16 +34,12 @@ module.exports = React.createClass({
                     <table className="table-container" ref="table_headers">
                         <thead>
                             <tr>
-                                {fields.map(function(row, i){
-                                    var columnId = row["value"];
-                                    var columnName = row["text"];
-                                    return <th key={columnId}>{columnName}</th>
-                                })}
+                                {thArr}
                             </tr>
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
-                        <DataArea data={data} fields={fields}/>
+                        <DataArea data={data}/>
                     </div>
                 </div>
             </div>

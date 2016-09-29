@@ -145,6 +145,7 @@ namespace Connector
                             {
                                 var type = typeof(T);
                                 var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                                var count = 0;
                                 while (reader.Read())
                                 {
                                     var obj = new T();
@@ -174,7 +175,9 @@ namespace Connector
                                         }
                                     }
                                     ret.Add(obj);
+                                    count++;
                                 }
+                                ret = count == 0 ? null : ret;
                             }
 
                             transaction.Commit();
@@ -184,6 +187,7 @@ namespace Connector
                             transaction.Rollback();
                             LogWriter.Error(ex.ToString());
                             LogWriter.Error("[GET QUERY] " + query);
+                            ret = null;
                         }
                         finally
                         {

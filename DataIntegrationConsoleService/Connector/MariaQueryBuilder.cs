@@ -18,7 +18,7 @@ namespace Connector
             return query;
         }
 
-        public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, string> whereKV = null)
+        public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, object> whereKV = null)
         {
             var query = "SELECT ";
 
@@ -44,7 +44,7 @@ namespace Connector
             return query + ";";
         }
 
-        public static string UpdateQuery(string table, Dictionary<string, string> whereKV, Dictionary<string, string> setKV)
+        public static string UpdateQuery(string table, Dictionary<string, object> whereKV, Dictionary<string, object> setKV)
         {
             var query = "UPDATE " + table + " SET ";
 

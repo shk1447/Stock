@@ -4,6 +4,9 @@ var {Form} = require('stardust')
 
 module.exports = React.createClass({
     displayName: 'View',
+    contextTypes: {
+        router: React.PropTypes.object.isRequired
+    },
     componentDidMount : function() {
     },
     componentWillUnmount : function () {

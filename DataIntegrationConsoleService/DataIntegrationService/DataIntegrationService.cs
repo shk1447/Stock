@@ -152,7 +152,7 @@ namespace DataIntegrationService
             var tableName = "data_analysis";
             var selectedItems = new List<string>() { "name", "source", "categories", "collected_at", "analysis_query",
                                                      "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "status", "unixtime" };
-            var whereKV = new Dictionary<string, string>() { { "name", name } };
+            var whereKV = new Dictionary<string, object>() { { "name", name } };
             var selectQuery = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
             var analysis = MariaDBConnector.Instance.GetOneQuery<GetDataAnalysisRes>(selectQuery);
 
@@ -160,7 +160,7 @@ namespace DataIntegrationService
 
             if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            var setDict = new Dictionary<string, string>() { { "status", status } };
+            var setDict = new Dictionary<string, object>() { { "status", status } };
 
             var action = new Func<string, bool>((switchMode) =>
             {
@@ -250,7 +250,7 @@ namespace DataIntegrationService
             var tableName = "data_collection";
             var res = new ExecuteCollectionModuleRes();
             var selectedItems = new List<string>() { "name", "module_name", "method_name", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
-            var whereKV = new Dictionary<string, string>() { { "name", name } };
+            var whereKV = new Dictionary<string, object>() { { "name", name } };
             var query = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
             var moduleInfo = MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query);
 
@@ -258,7 +258,7 @@ namespace DataIntegrationService
 
             if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            var setDict = new Dictionary<string, string>() { { "status", status } };
+            var setDict = new Dictionary<string, object>() { { "status", status } };
 
             var action = new Func<string, bool>((switchMode) =>
             {
@@ -367,7 +367,7 @@ namespace DataIntegrationService
             return "column_get(`rawdata`, '" + value + "' as char) as " + value;
         }
 
-        private void Scheduler(string tableName, Dictionary<string, string> whereKV, JsonDictionary schedule, Dictionary<string, string> setDict, Func<string, bool> action)
+        private void Scheduler(string tableName, Dictionary<string, object> whereKV, JsonDictionary schedule, Dictionary<string, object> setDict, Func<string, bool> action)
         {
             string statusUpdate = string.Empty;
             var switchMode = "waiting";

@@ -4,7 +4,7 @@ var { Table } = require('stardust');
 var DataTable = require('../Common/DataTable');
 
 module.exports = React.createClass({
-    displayName: 'DataViewer',
+    displayName: 'DataView',
     contextTypes: {
         router: React.PropTypes.object.isRequired
     },
@@ -36,9 +36,9 @@ module.exports = React.createClass({
             {value:'phone', text:"전화번호", group:1},
             {value:'address', text:"주소", group:1},
             {value:'age', text:"나이", group:2},
-            {value:'gender', text:"성별", type:"Select", options:[{value:'male',text:'남성'},{value:'female',text:'여성'}],group:2},
+            {value:'gender', text:"성별", type:"MultiSelect", options:[{value:'male',text:'남성'},{value:'female',text:'여성'}],group:2},
             {value:'query', text:"SQL QUERY", type:"TextArea",group:3},
-            {value:'useSQL', text:"USE SQL", type:"Checkbox",group:4}
+            {value:'useSQL', text:"USE SQL", type:"Dynamic",group:4}
         ];
 		return {data : hh, fields:fields};
 	},

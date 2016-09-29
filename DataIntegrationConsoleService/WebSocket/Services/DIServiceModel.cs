@@ -18,7 +18,7 @@ namespace DIWebSocket.Services
 
     public class DIServiceResponseModel
     {
-        public CommonResponse message { get; set; }
+        public CodeMessage message { get; set; }
 
         public List<JsonDictionary> result { get; set; }
     }
