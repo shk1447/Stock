@@ -16,7 +16,8 @@ module.exports = React.createClass({
 		return {fields:this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
 	},
     render : function () {
-        var {fields, size, dimmer, active, title, data} = this.state;
+        var data = this.state.data;
+        const {fields, size, dimmer, active, title } = this.state;
         var isNew = false;
         if(!data) data = {}; isNew = true;
         var groups = {};
@@ -59,7 +60,7 @@ module.exports = React.createClass({
                     }
                     case 'MultiSelect' : {
                         fieldElement = <Form.Field key={fieldInfo.value} className='transparency' onChange={self.handleChange} control={Dropdown} options={fieldInfo.options}
-                                        label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text}  search selection fluid multiple allowAdditions defaultValue={[data[fieldInfo.value]]}/>;
+                                        label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} compact search selection fluid multiple allowAdditions defaultValue={[data[fieldInfo.value]]}/>;
                         break;
                     } 
                     case 'TextArea' : {
@@ -87,7 +88,7 @@ module.exports = React.createClass({
         });
 
         return (
-            <Modal basic size={size} dimmer={dimmer} active={active} onHide={this.hide}>
+            <Modal basic size={size} closeOnClickOutside={false} dimmer={dimmer} active={active} onHide={this.hide}>
                 <Modal.Header>{title}</Modal.Header>
                 <Modal.Content>
                     <Form>
@@ -109,6 +110,7 @@ module.exports = React.createClass({
         console.log(e.target.value);
     },
     hide : function() {
+        console.log("why?????");
         this.setState({active:false});
     }
 });

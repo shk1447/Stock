@@ -28,7 +28,7 @@ module.exports = React.createClass({
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%'}}>
                     <SearchFilter fields={fields} filters={filters}/>
-                    <UpdateControl title={'Input Data'} fields={fields} active={false} />
+                    <UpdateControl title={'Input Data'} fields={fields} />
                 </div>
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'4px'}}>
                     <table className="table-container" ref="table_headers">
