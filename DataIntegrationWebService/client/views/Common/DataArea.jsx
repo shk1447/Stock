@@ -12,18 +12,38 @@ module.exports = React.createClass({
 		return {data:this.props.data};
 	},
     render : function () {
-        const {data} = this.state;
-
         var trArr = [];
+        var self = this;
+        const {data} = this.state;
         _.each(data, function(row,i){
             let tdArr = [];
             let status = '';
             _.each(row, function(value,key){
                 if(key == 'status'){ status = value };
-                tdArr.splice(0,0,<td key={key}>{value}</td>);
+                var data = value;
+                if(typeof(value) == 'object') {
+                    if(value instanceof Array){
+                        if(value.length > 0) {
+                            if(typeof(value[0]) =='string') {
+                                data = value.toString();
+                            } else {
+                                let result = [];
+                                _.each(value, function(row,i){
+                                    if(row.checked){
+                                        result.push(row.value);
+                                    }
+                                });
+                                data = result.toString();
+                            }
+                        }
+                    } else {
+                        data = value.value;
+                    }
+                }
+                tdArr.splice(0,0,<td key={key}>{data}</td>);
             });
 
-            trArr.push(<tr key={i} className={status}>{tdArr}</tr>);
+            trArr.push(<tr key={i} name={i} onClick={self.handleClickItem} onDoubleClick={self.handleDoubleClickItem} className={status}>{tdArr}</tr>);
         });
 
         return (
@@ -33,5 +53,20 @@ module.exports = React.createClass({
                 </tbody>
             </table>
         )
+    },
+    handleDoubleClickItem : function(e) {
+        var data = this.state.data[e.target.parentElement.attributes.name.value];
+        this.props.modify(data);
+    },
+    handleClickItem : function(e) {
+        if(e.ctrlKey) {
+            if(e.target.parentElement.className == 'selected') {
+                e.target.parentElement.className = ''
+            } else {
+                e.target.parentElement.className = 'selected'
+            }
+        } else if (e.shiftKey) {
+
+        }
     }
 });

@@ -1,7 +1,7 @@
 var React = require('react');
 var { Button, Menu } =  require('stardust');
-var SearchFilter = require('./SearchFilter');
 var DataArea = require('./DataArea');
+var SearchFilter = require('./SearchFilter');
 var UpdateControl = require('./UpdateControl');
 
 module.exports = React.createClass({
@@ -15,20 +15,21 @@ module.exports = React.createClass({
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
     },
     getInitialState: function() {
-		return {filters:this.props.filters, fields:this.props.fields, data: this.props.data, updatable:this.props.updatable, selectable:this.props.selectable};
+		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data };
 	},
     render : function () {
         console.log('render DataTable');
-        const { data, fields, updatable, selectable, filters } = this.state;
+        const { data, fields, filters, title } = this.state;
         var thArr = [];
         _.each(data[0], function(value,key){
             thArr.push(<th key={key}>{key}</th>)
         });
+        
         return (
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%'}}>
-                    <SearchFilter fields={fields} filters={filters}/>
-                    <UpdateControl title={'Input Data'} fields={fields} />
+                    <SearchFilter ref='SearchFilter' fields={fields} filters={filters}/>
+                    <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>
                 </div>
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'4px'}}>
                     <table className="table-container" ref="table_headers">
@@ -39,10 +40,13 @@ module.exports = React.createClass({
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
-                        <DataArea data={data}/>
+                        <DataArea data={data} modify={this.modifyItem}/>
                     </div>
                 </div>
             </div>
         )
+    },
+    modifyItem : function(result){
+        this.refs.UpdateControl.refs.ModalForm.setState({active:true,data:result});
     }
 });

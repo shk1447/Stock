@@ -64,8 +64,9 @@ table.table-container tbody tr:hover {
     background:#e8eef1;
 }
 
-.selected {
-    background: #ff5873;
+table.table-container tbody tr.selected {
+    background: #3cace7;
+    color:#fff;
 }
 
 ::-webkit-scrollbar {

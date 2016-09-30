@@ -15,30 +15,43 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-        const hh = [{
-            name:"shkim",
-            phone:'01057721447',
-            address:'서울시 동작구',
-            age:10
-        },{
-            name:"shkim",
-            phone:'01057721447',
-            address:'서울시 동작구',
-            age:12
-        },{
-            name:"shkim",
-            phone:'01057721447',
-            address:'서울시 동작구',
-            age:14
-        }]
+        var hh = [{
+                input:"shkim",
+                select:'first',
+                multiselect:['first','second'],
+                textarea:'hohohoho',
+                checkbox:{ value : 'first', checked : true },
+                groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
+                radio:{ value : 'second', checked : true }
+            },{
+                input:"mhkim",
+                select:'first',
+                multiselect:['second'],
+                textarea:'hohohoho',
+                checkbox:{ value : 'first', checked : true },
+                groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
+                radio:{ value : 'second', checked : true }
+            }];
+        for(var i = 0; i < 100; i++) {
+            hh.push({
+                input:"tester" + i.toString(),
+                select:'first',
+                multiselect:['second'],
+                textarea:'hohohoho',
+                checkbox:{ value : 'first', checked : true },
+                groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
+                radio:{ value : 'second', checked : true }
+            });
+        }
         const fields = [
-            {value:'name', text:"이름", group:1},
-            {value:'phone', text:"전화번호", group:1},
-            {value:'address', text:"주소", group:1},
-            {value:'age', text:"나이", group:2},
-            {value:'gender', text:"성별", type:"MultiSelect", options:[{value:'male',text:'남성'},{value:'female',text:'여성'}],group:2},
-            {value:'query', text:"SQL QUERY", type:"TextArea",group:3},
-            {value:'useSQL', text:"USE SQL", type:"Dynamic",group:4}
+            {value:'input', text:"INPUT", required:true, group:1},
+            {value:'select', text:"SELECT", type:'Select', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}], group:2},
+            {value:'multiselect', text:"MULTI SELECT", type:"MultiSelect", options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:3},
+            {value:'textarea', text:"TEXT AREA",type:'TextArea', group:4},
+            {value:'checkbox', text:"CHECK BOX", type:'Checkbox', group:5},
+            {value:'groupcheckbox', text:'GROUP CHECK BOX', type:'GroupCheckbox', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:6},
+            {value:'radio', text:'RADIO', type:'Radio', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:7},
+            {value:'dynamic', text:"DYNAMIC", type:"Dynamic",group:8}
         ];
 		return {data : hh, fields:fields};
 	},
@@ -47,10 +60,13 @@ module.exports = React.createClass({
         const { data, fields } = this.state;
         const filters = [];
         return (
-            <div style={{height:'800px'}}>
-                <DataTable key={'dataview'} data={data} fields={fields} filters={filters} updatable={false} selectable={true}/>
+            <div style={{height:'850px'}}>
+                <DataTable key={'dataview'} title={'DataView'} data={data} fields={fields} filters={filters}  searchable callback={this.getData}/>
             </div>
         )
+    },
+    getData : function(result) {
+        console.log('result : ', result);
     },
     handleSelectRow : function(e,d){
 
