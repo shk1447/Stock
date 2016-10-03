@@ -32,18 +32,23 @@ module.exports = React.createClass({
 		return {fields:this.props.fields, filters:this.props.filters};
 	},
     render : function () {
+        console.log('render search filter');
         const {fields,filters} = this.state;
         var fieldsOptions = [];
-        _.each(fields,function(data,index){
-            fieldsOptions.push({
-                text : data.text,
-                value : data.value
-            })
-        }) 
+        
+        for(var i = 0; i < fields.length; i++) {
+            if(fields[i].type && fields[i].type != 'Dynamic') {
+                fieldsOptions.push({
+                    text : fields[i].text,
+                    value : fields[i].value
+                });
+            }
+        }
         return (
             <div>
                 <div style={{float:'left',padding:'8px'}}>
                     <Dropdown
+                        key='filters'
                         className='small'
                         options={filters}
                         search
@@ -59,8 +64,8 @@ module.exports = React.createClass({
                 </div>
                 <div style={{float:'left',padding:'8px'}}>
                     <Input className='small left icon action' icon='search' onChange={this.changeValue} placeholder='Input Value'>
-                        <Select compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
-                        <Select compact options={options} defaultValue='' onChange={this.changeComparison} />
+                        <Select compact key='target' options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
+                        <Select compact key='comparison' options={options} defaultValue='' onChange={this.changeComparison} />
                         <Button type='submit' onClick={this.addFilter}>Add Filter</Button>
                     </Input>
                 </div>

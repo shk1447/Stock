@@ -150,7 +150,7 @@ CREATE TABLE `data_collection` (
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),
-	INDEX `index_columns` (`modulename`, `methodname`, `unixtime`)
+	INDEX `index_columns` (`module_name`, `method_name`, `unixtime`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;

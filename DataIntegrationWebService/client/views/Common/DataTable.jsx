@@ -21,8 +21,10 @@ module.exports = React.createClass({
         console.log('render DataTable');
         const { data, fields, filters, title } = this.state;
         var thArr = [];
-        _.each(data[0], function(value,key){
-            thArr.push(<th key={key}>{key}</th>)
+        fields.forEach(function(row,i){
+            if(row.type && row.type != 'Dynamic') {
+                thArr.push(<th key={i}>{row.text}</th>)
+            };
         });
         
         return (

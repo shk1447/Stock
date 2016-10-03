@@ -12,6 +12,7 @@ module.exports = React.createClass({
 		return {data:this.props.data};
 	},
     render : function () {
+        console.log('render data area');
         var trArr = [];
         var self = this;
         const {data} = this.state;
@@ -66,7 +67,7 @@ module.exports = React.createClass({
                 e.target.parentElement.className = 'selected'
             }
         } else if (e.shiftKey) {
-
+            console.log(e.target.parentElement.attributes.name.value);
         }
     }
 });

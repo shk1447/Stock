@@ -22,15 +22,8 @@ module.exports = React.createClass({
                 textarea:'hohohoho',
                 checkbox:{ value : 'first', checked : true },
                 groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
-                radio:{ value : 'second', checked : true }
-            },{
-                input:"mhkim",
-                select:'first',
-                multiselect:['second'],
-                textarea:'hohohoho',
-                checkbox:{ value : 'first', checked : true },
-                groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
-                radio:{ value : 'second', checked : true }
+                radio:{ value : 'second', checked : true },
+                timepicker:'11:00'
             }];
         for(var i = 0; i < 100; i++) {
             hh.push({
@@ -40,18 +33,21 @@ module.exports = React.createClass({
                 textarea:'hohohoho',
                 checkbox:{ value : 'first', checked : true },
                 groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
-                radio:{ value : 'second', checked : true }
+                radio:{ value : 'second', checked : true },
+                timepicker:'11:00'
             });
         }
         const fields = [
-            {value:'input', text:"INPUT", required:true, group:1},
+            {value:'input', text:"INPUT", type:'Input', required:true, group:1},
+            {group:1},
             {value:'select', text:"SELECT", type:'Select', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}], group:2},
             {value:'multiselect', text:"MULTI SELECT", type:"MultiSelect", options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:3},
             {value:'textarea', text:"TEXT AREA",type:'TextArea', group:4},
             {value:'checkbox', text:"CHECK BOX", type:'Checkbox', group:5},
             {value:'groupcheckbox', text:'GROUP CHECK BOX', type:'GroupCheckbox', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:6},
             {value:'radio', text:'RADIO', type:'Radio', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:7},
-            {value:'dynamic', text:"DYNAMIC", type:"Dynamic",group:8}
+            {value:'timepicker',text:'TIME PICKER',type:'TimePicker',group:8},
+            {value:'dynamic', text:"DYNAMIC", type:"Dynamic",group:9}
         ];
 		return {data : hh, fields:fields};
 	},

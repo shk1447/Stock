@@ -92,3 +92,21 @@ table.table-container tbody tr.selected {
 .ui.form .field.transparency>div>label {
     color:white;
 }
+
+.time_picker_modal_container {
+    width:100% !important;
+    text-align: center !important;
+}
+
+.picker_container {
+    display: inline-block !important;
+}
+
+.time_picker_preview {
+    border-radius: .28571429rem !important;
+    height: 38.8px !important;
+}
+
+.ModalForm {
+    overflow: auto;
+}
