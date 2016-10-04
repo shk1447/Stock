@@ -42,7 +42,7 @@ module.exports = React.createClass({
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
-                        <DataArea data={data} modify={this.modifyItem}/>
+                        <DataArea data={data} fields={fields} modify={this.modifyItem}/>
                     </div>
                 </div>
             </div>

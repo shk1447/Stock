@@ -9,39 +9,39 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {data:this.props.data};
+		return {data:this.props.data,fields:this.props.fields};
 	},
     render : function () {
         console.log('render data area');
         var trArr = [];
         var self = this;
-        const {data} = this.state;
+        const {data,fields} = this.state;
         _.each(data, function(row,i){
             let tdArr = [];
             let status = '';
-            _.each(row, function(value,key){
-                if(key == 'status'){ status = value };
-                var data = value;
-                if(typeof(value) == 'object') {
-                    if(value instanceof Array){
-                        if(value.length > 0) {
-                            if(typeof(value[0]) =='string') {
-                                data = value.toString();
-                            } else {
-                                let result = [];
-                                _.each(value, function(row,i){
-                                    if(row.checked){
-                                        result.push(row.value);
-                                    }
-                                });
-                                data = result.toString();
-                            }
+
+            _.each(fields, function(field,index){
+                if(field.type != 'Dynamic') {
+                    var data = '-';
+                    if(row[field.value]) {
+                        data = row[field.value];
+
+                        if(field.type == 'MultiSelect') {
+                            data = data.toString();
+                        } else if(field.type == 'GroupCheckbox') {
+                            let result = [];
+                            _.each(data, function(row,i){
+                                if(row.checked){
+                                    result.push(row.value);
+                                }
+                            });
+                            data = result.toString();
+                        } else if(field.type == 'Radio' || field.type == 'Checkbox') {
+                            data = data.value;
                         }
-                    } else {
-                        data = value.value;
                     }
+                    tdArr.splice(0,0,<td key={index}>{data}</td>);
                 }
-                tdArr.splice(0,0,<td key={key}>{data}</td>);
             });
 
             trArr.push(<tr key={i} name={i} onClick={self.handleClickItem} onDoubleClick={self.handleDoubleClickItem} className={status}>{tdArr}</tr>);

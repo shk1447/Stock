@@ -14,23 +14,35 @@ namespace DataIntegrationServiceLogic
     {
         private const string TableName = "member";
 
+        public string Schema()
+        {
+            var fields = new List<FieldSchema>();
+            fields.Add(new FieldSchema("MEMBER ID", "member_id", "Text", 0, true).AddAttributes("maxlength", 10).AddAttributes("minlength",5));
+            fields.Add(new FieldSchema("PASSWORD", "password", "Password", 0, true).AddAttributes("maxlength", 10));
+            fields.Add(new FieldSchema("MEMBER NAME", "member_name", "Text", 1, true).AddAttributes("maxlength", 10));
+            fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2).AddOptions(
+                new JsonDictionary().Add("text", "MANAGER").Add("value", "manager")).AddOptions(new JsonDictionary().Add("text", "USER").Add("value", "user")));
+            fields.Add(new FieldSchema("E-MAIL", "email", "Text", 3));
+            fields.Add(new FieldSchema("PHONE NUMBER", "phone_number", "Text", 4));
+
+            return DataConverter.Serializer<List<FieldSchema>>(fields);
+        }
+
         public string Access(JsonDictionary where)
         {
-            var selectedItems = new List<string>() { "member_id", "member_name", "password", "privilege", "email", "phone_number" };
+            var selectedItems = new List<string>() { "member_id", "password","member_name", "privilege", "email", "phone_number" };
             var whereKV = where.GetDictionary();
             var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
-            var member = MariaDBConnector.Instance.GetQuery<Member>(selectQuery);
+            var member = MariaDBConnector.Instance.GetOneQuery<Member>(selectQuery);
 
-            var members = member == null ? new Members(true, member) : new Members(false);
-            
-            return DataConverter.Serializer<Members>(members);
+            return DataConverter.Serializer<Member>(member);
         }
 
         public string Create(JsonDictionary jsonObj)
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
 
-            var res = !MariaDBConnector.Instance.SetQuery(upsertQuery) ? new CodeMessage(false) : new CodeMessage(true);
+            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
             
             return DataConverter.Serializer<CodeMessage>(res);
         }

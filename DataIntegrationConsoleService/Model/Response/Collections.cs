@@ -18,13 +18,6 @@ namespace Model.Response
         public Collections(bool success, List<Collection> collections = null)
         {
             this.message = new CodeMessage(success);
-            this.schema = new List<FieldSchema>() {
-                new FieldSchema("NAME","name","Input",1,new List<JsonDictionary>()),
-                new FieldSchema("MODULE NAME","module_name","Select",1,new List<JsonDictionary>()),
-                new FieldSchema("METHOD_NAME","method_name","Select",1,new List<JsonDictionary>()),
-                new FieldSchema("OPTIONS","options","Input",1,new List<JsonDictionary>()),
-                new FieldSchema("SCHEDULE","schedule","Input",1,new List<JsonDictionary>())
-            };
             this.result = success ? collections : new List<Collection>();
         }
     }

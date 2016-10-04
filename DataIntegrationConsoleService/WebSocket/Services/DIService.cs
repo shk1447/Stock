@@ -34,10 +34,13 @@ namespace DIWebSocket.Services
                     var memberLoic = new MemberLogic();
                     switch (target[1].ToLower())
                     {
+                        case "schema":
+                            {
+                                returnString = memberLoic.Schema();
+                                break;
+                            }
                         case "access":
                             {                                
-                                var member_id = reqInfo.parameters["member_id"].ToString();
-                                var password = reqInfo.parameters["password"].ToString();
                                 var result = memberLoic.Access(reqInfo.parameters);
                                 returnString = result;
                                 break;

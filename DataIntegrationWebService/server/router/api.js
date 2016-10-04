@@ -7,9 +7,7 @@ module.exports = function(app) {
         if(req.path != "/login") {
             if (req.cookies.accessToken) {
                 loginAPI.verify(req.cookies.accessToken, function(_err, _profile) {
-                    if (_profile) {
-                        res.redirect('/login');
-                    } else {
+                    if (!_profile) {
                         res.clearCookie('accessToken');
                         res.redirect('/login');
                     }

@@ -353,9 +353,9 @@ namespace Connector
             return ret;
         }
 
-        public bool SetQuery(string query, object parameterValues = null)
+        public CodeMessage SetQuery(string query, object parameterValues = null)
         {
-            var ret = true;
+            var ret = new CodeMessage(true);
 
             try
             {
@@ -383,8 +383,9 @@ namespace Connector
                         {
                             transaction.Rollback();
                             LogWriter.Error(ex.ToString());
-                            LogWriter.Error("[SET QUERY] " + parameterValues.ToString());
-                            ret = false;
+                            if(parameterValues != null) LogWriter.Error("[SET QUERY] " + parameterValues.ToString());
+                            ret.code = "400";
+                            ret.message = ex.Message;
                         }
                         finally
                         {
@@ -396,7 +397,8 @@ namespace Connector
             }
             catch (Exception ex)
             {
-                ret = false;
+                ret.code = "400";
+                ret.message = ex.Message;
             }
 
             return ret;

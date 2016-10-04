@@ -1,6 +1,7 @@
 var React = require('react');
 var io = require('socket.io-client');
 var { Container, Icon, Label, Menu, Dropdown, Button, Grid, Segment } = require('stardust');
+var cookies = require('browser-cookies');
 
 module.exports = React.createClass({
     displayName: 'App',
@@ -74,6 +75,7 @@ module.exports = React.createClass({
     },
     signOut : function(e) {
         console.log('Sign Out');
+        cookies.erase('accessToken');
         this.context.router.replace('/Login/');
     },
     handleDataViewer : function(){

@@ -16,7 +16,7 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
         var hh = [{
-                input:"shkim",
+                text:"shkim",
                 select:'first',
                 multiselect:['first','second'],
                 textarea:'hohohoho',
@@ -27,7 +27,7 @@ module.exports = React.createClass({
             }];
         for(var i = 0; i < 100; i++) {
             hh.push({
-                input:"tester" + i.toString(),
+                text:"tester" + i.toString(),
                 select:'first',
                 multiselect:['second'],
                 textarea:'hohohoho',
@@ -38,8 +38,11 @@ module.exports = React.createClass({
             });
         }
         const fields = [
-            {value:'input', text:"INPUT", type:'Input', required:true, group:1},
-            {group:1},
+            {value:'text', text:"TEXT", type:'Text', required:true, group:1},
+            {value:'number', text:"NUMBER", type:'Number', required:true, group:1},
+            {value:'password', text:"PASSWORD", type:'Password', required:true, group:1},
+            {value:'date', text:"DATE", type:'Date', required:true, group:1},
+            {value:'range', text:"RANGE", type:'Range', required:true, group:1},
             {value:'select', text:"SELECT", type:'Select', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}], group:2},
             {value:'multiselect', text:"MULTI SELECT", type:"MultiSelect", options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:3},
             {value:'textarea', text:"TEXT AREA",type:'TextArea', group:4},
@@ -57,7 +60,7 @@ module.exports = React.createClass({
         const filters = [];
         return (
             <div style={{height:'850px'}}>
-                <DataTable key={'dataview'} title={'DataView'} data={data} fields={fields} filters={filters}  searchable callback={this.getData}/>
+                <DataTable key={'dataview'} title={'DataView'} data={data} fields={fields} filters={filters} callback={this.getData}/>
             </div>
         )
     },

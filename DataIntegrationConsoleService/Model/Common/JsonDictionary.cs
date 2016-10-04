@@ -91,9 +91,10 @@ namespace Model.Common
         /// </summary>
         /// 
         /// 
-        public void Add(String key, object value)
+        public JsonDictionary Add(String key, object value)
         {
             this[key] = value;
+            return this;
         }
     }
 }

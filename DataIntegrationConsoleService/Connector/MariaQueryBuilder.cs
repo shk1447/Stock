@@ -103,6 +103,17 @@ namespace Connector
                             value = list.Count > 0 ? value.Substring(0, value.Length - 1) : value;
                             value = "\"" + value + "\"";
                         }
+                        else if (kv.Value.GetType().Name == "Object[]")
+                        {
+                            var list = kv.Value as Object[];
+                            value = "[]:";
+                            foreach (var v in list)
+                            {
+                                value = value + v + ",";
+                            }
+                            value = list.Length > 0 ? value.Substring(0, value.Length - 1) : value;
+                            value = "\"" + value + "\"";
+                        }
                         else
                         {
                             value = "\"" + kv.Value.ToString() + "\"";

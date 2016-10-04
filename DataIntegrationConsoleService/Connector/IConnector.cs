@@ -12,6 +12,6 @@ namespace Connector
     {
         List<JsonDictionary> GetQuery(string query, object parameterValues = null);
 
-        bool SetQuery(string query, object parameterValues = null);
+        CodeMessage SetQuery(string query, object parameterValues = null);
     }
 }

@@ -1126,15 +1126,18 @@ module.exports = function () {
             }
             metric.push([self.options.end*1000]);
         };
+        var sameCount = 1;
         var metricTime = 0;
         for(var dIndex = 0; dIndex < metric.length; dIndex++) {
             var fieldInfo = objectInfo.fields;
             for(var f = 0; f < fieldInfo.length; f++) {
                 if(fieldInfo[f].Name == "createdtime") {
                     var dataTime = parseInt(metric[dIndex]["createdtime"])*1000;
-                    metricTime == dataTime ? metricTime = dataTime + 1 : metricTime = dataTime;
+                    metricTime == dataTime ? (metricTime = dataTime + sameCount, sameCount++) : (metricTime = dataTime,sameCount = 1);
                     var standardTime = new Date(metricTime).format(self.options.timeFormat);
                     objectInfo.labels["createdtime"].push(standardTime), objectInfo.chart.times.push(metricTime);
+
+                    metricTime = dataTime;
                 } else {
                     var key = fieldInfo[f].Name;
                     var chartSeries = objectInfo.chart.datasets.find(function(k) { return k.id == (objectId + key);});
@@ -1145,8 +1148,6 @@ module.exports = function () {
                     if(isNaN(val)) val = undefined;
                     chartSeries.data.push(val);
                     pieSeries.value = pieSeries.value + (typeof val == "undefined" ? 0 : parseInt(val));
-
-
                 }
             }
         }
