@@ -17,7 +17,7 @@ namespace DataIntegrationServiceLogic
         public string Schema()
         {
             var fields = new List<FieldSchema>();
-            fields.Add(new FieldSchema("MEMBER ID", "member_id", "Text", 0, true).AddAttributes("maxlength", 10).AddAttributes("minlength",5));
+            fields.Add(new FieldSchema("MEMBER ID", "member_id", "Text", 0, true).AddAttributes("maxlength", 10));
             fields.Add(new FieldSchema("PASSWORD", "password", "Password", 0, true).AddAttributes("maxlength", 10));
             fields.Add(new FieldSchema("MEMBER NAME", "member_name", "Text", 1, true).AddAttributes("maxlength", 10));
             fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2).AddOptions(

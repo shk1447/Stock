@@ -50,6 +50,8 @@ module.exports = React.createClass({
             {value:'groupcheckbox', text:'GROUP CHECK BOX', type:'GroupCheckbox', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:6},
             {value:'radio', text:'RADIO', type:'Radio', options:[{value:'first',text:'첫번째'},{value:'second',text:'두번째'}],group:7},
             {value:'timepicker',text:'TIME PICKER',type:'TimePicker',group:8},
+            {group:8},
+            {group:8},
             {value:'dynamic', text:"DYNAMIC", type:"Dynamic",group:9}
         ];
 		return {data : hh, fields:fields};

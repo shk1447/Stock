@@ -141,3 +141,12 @@ DATA INTEGRATION WEB UI
 3. Member Management
 	- Login / Logout
 	- Sign Up
+	
+	
+# Common DataTable
+
+1. 데이터가 표시되어져야 한다.
+2. 검색 기능이 존재한다. (Add Search Filter 형식)
+3. 더블 클릭에 대한 Callback 정의 가능하여야 한다.
+4. 옵션에 따라 데이터 추가 삭제에 UI가 존재한다.
+5. Pagenation이 존재한다.

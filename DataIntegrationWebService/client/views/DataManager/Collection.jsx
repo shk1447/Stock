@@ -11,12 +11,17 @@ module.exports = React.createClass({
     componentDidMount : function() {
         var self = this;
         self.socket = io.connect();
-        var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
-        self.socket.emit('fromclient', data);
-        self.socket.on('collection.getlist',function(data) {
-            console.log(data);
-            //self.setState()
+        self.socket.on('collection.schema',function(data){
+            self.refs.CollectionTable.setState({fields:data})
+            var data = {"broadcast":false,"target":"collection.getlist", "parameters":{}};
+            self.socket.emit('fromclient', data);
         });
+        self.socket.on('collection.getlist', function(data) {
+            //self.refs.CollectionTable.setState({data:data})
+        });
+
+        var data = {"broadcast":false,"target":"collection.schema", "parameters":{}};
+        self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
         this.socket.disconnect();
@@ -31,7 +36,7 @@ module.exports = React.createClass({
         const {data,fields,filters} = this.state;
         return (
             <div style={{height:'800px'}}>
-                <DataTable key={'collection'} data={data} fields={fields} filters={filters} updatable={false} selectable={true}/>
+                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable={false} selectable={true}/>
             </div>
         )
     }

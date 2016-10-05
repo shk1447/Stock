@@ -70,8 +70,9 @@ namespace DIWebSocket.Services
                                 returnString = collectionLogic.GetList();
                                 break;
                             }
-                        case "getstructure":
+                        case "schema":
                             {
+                                returnString = collectionLogic.Schema();
                                 break;
                             }
                         case "create":

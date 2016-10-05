@@ -5,6 +5,8 @@ var TimePicker = require('react-times');
 require('../../../public/style.css');
 require('react-times/css/material/default.css');
 var MessageBox = require('./MessageBox');
+var DynamicField = require('./DynamicField');
+var moment = require('moment');
 
 module.exports = React.createClass({
     displayName: 'ModalForm',
@@ -119,9 +121,10 @@ module.exports = React.createClass({
                     case 'TimePicker' : {
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let error = !required ? false : !self.state.data[fieldInfo.value] ? true : false; fieldInfo['error'] = error;
-                        fieldElement = <Form.Field key={fieldInfo.value} defaultTime={self.state.data[fieldInfo.value]} timeMode={24} error={error}
-                                            onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)} className='transparency' label={fieldInfo.text} control={TimePicker}/>
-                                        
+                        fieldElement = <Form.Field key={fieldInfo.value} error={error} className='transparency'><label>{fieldInfo.text}</label>
+                                        <TimePicker ref={fieldInfo.value} defaultTime={self.state.data[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
+                                                    onFocusChange={self.onFocusChange.bind(self,fieldInfo)}/>
+                                       </Form.Field>                                        
                         break;
                     }
                     case 'Text' :{
@@ -206,8 +209,23 @@ module.exports = React.createClass({
                     </Modal.Actions>
                 </Modal>
                 <MessageBox ref='MessageBox' title='Alert' message='필수 입력 항목을 기입하세요.'/>
+                <DynamicField ref='DynamicField' active={false} callback={this.addField} />
             </div>
         )
+    },
+    onFocusChange : function(field,focus) {
+        if(focus) {
+            var time = moment(this.state.data[field.value], "HH:mm");
+            if(time.isValid()){
+                time.minute(time.minute() + 1);
+                var minute = time.format("mm")
+                this.refs[field.value].setState({minute:minute});
+                this.state.data[field.value] = time.format("HH:mm");
+            }
+        }
+    },
+    addField : function(field) {
+        console.log(field);
     },
     handleChange: function(field,fields,e,data) {
         switch(field.type.toLowerCase()) {
@@ -248,11 +266,12 @@ module.exports = React.createClass({
                 break;
             }
             case 'checkbox' : {
-                this.state.data[data.name] = data; 
+                this.state.data[data.name] = data;
                 break;
             }
             case 'radio' : {
                 this.state.data[data.name] = data;
+                this.setState(this.state.data);
                 break;
             }
             case 'groupcheckbox' : {
@@ -262,10 +281,10 @@ module.exports = React.createClass({
                 break;
             }
             case 'dynamic' : {
+                this.refs.DynamicField.setState({active:true});
                 break;
             }
         }
-        this.setState(this.state.data);
     },
     hide : function(e) {
         if(!e) return;
