@@ -30,7 +30,8 @@ module.exports = React.createClass({
         console.log('render modal form')
         var self = this;
 
-        this.state.fields = this.state.fields.filter(function(d){
+        if(this.state.fields) {
+            this.state.fields = this.state.fields.filter(function(d){
             return !d.temp;
         });
         var dynamicFields = this.state.fields.filter(function(d){
@@ -38,6 +39,7 @@ module.exports = React.createClass({
         });
         if(dynamicFields.length > 0) {
             self.setDynamicFields(dynamicFields);
+        }
         }
 
         const {fields, size, dimmer, active, title } = this.state;
@@ -137,6 +139,7 @@ module.exports = React.createClass({
                     }
                     case 'TimePicker' : {
                         let required= fieldInfo.required ? fieldInfo.required : false;
+                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : moment().format("HH:mm");
                         let error = !required ? false : !self.state.data[fieldInfo.value] ? true : false; fieldInfo['error'] = error;
                         fieldElement = <Form.Field key={fieldInfo.value} error={error} className='transparency'><label>{fieldInfo.text}</label>
                                         <TimePicker ref={fieldInfo.value} defaultTime={self.state.data[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
@@ -272,14 +275,16 @@ module.exports = React.createClass({
         }
     },
     addField : function(field) {
-        console.log(field);
+        if(field !== 'cancel') {
+            this.state.fields.push(field);
+            this.setState(this.state);
+        }
     },
     handleChange: function(field,fields,e,data) {
+        var self = this;
         switch(field.type.toLowerCase()) {
             case 'select' : {
-                var self = this;
                 self.state.data[field.value] = data;
-                self.setState({fields:self.state.fields});
                 break;
             }
             case 'text' : {
@@ -320,7 +325,6 @@ module.exports = React.createClass({
             }
             case 'radio' : {
                 this.state.data[data.name] = data;
-                this.setState(this.state.data);
                 break;
             }
             case 'groupcheckbox' : {
@@ -334,6 +338,7 @@ module.exports = React.createClass({
                 break;
             }
         }
+        self.setState({fields:self.state.fields});
     },
     hide : function(e) {
         if(!e) return;

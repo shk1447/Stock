@@ -111,6 +111,10 @@ table.table-container tbody tr.selected {
     overflow: auto;
 }
 
+body.scrolling>.dimmer {
+    overflow: auto;
+}
+
 .ui.input input[type=range] {
     background: transparent !important;
 }

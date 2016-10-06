@@ -16,7 +16,7 @@ namespace Model.Common
         [DataMember]
         public string text { get; set; }
 
-        [DataMember]
+        [DataMember(IsRequired=false, EmitDefaultValue=false)]
         public List<FieldSchema> fields { get; set; }
     }
 }
