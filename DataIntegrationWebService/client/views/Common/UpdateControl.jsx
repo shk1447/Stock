@@ -25,7 +25,7 @@ module.exports = React.createClass({
                     <Button icon='upload' />
                     <Button icon='download' />
                 </Button.Group>
-                <ModalForm ref='ModalForm' size={'fullscreen'} title={title} active={active} fields={_.cloneDeep(fields)} data={_.cloneDeep(data)} callback={this.props.callback}/>
+                <ModalForm ref='ModalForm' size={'large'} title={title} active={active} fields={_.cloneDeep(fields)} data={_.cloneDeep(data)} callback={this.props.callback}/>
             </div>
         )
     },

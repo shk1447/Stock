@@ -107,10 +107,6 @@ table.table-container tbody tr.selected {
     height: 38.8px !important;
 }
 
-.ModalForm {
-    overflow: auto;
-}
-
 body.scrolling>.dimmer {
     overflow: auto;
 }

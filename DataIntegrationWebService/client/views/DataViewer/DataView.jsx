@@ -23,7 +23,8 @@ module.exports = React.createClass({
                 checkbox:{ value : 'first', checked : true },
                 groupcheckbox : [{value:'fisrt',checked:true},{value:'second',checked:true}],
                 radio:{ value : 'second', checked : true },
-                timepicker:'11:00'
+                timepicker:'11:00',
+                DynamicSelect:'first_dynamic'
             }];
         for(var i = 0; i < 100; i++) {
             hh.push({

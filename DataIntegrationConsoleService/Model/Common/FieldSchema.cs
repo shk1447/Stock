@@ -12,16 +12,28 @@ namespace Model.Common
     {
         [DataMember]
         public string text { get; set; }
+
         [DataMember]
         public string value { get; set; }
+
         [DataMember]
         public string type { get; set; }
+
         [DataMember]
         public int group { get; set; }
+
         [DataMember]
         public bool required { get; set; }
+
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public bool temp { get; set; }
+
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public bool dynamic { get; set; } 
+
         [DataMember]
         public JsonDictionary attributes { get; set; }
+
         [DataMember]
         public List<OptionsSchema> options { get; set; }
 

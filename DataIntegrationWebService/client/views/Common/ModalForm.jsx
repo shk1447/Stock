@@ -116,7 +116,7 @@ module.exports = React.createClass({
                         let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
                         var test = _.cloneDeep(fieldInfo.options);
                         _.each(test, function(row,i) { delete row.fields;})
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} search className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
                                     options={test} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
                         break;
                     }
@@ -126,7 +126,7 @@ module.exports = React.createClass({
                         let error = !required ? false : self.state.data[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
                                         control={Dropdown} options={fieldInfo.options} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text}
-                                        compact search selection fluid multiple allowAdditions defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
+                                        compact search selection fluid multiple defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
                         break;
                     } 
                     case 'TextArea' : {

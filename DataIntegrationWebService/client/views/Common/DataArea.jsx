@@ -56,7 +56,7 @@ module.exports = React.createClass({
         )
     },
     handleDoubleClickItem : function(e) {
-        var data = this.state.data[e.target.parentElement.attributes.name.value];
+        var data = _.cloneDeep(this.state.data[e.target.parentElement.attributes.name.value]);
         this.props.modify(data);
     },
     handleClickItem : function(e) {
