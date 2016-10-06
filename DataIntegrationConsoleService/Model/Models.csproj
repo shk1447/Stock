@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Common\CodeMessage.cs" />
     <Compile Include="Common\FieldSchema.cs" />
+    <Compile Include="Common\OptionsSchema.cs" />
     <Compile Include="Request\GetCollectionModuleReq.cs" />
     <Compile Include="Request\GetDataAnalysisReq.cs" />
     <Compile Include="Request\GetDataSourceReq.cs" />

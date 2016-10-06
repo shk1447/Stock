@@ -37,7 +37,7 @@ module.exports = React.createClass({
         var fieldsOptions = [];
         
         for(var i = 0; i < fields.length; i++) {
-            if(fields[i].type && fields[i].type != 'Dynamic') {
+            if(fields[i].type && fields[i].type != 'AddFields') {
                 fieldsOptions.push({
                     text : fields[i].text,
                     value : fields[i].value

@@ -23,13 +23,13 @@ namespace Model.Common
         [DataMember]
         public JsonDictionary attributes { get; set; }
         [DataMember]
-        public List<JsonDictionary> options { get; set; }
+        public List<OptionsSchema> options { get; set; }
 
         public FieldSchema(string text, string value, string type, int group, bool required = false)
         {
             this.text = text; this.value = value; this.type = type; this.group = group; this.required = required;
             this.attributes = new JsonDictionary();
-            this.options = new List<JsonDictionary>();
+            this.options = new List<OptionsSchema>();
         }
 
         public FieldSchema AddAttributes(string key, object value)
@@ -38,7 +38,7 @@ namespace Model.Common
             return this;
         }
 
-        public FieldSchema AddOptions(JsonDictionary option)
+        public FieldSchema AddOptions(OptionsSchema option)
         {
             this.options.Add(option);
             return this;

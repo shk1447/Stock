@@ -21,7 +21,7 @@ module.exports = React.createClass({
             let status = '';
 
             _.each(fields, function(field,index){
-                if(field.type != 'Dynamic') {
+                if(field.type && field.type != 'AddFields') {
                     var data = '-';
                     if(row[field.value]) {
                         data = row[field.value];

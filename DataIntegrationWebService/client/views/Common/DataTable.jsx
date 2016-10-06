@@ -22,7 +22,7 @@ module.exports = React.createClass({
         const { data, fields, filters, title } = this.state;
         var thArr = [];
         fields.forEach(function(row,i){
-            if(row.type && row.type != 'Dynamic') {
+            if(row.type && row.type != 'AddFields') {
                 thArr.push(<th key={i}>{row.text}</th>)
             };
         });

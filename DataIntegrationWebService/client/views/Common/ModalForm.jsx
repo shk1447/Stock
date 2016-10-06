@@ -14,17 +14,32 @@ module.exports = React.createClass({
         router: React.PropTypes.object.isRequired
     },
     componentDidMount : function() {
+        console.log('mount');
     },
     componentWillUnmount : function () {
+        console.log('unmount');
     },
     componentDidUpdate : function () {
+        console.log('update');
     },
     getInitialState: function() {
-		return {fields:this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
+        console.log('initialize')
+		return {fields: this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
 	},
     render : function () {
         console.log('render modal form')
         var self = this;
+
+        this.state.fields = this.state.fields.filter(function(d){
+            return !d.temp;
+        });
+        var dynamicFields = this.state.fields.filter(function(d){
+            return d.type=='Select' && d.dynamic;
+        });
+        if(dynamicFields.length > 0) {
+            self.setDynamicFields(dynamicFields);
+        }
+
         const {fields, size, dimmer, active, title } = this.state;
         var isNew = false;
         if(!this.state.data) { this.state.data = {}; isNew = true; }
@@ -97,8 +112,10 @@ module.exports = React.createClass({
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
                         let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        var test = _.cloneDeep(fieldInfo.options);
+                        _.each(test, function(row,i) { delete row.fields;})
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
-                                    options={fieldInfo.options} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
+                                    options={test} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
                         break;
                     }
                     case 'MultiSelect' : {
@@ -176,7 +193,7 @@ module.exports = React.createClass({
                                         min={attributes.min} max={attributes.max} error={error}/>;
                         break;
                     }
-                    case 'Dynamic' :{
+                    case 'AddFields' :{
                         fieldElement = <Form.Field key={fieldInfo.value} className='transparency'>
                                             <label name={fieldInfo.value}>{fieldInfo.text}</label>
                                             <Button name={fieldInfo.value} type='button' onClick={self.handleChange.bind(self,fieldInfo,fields)} circular icon='plus' />
@@ -213,8 +230,38 @@ module.exports = React.createClass({
             </div>
         )
     },
+    setDynamicFields : function(dynamicFields) {
+        var self = this;
+        _.each(dynamicFields, function(row,i) {
+            if(self.state.data && self.state.data[row.value]) {
+                var selectedOptions = row.options.find(function(d){
+                    return d.value == self.state.data[row.value];
+                });
+                if(selectedOptions) {
+                    var subDynamicFields = selectedOptions.fields.filter(function(d){
+                        return d.type == 'Select' && d.dynamic;
+                    });
+                    var subFields = selectedOptions.fields.filter(function(d){
+                        return d.type != 'Select';
+                    });
+                    if(subDynamicFields.length > 0) {
+                        self.setDynamicFields(subDynamicFields);
+                        _.each(subDynamicFields, function(row, i){
+                            self.state.fields.push(row);
+                        });
+                    }
+                    if(subFields.length > 0) {
+                        _.each(subFields, function(row, i){
+                            self.state.fields.push(row);
+                        });
+                    }
+                }
+            }
+        });
+    },
     onFocusChange : function(field,focus) {
         if(focus) {
+            console.log(this.state.data[field.value]);
             var time = moment(this.state.data[field.value], "HH:mm");
             if(time.isValid()){
                 time.minute(time.minute() + 1);
@@ -230,7 +277,9 @@ module.exports = React.createClass({
     handleChange: function(field,fields,e,data) {
         switch(field.type.toLowerCase()) {
             case 'select' : {
-                this.state.data[field.value] = data;
+                var self = this;
+                self.state.data[field.value] = data;
+                self.setState({fields:self.state.fields});
                 break;
             }
             case 'text' : {
@@ -280,7 +329,7 @@ module.exports = React.createClass({
                         }).checked = data.checked;
                 break;
             }
-            case 'dynamic' : {
+            case 'addfields' : {
                 this.refs.DynamicField.setState({active:true});
                 break;
             }

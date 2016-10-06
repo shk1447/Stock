@@ -52,7 +52,59 @@ module.exports = React.createClass({
             {value:'timepicker',text:'TIME PICKER',type:'TimePicker',group:8},
             {group:8},
             {group:8},
-            {value:'dynamic', text:"DYNAMIC", type:"Dynamic",group:9}
+            {value:'AddFields', text:"AddFields", type:"AddFields",group:9},
+            {
+                value:'DynamicSelect', 
+                text:"DYNAMIC SELECT", 
+                type:'Select',
+                dynamic:true,
+                options:[
+                            {
+                                value:'first_dynamic',
+                                text:'첫번째',
+                                fields : [{
+                                    value:'test fields',
+                                    text:'test fields',
+                                    type:'Select',
+                                    dynamic:true,
+                                    temp:true,
+                                    options:[{
+                                        value:'first_first',
+                                        text:'첫번째의 첫번째',
+                                        fields:[{
+                                            text:'text field',
+                                            value:'text field',
+                                            type:'Text',
+                                            temp:true,
+                                            group:12
+                                        }]
+                                    },{
+                                        value:'first_second',
+                                        text:'첫번째의 두번째',
+                                        fields:[{
+                                            text:'text field2',
+                                            value:'text field2',
+                                            type:'Text',
+                                            temp:true,
+                                            group:12
+                                        }]
+                                    }],
+                                    group:11
+                                }]
+                            },{
+                                value:'second_dynamic',
+                                text:'두번째 다이나믹',
+                                fields : [{
+                                    value:'wow',
+                                    text:'wow',
+                                    type:'Text',
+                                    temp:true,
+                                    group: 11
+                                }]
+                            }
+                        ],
+                group:10
+            }
         ];
 		return {data : hh, fields:fields};
 	},

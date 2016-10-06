@@ -19,16 +19,16 @@ namespace DataIntegrationServiceLogic
         {
             var fields = new List<FieldSchema>();
 
-            fields.Add(new FieldSchema("COLLECTION NAME", "name", "Text", 0, true).AddAttributes("maxlength", 10));
-            var moduleSelect = new FieldSchema("MODULE NAME", "module_name", "Select", 0, true);
-            foreach (var module in ModuleManager.Instance.SourceModules)
-            {
-                moduleSelect.AddOptions(new JsonDictionary().Add("text", module.Key).Add("value", module.Key));
-                foreach (var method in module.Value.GetConfig())
-                {
+            //fields.Add(new FieldSchema("COLLECTION NAME", "name", "Text", 0, true).AddAttributes("maxlength", 10));
+            //var moduleSelect = new FieldSchema("MODULE NAME", "module_name", "Select", 0, true);
+            //foreach (var module in ModuleManager.Instance.SourceModules)
+            //{
+            //    moduleSelect.AddOptions(new JsonDictionary().Add("text", module.Key).Add("value", module.Key));
+            //    foreach (var method in module.Value.GetConfig())
+            //    {
                     
-                }
-            }
+            //    }
+            //}
             //fields.Add(new FieldSchema("MEMBER NAME", "member_name", "Select", 1, true));
             //fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2).AddOptions(
             //    new JsonDictionary().Add("text", "MANAGER").Add("value", "manager")).AddOptions(new JsonDictionary().Add("text", "USER").Add("value", "user")));
