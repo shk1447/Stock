@@ -87,7 +87,7 @@ namespace Connector
                     var value = "\"\"";
                     if (kv.Value != null)
                     {
-                        if (kv.Value.GetType().Name == "JsonDictionary")
+                        if (kv.Value.GetType().Name == "JsonDictionary" || kv.Value.GetType().Name == "Object")
                         {
                             var test = kv.Value as JsonDictionary;
                             value = JsonToColumnCreate(test.GetDictionary(), ref lastData);

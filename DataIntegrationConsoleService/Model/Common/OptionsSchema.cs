@@ -18,5 +18,19 @@ namespace Model.Common
 
         [DataMember(IsRequired=false, EmitDefaultValue=false)]
         public List<FieldSchema> fields { get; set; }
+
+        public OptionsSchema(string value, string text)
+        {
+            this.value = value;
+            this.text = text;
+        }
+
+        public OptionsSchema AddFields(FieldSchema field)
+        {
+            if (this.fields == null) { this.fields = new List<FieldSchema>(); }
+            this.fields.Add(field);
+
+            return this;
+        }
     }
 }

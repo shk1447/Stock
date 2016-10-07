@@ -4,5 +4,8 @@ module.exports = {
     },
 	getlist: function(data){
         return data;
+    },
+    create : function(data){
+        return data;
     }
 };

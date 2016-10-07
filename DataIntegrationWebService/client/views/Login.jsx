@@ -80,8 +80,8 @@ module.exports = React.createClass({
             </div>
         )
     },
-    handleCreate: function(data) {
-        if(data != 'cancel') {
+    handleCreate: function(result) {
+        if(result.action == 'insert') {
             var data = {"broadcast":false,"target":"member.create", "parameters":data};
             this.socket.emit('fromclient', data);
         }

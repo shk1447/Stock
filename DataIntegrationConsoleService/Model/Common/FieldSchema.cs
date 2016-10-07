@@ -26,6 +26,9 @@ namespace Model.Common
         public bool required { get; set; }
 
         [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public string datakey { get; set; }
+
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
         public bool temp { get; set; }
 
         [DataMember(IsRequired = false, EmitDefaultValue = false)]

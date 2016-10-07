@@ -77,10 +77,12 @@ namespace DIWebSocket.Services
                             }
                         case "create":
                             {
+                                returnString = collectionLogic.Create(reqInfo.parameters);
                                 break;
                             }
                         case "modify":
                             {
+                                returnString = collectionLogic.Modify(reqInfo.parameters);
                                 break;
                             }
                         case "delete":

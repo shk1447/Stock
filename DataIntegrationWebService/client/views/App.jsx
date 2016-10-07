@@ -31,7 +31,7 @@ module.exports = React.createClass({
             <div>
                 <Menu stackable>
                     <Menu.Item>
-                        <img src='http://semantic-ui.com/images/logo.png' />
+                        <Icon name='users' circular />
                     </Menu.Item>
                     
                     <Dropdown as={Menu.Item} text='Data Viewer' name='dataview' >

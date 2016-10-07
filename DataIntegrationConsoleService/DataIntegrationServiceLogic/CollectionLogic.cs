@@ -19,38 +19,77 @@ namespace DataIntegrationServiceLogic
         {
             var fields = new List<FieldSchema>();
 
-            //fields.Add(new FieldSchema("COLLECTION NAME", "name", "Text", 0, true).AddAttributes("maxlength", 10));
-            //var moduleSelect = new FieldSchema("MODULE NAME", "module_name", "Select", 0, true);
-            //foreach (var module in ModuleManager.Instance.SourceModules)
-            //{
-            //    moduleSelect.AddOptions(new JsonDictionary().Add("text", module.Key).Add("value", module.Key));
-            //    foreach (var method in module.Value.GetConfig())
-            //    {
+            fields.Add(new FieldSchema("COLLECTION NAME", "name", "Text", 0, true).AddAttributes("maxlength", 10));
+            var moduleField = new FieldSchema("MODULE NAME", "module_name", "Select", 1, true)
+            {
+                dynamic = true,
+                temp = false
+            };
+
+            foreach (var module in ModuleManager.Instance.SourceModules)
+            {
+                var moduleOptions = new OptionsSchema(module.Key, module.Key);
+                var methodField = new FieldSchema("METHOD NAME", "method_name", "Select", 1, true) { dynamic = true, temp = true };
+                foreach (var method in module.Value.GetConfig())
+                {
+                    var methodOptions = new OptionsSchema(method.Key, method.Key);
                     
-            //    }
-            //}
-            //fields.Add(new FieldSchema("MEMBER NAME", "member_name", "Select", 1, true));
-            //fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2).AddOptions(
-            //    new JsonDictionary().Add("text", "MANAGER").Add("value", "manager")).AddOptions(new JsonDictionary().Add("text", "USER").Add("value", "user")));
-            //fields.Add(new FieldSchema("E-MAIL", "email", "Text", 3));
-            //fields.Add(new FieldSchema("PHONE NUMBER", "phone_number", "Text", 4));
+                    foreach (var options in method.Value)
+                    {
+                        var optionsField = new FieldSchema(options.Key, options.Key, "Text", 2, true) { temp = true, datakey = "options" };
+                        methodOptions.AddFields(optionsField);
+                    }
+
+                    methodField.AddOptions(methodOptions);
+                    moduleOptions.AddFields(methodField);
+                }
+                moduleField.AddOptions(moduleOptions);
+            }
+            fields.Add(moduleField);
+
+            fields.Add(new FieldSchema("WEEKDAYS", "weekdays", "MultiSelect", 3, true) { datakey = "schedule" }
+                .AddOptions(new OptionsSchema("MON", "월요일"))
+                .AddOptions(new OptionsSchema("TUE", "화요일"))
+                .AddOptions(new OptionsSchema("WED", "수요일"))
+                .AddOptions(new OptionsSchema("THU", "목요일"))
+                .AddOptions(new OptionsSchema("FRI", "금요일"))
+                .AddOptions(new OptionsSchema("SAT", "토요일"))
+                .AddOptions(new OptionsSchema("SUN", "일요일")));
+            fields.Add(new FieldSchema("START", "start", "TimePicker", 4, true) { datakey = "schedule" });
+            fields.Add(new FieldSchema("END", "end", "TimePicker", 4, true) { datakey = "schedule" });
+            fields.Add(new FieldSchema("INTERVAL", "interval", "Number", 4, true) { datakey = "schedule" });
+            fields.Add(new FieldSchema("STATUS", "status", "Data", 5));
+            fields.Add(new FieldSchema("UPDATED TIME", "unixtime", "Data", 5));
 
             return DataConverter.Serializer<List<FieldSchema>>(fields);
         }
 
         public string GetList()
         {
-            var selectedItems = new List<string>() { "name", "module_name", "method_name", "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "status", "unixtime" };
+            var selectedItems = new List<string>() { "name", "module_name", "method_name", "COLUMN_JSON(options) as options",
+                                                     "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
             var res = MariaDBConnector.Instance.GetQuery<Collection>(query);
 
-            return string.Empty;
-            //return DataConverter.Serializer<List<GetCollectionModuleRes>>(res); ;
+            return DataConverter.Serializer<List<Collection>>(res);
         }
 
-        public string GetStructure()
+        public string Create(JsonDictionary jsonObj)
         {
-            return string.Empty;
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
+
+            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+
+            return DataConverter.Serializer<CodeMessage>(res);
+        }
+
+        public string Modify(JsonDictionary jsonObj)
+        {
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), true);
+
+            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+
+            return DataConverter.Serializer<CodeMessage>(res);
         }
     }
 }

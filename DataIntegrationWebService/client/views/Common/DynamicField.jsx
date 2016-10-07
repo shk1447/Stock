@@ -28,6 +28,7 @@ module.exports = React.createClass({
         var error02 = field.value && field.value !== '' ? false : true;
         var error03 = field.type && field.type !== '' ? false : true;
         var error04 = field.group && field.group !== '' ? false : true;
+        var error05 = field.datakey && field.datakey !== '' ? false : true;
         this['error'] = error01 || error02 || error03 || error04;
         return (
             <div>
@@ -42,6 +43,7 @@ module.exports = React.createClass({
                             <Form.Group widths='equal'>
                                 <Form.Field label='TYPE' error={error03} required defaultValue={field.type} className='transparency' name='type' onChange={self.handleChange.bind(self,'type')} options={options} control={Select}/>
                                 <Form.Field label='GROUP' error={error04} required defaultValue={field.group} className='transparency' name='group' onChange={self.handleChange.bind(self,'group')} control={Input} type='number'/>
+                                <Form.Field label='DATA KEY' error={error05} required defaultValue={field.datakey} className='transparency' name='group' onChange={self.handleChange.bind(self,'datakey')} control={Input} type='text'/>
                             </Form.Group>
                             <Form.Group inline>
                                 <Form.Field label='REQUIRED' className='transparency' defaultChecked={field.required} name='required' onChange={self.handleChange.bind(self,'required')} control={Checkbox}/>

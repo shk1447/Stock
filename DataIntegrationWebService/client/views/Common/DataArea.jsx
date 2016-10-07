@@ -19,13 +19,11 @@ module.exports = React.createClass({
         _.each(data, function(row,i){
             let tdArr = [];
             let status = '';
-
             _.each(fields, function(field,index){
                 if(field.type && field.type != 'AddFields') {
                     var data = '-';
-                    if(row[field.value]) {
-                        data = row[field.value];
-
+                    data = field.datakey ? row[field.datakey] ? row[field.datakey][field.value] : undefined : row[field.value];
+                    if(data) {
                         if(field.type == 'MultiSelect') {
                             data = data.toString();
                         } else if(field.type == 'GroupCheckbox') {

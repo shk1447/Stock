@@ -25,7 +25,7 @@ module.exports = React.createClass({
                     <Button icon='upload' />
                     <Button icon='download' />
                 </Button.Group>
-                <ModalForm ref='ModalForm' size={'large'} title={title} active={active} fields={_.cloneDeep(fields)} data={_.cloneDeep(data)} callback={this.props.callback}/>
+                <ModalForm ref='ModalForm' action={'insert'} size={'large'} title={title} active={active} fields={_.cloneDeep(fields)} data={_.cloneDeep(data)} callback={this.props.callback}/>
             </div>
         )
     },
@@ -33,6 +33,6 @@ module.exports = React.createClass({
         
     },
     show : function() {
-        this.refs.ModalForm.setState({active:true,fields:_.cloneDeep(this.state.fields),data:_.cloneDeep(this.state.data)});
+        this.refs.ModalForm.setState({action:'insert', active:true,fields:_.cloneDeep(this.state.fields),data:_.cloneDeep(this.state.data)});
     }
 });

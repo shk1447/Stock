@@ -2,6 +2,7 @@ var React = require('react');
 var io = require('socket.io-client');
 var {Form} = require('stardust');
 var DataTable = require('../Common/DataTable');
+var MessageBox = require('../Common/MessageBox');
 
 module.exports = React.createClass({
     displayName: 'Collection',
@@ -17,7 +18,21 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('collection.getlist', function(data) {
-            //self.refs.CollectionTable.setState({data:data})
+            self.refs.CollectionTable.setState({data:data})
+        });
+        self.socket.on('collection.create', function(data) {
+            if(data.code == "200") {
+                self.refs.ModalForm.setState({active:false});
+            } else {
+                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+            }
+        });
+        self.socket.on('collection.modify', function(data) {
+            if(data.code == "200") {
+                self.refs.ModalForm.setState({active:false});
+            } else {
+                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+            }
         });
 
         var data = {"broadcast":false,"target":"collection.schema", "parameters":{}};
@@ -35,9 +50,19 @@ module.exports = React.createClass({
     render : function () {
         const {data,fields,filters} = this.state;
         return (
-            <div style={{height:'800px'}}>
-                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable={false} selectable={true}/>
+            <div style={{height:'850px'}}>
+                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable callback={this.callbackCollection}/>
+                <MessageBox ref='alert_messagebox' />
             </div>
         )
+    },
+    callbackCollection: function (result) {
+        if(result.action == 'insert') {
+            var data = {"broadcast":true,"target":"collection.create", "parameters":result.data};
+            this.socket.emit('fromclient', data);
+        } else if (result.action == 'update') {
+            var data = {"broadcast":true,"target":"collection.modify", "parameters":result.data};
+            this.socket.emit('fromclient', data);
+        }
     }
 });

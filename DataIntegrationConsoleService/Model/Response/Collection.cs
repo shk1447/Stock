@@ -23,5 +23,7 @@ namespace Model.Response
         public JsonDictionary schedule { get; set; }
         [DataMember]
         public string status { get; set; }
+        [DataMember]
+        public string unixtime { get; set; }
     }
 }

@@ -24,7 +24,7 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
         console.log('initialize')
-		return {fields: this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
+		return {action:this.props.action, fields: this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
 	},
     render : function () {
         console.log('render modal form')
@@ -43,156 +43,193 @@ module.exports = React.createClass({
         }
 
         const {fields, size, dimmer, active, title } = this.state;
-        var isNew = false;
-        if(!this.state.data) { this.state.data = {}; isNew = true; }
+        
+        if(!this.state.data) { this.state.data = {}; }
         var groups = {};
         var groupArr = [];
         _.each(fields, function(field,index){
             let groupIndex = 0;
-            if(isNew) self.state.data[field.value] = '';
-            if(field.group) groupIndex = field.group; 
-
+            if(field.group) groupIndex = field.group;
             if(!groups[groupIndex]) {
                 groups[groupIndex] = [field];
             } else {
                 groups[groupIndex].push(field);
             }
         });
-        var self = this;
+        
         _.each(groups, function(group,key){
             var fieldArr = [];
             for(let i = 0; i < group.length; i++) {
                 let fieldInfo = group[i];
                 let fieldElement = undefined;
+                if(fieldInfo.type == 'Data') { continue; }
                 switch(fieldInfo.type) {
                     case 'Radio' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let radioArr = [];
                         let required = fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : {};
-                        let error = !required ? false : self.state.data[fieldInfo.value] == {} ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : {};
+                        let error = !required ? false : defaultData[fieldInfo.value] == {} ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text; 
                         _.each(fieldInfo.options, function(row,i){
-                            self.state.data[fieldInfo.value]['value'] = self.state.data[fieldInfo.value]['value'] ? self.state.data[fieldInfo.value]['value'] : '';
-                            self.state.data[fieldInfo.value]['checked'] = self.state.data[fieldInfo.value]['checked'] ? self.state.data[fieldInfo.value]['checked'] : false;
+                            defaultData[fieldInfo.value]['value'] = defaultData[fieldInfo.value]['value'] ? defaultData[fieldInfo.value]['value'] : '';
+                            defaultData[fieldInfo.value]['checked'] = defaultData[fieldInfo.value]['checked'] ? defaultData[fieldInfo.value]['checked'] : false;
+                            let sublabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + row.text : row.text;
                             radioArr.push(<Form.Field key={row.value} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Radio} type='radio'
-                                        label={row.text} name={fieldInfo.value} value={row.value} error={error}
-                                        checked={self.state.data[fieldInfo.value]['value'] === row.value}/>)
+                                        label={sublabel} name={fieldInfo.value} value={row.value} error={error}
+                                        checked={defaultData[fieldInfo.value]['value'] === row.value}/>)
                         });
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency'><label name={fieldInfo.value}>{fieldInfo.text}</label>
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency'><label name={fieldInfo.value}>{mainlabel}</label>
                                                     <Form.Group inline>{radioArr}</Form.Group></Form.Field>
                         break;
                     }
                     case 'GroupCheckbox' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let checkboxArr = [];
                         let required = fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : [];
-                        let error = !required ? false : self.state.data[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : [];
+                        let error = !required ? false : defaultData[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         _.each(fieldInfo.options, function(row,i){
-                            var selectedItem = self.state.data[fieldInfo.value].length != fieldInfo.options.length ? {
+                            let sublabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + row.text : row.text;
+                            var selectedItem = defaultData[fieldInfo.value].length != fieldInfo.options.length ? {
                                 name : fieldInfo.value,
                                 value : row.value,
                                 checked : false
-                            } : self.state.data[fieldInfo.value][i]; 
-                            if(self.state.data[fieldInfo.value].length != fieldInfo.options.length) self.state.data[fieldInfo.value].push(selectedItem); 
+                            } : defaultData[fieldInfo.value][i]; 
+                            if(defaultData[fieldInfo.value].length != fieldInfo.options.length) defaultData[fieldInfo.value].push(selectedItem); 
                             checkboxArr.push(<Form.Field key={row.value} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Checkbox}
-                                        label={row.text} name={selectedItem.name} value={row.value} defaultChecked={selectedItem.checked} error={error}/>)
+                                        label={sublabel} name={selectedItem.name} value={row.value} defaultChecked={selectedItem.checked} error={error}/>)
                         });
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency'><label name={fieldInfo.value}>{fieldInfo.text}</label>
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency'><label name={fieldInfo.value}>{mainlabel}</label>
                                                     <Form.Group inline>{checkboxArr}</Form.Group></Form.Field>
                         break;
                     }
                     case 'Checkbox' : {
-                        let required= fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : {};
-                        let error = !required ? false : self.state.data[fieldInfo.value] == {} ? true : false; fieldInfo['error'] = error;
-                        self.state.data[fieldInfo.value]['value'] = self.state.data[fieldInfo.value]['value'] ? self.state.data[fieldInfo.value]['value'] : '';
-                        self.state.data[fieldInfo.value]['checked'] = self.state.data[fieldInfo.value]['checked'] ? self.state.data[fieldInfo.value]['checked'] : false;
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
+                        let required= fieldInfo.required ? fieldInfo.required : false; 
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : {};
+                        let error = !required ? false : defaultData[fieldInfo.value] == {} ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value]['value'] = defaultData[fieldInfo.value]['value'] ? defaultData[fieldInfo.value]['value'] : '';
+                        defaultData[fieldInfo.value]['checked'] = defaultData[fieldInfo.value]['checked'] ? defaultData[fieldInfo.value]['checked'] : false;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} error={error}
-                                    control={Checkbox} label={fieldInfo.text} name={fieldInfo.value} value={fieldInfo.value} defaultChecked={self.state.data[fieldInfo.value]['checked']}/>;
+                                    control={Checkbox} label={mainlabel} name={fieldInfo.value} value={fieldInfo.value} defaultChecked={defaultData[fieldInfo.value]['checked']}/>;
                         break;
                     }
                     case 'Select' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
                         var test = _.cloneDeep(fieldInfo.options);
-                        _.each(test, function(row,i) { delete row.fields;})
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} search className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
-                                    options={test} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
+                        _.each(test, function(row,i) { delete row.fields;});
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact search selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
+                                    options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     }
                     case 'MultiSelect' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : [];
-                        let error = !required ? false : self.state.data[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? typeof(defaultData[fieldInfo.value]) == 'string' ? defaultData[fieldInfo.value].split(',') : defaultData[fieldInfo.value] : [];
+                        let error = !required ? false : defaultData[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
-                                        control={Dropdown} options={fieldInfo.options} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text}
-                                        compact search selection fluid multiple defaultValue={self.state.data[fieldInfo.value]} error={error}/>;
+                                        control={Dropdown} options={fieldInfo.options} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text}
+                                        compact search selection fluid multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     } 
                     case 'TextArea' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] =self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
                         let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
-                                        control={TextArea} label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]}/>;
+                                        control={TextArea} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}/>;
                         break;
                     }
                     case 'TimePicker' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : moment().format("HH:mm");
-                        let error = !required ? false : !self.state.data[fieldInfo.value] ? true : false; fieldInfo['error'] = error;
-                        fieldElement = <Form.Field key={fieldInfo.value} error={error} className='transparency'><label>{fieldInfo.text}</label>
-                                        <TimePicker ref={fieldInfo.value} defaultTime={self.state.data[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : moment().format("HH:mm");
+                        let error = !required ? false : !defaultData[fieldInfo.value] ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        fieldElement = <Form.Field key={fieldInfo.value} error={error} className='transparency'><label>{mainlabel}</label>
+                                        <TimePicker ref={fieldInfo.value} defaultTime={defaultData[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
                                                     onFocusChange={self.onFocusChange.bind(self,fieldInfo)}/>
                                        </Form.Field>                                        
                         break;
                     }
                     case 'Text' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let attributes = fieldInfo.attributes ? fieldInfo.attributes : {};
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input} error={error}
-                                        label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]} maxLength={attributes.maxlength}/>;
+                                        label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} maxLength={attributes.maxlength}/>;
                         break;
                     }
                     case 'Number' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let attributes = fieldInfo.attributes ? fieldInfo.attributes : {};
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
-                                        type='number' label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]}
+                                        type='number' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
                                         min={attributes.min} max={attributes.max} step={attributes.step} error={error}/>;
                         break;
                     }
                     case 'Password' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let attributes = fieldInfo.attributes ? fieldInfo.attributes : {};
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
-                                        type='password' label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]}
+                                        type='password' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
                                         maxLength={attributes.maxlength} error={error}/>;
                         break;
                     }
                     case 'Date' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let attributes = fieldInfo.attributes ? fieldInfo.attributes : {};
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
-                                        type='date' label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]}
+                                        type='date' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
                                         min={attributes.min} max={attributes.max} error={error}/>;
                         break;
                     }
                     case 'Range' :{
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data; 
                         let required= fieldInfo.required ? fieldInfo.required : false;
                         let attributes = fieldInfo.attributes ? fieldInfo.attributes : {};
-                        self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : '';
-                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
-                                        type='range' label={fieldInfo.text} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={self.state.data[fieldInfo.value]}
+                                        type='range' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
                                         min={attributes.min} max={attributes.max} error={error}/>;
                         break;
                     }
@@ -284,53 +321,103 @@ module.exports = React.createClass({
         var self = this;
         switch(field.type.toLowerCase()) {
             case 'select' : {
-                self.state.data[field.value] = data;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data;
+                } else {
+                    this.state.data[field.value] = data;
+                }
                 break;
             }
             case 'text' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'number' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'password' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'date' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'range' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'textarea' : {
-                this.state.data[field.value] = e.target.value;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'timepicker' : {
-                this.state.data[field.value] = data;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data;
+                } else {
+                    this.state.data[field.value] = data;
+                }
                 break;
             }
             case 'multiselect' : {
-                this.state.data[field.value] = data;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data.toString();
+                } else {
+                    this.state.data[field.value] = data.toString();
+                }
                 break;
             }
             case 'checkbox' : {
-                this.state.data[data.name] = data;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data;
+                } else {
+                    this.state.data[field.value] = data;
+                }
                 break;
             }
             case 'radio' : {
-                this.state.data[data.name] = data;
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data;
+                } else {
+                    this.state.data[field.value] = data;
+                }
                 break;
             }
             case 'groupcheckbox' : {
-                this.state.data[data.name].find(function(d){
+                if(field.datakey) {
+                    this.state.data[field.datakey][data.name].find(function(d){
                             return d.value == data.value;
                         }).checked = data.checked;
+                } else {
+                    this.state.data[data.name].find(function(d){
+                            return d.value == data.value;
+                        }).checked = data.checked;
+                }
                 break;
             }
             case 'addfields' : {
@@ -338,6 +425,7 @@ module.exports = React.createClass({
                 break;
             }
         }
+        console.log(self.state.data);
         self.setState({fields:self.state.fields});
     },
     hide : function(e) {
@@ -347,11 +435,11 @@ module.exports = React.createClass({
             if(this.props.callback) {
                 this.state.fields.filter(function(d){
                     return d.error;
-                }).length > 0 ? this.refs.MessageBox.setState({active:true}) : (this.props.callback(this.state.data), this.setState({active:false}));
+                }).length > 0 ? this.refs.MessageBox.setState({active:true}) : (this.props.callback({action:this.state.action,data:this.state.data}), this.setState({active:false}));
             }
         } else {
             if(this.props.callback) {
-                this.props.callback('cancel');
+                this.props.callback({action:'cancel'});
                 this.setState({active:false});
             }
         }
