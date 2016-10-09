@@ -7,6 +7,7 @@ using Model.Common;
 using Connector;
 using Model.Response;
 using Helper;
+using System.Json;
 
 namespace DataIntegrationServiceLogic
 {
@@ -45,6 +46,12 @@ namespace DataIntegrationServiceLogic
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
             
             return DataConverter.Serializer<CodeMessage>(res);
+        }
+
+        public object Access(JsonValue where)
+        {
+            var test = where.ToDictionary(k => k.Key);
+            throw new NotImplementedException();
         }
     }
 }

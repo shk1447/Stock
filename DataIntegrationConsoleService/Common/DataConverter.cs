@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Json;
 using System.Web.Script.Serialization;
+using System.Json;
 
 namespace Helper
 {
@@ -55,6 +56,11 @@ namespace Helper
         {
             dynamic dson = JArray.FromObject(target);
             return dson;
+        }
+
+        public static JsonValue ParseJson(string json)
+        {
+            return JsonValue.Parse(json);
         }
     }
 }

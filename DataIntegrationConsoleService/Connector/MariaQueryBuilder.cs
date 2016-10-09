@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Model.Common;
 using Model.Request;
+using System.Json;
 
 namespace Connector
 {
@@ -126,6 +127,35 @@ namespace Connector
             query = query + values.Substring(0, values.Length - 1) + ")";
 
             if(upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
+
+            return query;
+        }
+
+        public static string UpsertQuery(string table, JsonValue row, bool upsert = true)
+        {
+            var query = "INSERT INTO " + table;
+            var values = "(";
+            var columns = "(";
+            var lastData = new Dictionary<string, object>();
+            var updateQuery = " ON DUPLICATE KEY UPDATE ";
+            foreach (var kv in row)
+            {
+                columns = columns + "`" + kv.Key + "`,";
+                if (kv.Value.JsonType == JsonType.String || kv.Value.JsonType == JsonType.Boolean || kv.Value.JsonType == JsonType.Number)
+                {
+
+                }
+                else if (kv.Value.JsonType == JsonType.Array || kv.Value.JsonType == JsonType.Object)
+                {
+                    
+                }
+                
+            }
+
+            query = query + columns.Substring(0, columns.Length - 1) + ") VALUES ";
+            query = query + values.Substring(0, values.Length - 1) + ")";
+
+            if (upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
 
             return query;
         }

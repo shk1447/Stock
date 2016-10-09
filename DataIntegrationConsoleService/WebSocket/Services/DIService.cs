@@ -25,6 +25,9 @@ namespace DIWebSocket.Services
 
         protected override void OnMessage(MessageEventArgs e)
         {
+            var test = DataConverter.ParseJson(e.Data);
+            
+            var aaa = test.ToDictionary(k => k.Key);
             var reqInfo = DataConverter.Deserializer<DIServiceRequestModel>(e.Data);
             var returnString = string.Empty;
             var target = reqInfo.target.Split('.');
