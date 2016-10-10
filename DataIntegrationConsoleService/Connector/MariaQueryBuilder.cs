@@ -19,7 +19,33 @@ namespace Connector
             return query;
         }
 
-        public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, object> whereKV = null)
+        //public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, object> whereKV = null)
+        //{
+        //    var query = "SELECT ";
+
+        //    var count = 1;
+        //    foreach (var item in selectedItems)
+        //    {
+        //        var separator = count < selectedItems.Count ? ", " : "";
+        //        query = query + item + separator;
+        //        count++;
+        //    }
+        //    query = query + " FROM " + table;
+        //    if (whereKV != null)
+        //    {
+        //        query = query + " WHERE ";
+        //        count = 1;
+        //        foreach (var kv in whereKV)
+        //        {
+        //            var separator = count < whereKV.Keys.Count ? "AND " : "";
+        //            query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
+        //            count++;
+        //        }
+        //    }
+        //    return query + ";";
+        //}
+
+        public static string SelectQuery(string table, List<string> selectedItems, JsonValue where = null)
         {
             var query = "SELECT ";
 
@@ -31,14 +57,14 @@ namespace Connector
                 count++;
             }
             query = query + " FROM " + table;
-            if (whereKV != null)
+            if (where != null)
             {
                 query = query + " WHERE ";
                 count = 1;
-                foreach (var kv in whereKV)
+                foreach (var kv in where)
                 {
-                    var separator = count < whereKV.Keys.Count ? "AND " : "";
-                    query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
+                    var separator = count < where.Count ? "AND " : "";
+                    query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() + "\" " + separator;
                     count++;
                 }
             }
@@ -140,16 +166,19 @@ namespace Connector
             var updateQuery = " ON DUPLICATE KEY UPDATE ";
             foreach (var kv in row)
             {
+                var value = "\"\"";
                 columns = columns + "`" + kv.Key + "`,";
                 if (kv.Value.JsonType == JsonType.String || kv.Value.JsonType == JsonType.Boolean || kv.Value.JsonType == JsonType.Number)
                 {
-
+                    value = "\"" + kv.Value.ReadAs<string>() + "\"";
                 }
                 else if (kv.Value.JsonType == JsonType.Array || kv.Value.JsonType == JsonType.Object)
                 {
-                    
+                    value = CreateJsonColumn(kv.Value, string.Empty);
                 }
-                
+                values = values + value + ",";
+
+                updateQuery = updateQuery + kv.Key + " = " + value + ",";
             }
 
             query = query + columns.Substring(0, columns.Length - 1) + ") VALUES ";
@@ -158,6 +187,24 @@ namespace Connector
             if (upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
 
             return query;
+        }
+
+        private static string CreateJsonColumn(JsonValue json, string value)
+        {
+            value = "COLUMN_CREATE(";
+            foreach (var kv in json)
+            {
+                if (kv.Value.JsonType == JsonType.String || kv.Value.JsonType == JsonType.Boolean || kv.Value.JsonType == JsonType.Number)
+                {
+                    value = value + "\"" + kv.Key + "\",\"" + kv.Value.ReadAs<string>() + "\",";
+                }
+                else if (kv.Value.JsonType == JsonType.Array || kv.Value.JsonType == JsonType.Object)
+                {
+                    value = value + "\"" + kv.Key + "\"," + CreateJsonColumn(kv.Value, value) + ",";
+                }
+            }
+            value = value.Substring(0, value.Length - 1) + ")"; ;
+            return value;
         }
 
         public static string InsertSource(string source, string category, List<JsonDictionary> rawData, string collectedAt, string query)

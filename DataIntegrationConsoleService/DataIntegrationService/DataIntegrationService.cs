@@ -149,49 +149,49 @@ namespace DataIntegrationService
 
             var res = new ExecuteDataAnalysisRes();
 
-            var tableName = "data_analysis";
-            var selectedItems = new List<string>() { "name", "source", "categories", "collected_at", "analysis_query",
-                                                     "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "status", "unixtime" };
-            var whereKV = new Dictionary<string, object>() { { "name", name } };
-            var selectQuery = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
-            var analysis = MariaDBConnector.Instance.GetOneQuery<GetDataAnalysisRes>(selectQuery);
+            //var tableName = "data_analysis";
+            //var selectedItems = new List<string>() { "name", "source", "categories", "collected_at", "analysis_query",
+            //                                         "COLUMN_JSON(options) as options", "COLUMN_JSON(schedule) as schedule", "status", "unixtime" };
+            //var whereKV = new Dictionary<string, object>() { { "name", name } };
+            //var selectQuery = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
+            //var analysis = MariaDBConnector.Instance.GetOneQuery<GetDataAnalysisRes>(selectQuery);
 
-            var status = analysis.status.ToLower();
+            //var status = analysis.status.ToLower();
 
-            if (command != "stop" && status == "running" || status == "waiting") return res;
+            //if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            var setDict = new Dictionary<string, object>() { { "status", status } };
+            //var setDict = new Dictionary<string, object>() { { "status", status } };
 
-            var action = new Func<string, bool>((switchMode) =>
-            {
-                if (switchMode == "waiting" || switchMode == "scheduling")
-                {
-                    setDict["status"] = "running";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
-                    MariaDBConnector.Instance.SetQuery(statusUpdate);
-                }
+            //var action = new Func<string, bool>((switchMode) =>
+            //{
+            //    if (switchMode == "waiting" || switchMode == "scheduling")
+            //    {
+            //        setDict["status"] = "running";
+            //        var statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
+            //        MariaDBConnector.Instance.SetQuery(statusUpdate);
+            //    }
 
-                ExecuteAnalysis(analysis);
-                return true;
-            });
+            //    ExecuteAnalysis(analysis);
+            //    return true;
+            //});
 
-            switch (command.ToLower())
-            {
-                case "start":
-                    {
-                        var statusUpdate = string.Empty;
-                        var thread = new Thread(new ThreadStart(() =>
-                        {
-                            Scheduler(tableName, whereKV, analysis.schedule, setDict, action);
-                        }));
-                        thread.Start();
-                        break;
-                    }
-                case "stop":
-                    {
-                        break;
-                    }
-            }
+            //switch (command.ToLower())
+            //{
+            //    case "start":
+            //        {
+            //            var statusUpdate = string.Empty;
+            //            var thread = new Thread(new ThreadStart(() =>
+            //            {
+            //                Scheduler(tableName, whereKV, analysis.schedule, setDict, action);
+            //            }));
+            //            thread.Start();
+            //            break;
+            //        }
+            //    case "stop":
+            //        {
+            //            break;
+            //        }
+            //}
 
             return res;
         }
@@ -249,48 +249,48 @@ namespace DataIntegrationService
             }
             var tableName = "data_collection";
             var res = new ExecuteCollectionModuleRes();
-            var selectedItems = new List<string>() { "name", "module_name", "method_name", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
-            var whereKV = new Dictionary<string, object>() { { "name", name } };
-            var query = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
-            var moduleInfo = MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query);
+            //var selectedItems = new List<string>() { "name", "module_name", "method_name", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
+            //var whereKV = new Dictionary<string, object>() { { "name", name } };
+            //var query = MariaQueryBuilder.SelectQuery(tableName, selectedItems, whereKV);
+            //var moduleInfo = MariaDBConnector.Instance.GetOneQuery<GetCollectionModuleRes>(query);
 
-            var status = moduleInfo.status.ToLower();
+            //var status = moduleInfo.status.ToLower();
 
-            if (command != "stop" && status == "running" || status == "waiting") return res;
+            //if (command != "stop" && status == "running" || status == "waiting") return res;
 
-            var setDict = new Dictionary<string, object>() { { "status", status } };
+            //var setDict = new Dictionary<string, object>() { { "status", status } };
 
-            var action = new Func<string, bool>((switchMode) =>
-            {
-                if (switchMode == "waiting" || switchMode == "scheduling")
-                {
-                    setDict["status"] = "running";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
-                    MariaDBConnector.Instance.SetQuery(statusUpdate);
-                }
+            //var action = new Func<string, bool>((switchMode) =>
+            //{
+            //    if (switchMode == "waiting" || switchMode == "scheduling")
+            //    {
+            //        setDict["status"] = "running";
+            //        var statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
+            //        MariaDBConnector.Instance.SetQuery(statusUpdate);
+            //    }
 
-                ModuleManager.Instance.ExecuteModule(moduleInfo);
+            //    ModuleManager.Instance.ExecuteModule(moduleInfo);
 
-                return true;
-            });
+            //    return true;
+            //});
 
-            switch (command.ToLower())
-            {
-                case "start":
-                    {
-                        var statusUpdate = string.Empty;
-                        var thread = new Thread(new ThreadStart(() =>
-                        {
-                            Scheduler(tableName, whereKV, moduleInfo.schedule, setDict, action);
-                        }));
-                        thread.Start();
-                        break;
-                    }
-                case "stop":
-                    {
-                        break;
-                    }
-            }
+            //switch (command.ToLower())
+            //{
+            //    case "start":
+            //        {
+            //            var statusUpdate = string.Empty;
+            //            var thread = new Thread(new ThreadStart(() =>
+            //            {
+            //                Scheduler(tableName, whereKV, moduleInfo.schedule, setDict, action);
+            //            }));
+            //            thread.Start();
+            //            break;
+            //        }
+            //    case "stop":
+            //        {
+            //            break;
+            //        }
+            //}
 
             return res;
         }
@@ -321,11 +321,13 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var selectedItems = new List<string>() { "name", "view_type", "view_query", "COLUMN_JSON(options) as options", "unixtime" };
-            var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems);
-            var res = MariaDBConnector.Instance.GetQuery<GetDataViewRes>(query);
+            //var selectedItems = new List<string>() { "name", "view_type", "view_query", "COLUMN_JSON(options) as options", "unixtime" };
+            //var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems);
+            //var res = MariaDBConnector.Instance.GetQuery<GetDataViewRes>(query);
 
-            return res;
+            //return res;
+
+            return null;
         }
 
         public List<JsonDictionary> GetDataView(string name)
@@ -335,25 +337,27 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
 
-            var selectedItems = new List<string>() { "name", "view_type", "view_query", "COLUMN_JSON(options) as options", "unixtime" };
-            var whereKV = new Dictionary<string, string>() { { "name", name } };
-            var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems);
-            var data_view = MariaDBConnector.Instance.GetOneQuery<GetDataViewRes>(query);
+            //var selectedItems = new List<string>() { "name", "view_type", "view_query", "COLUMN_JSON(options) as options", "unixtime" };
+            //var whereKV = new Dictionary<string, string>() { { "name", name } };
+            ////var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems);
+            //var data_view = MariaDBConnector.Instance.GetOneQuery<GetDataViewRes>(query);
 
-            var view_query = data_view.view_query;
+            //var view_query = data_view.view_query;
 
-            view_query = Regex.Replace(view_query, "rawdata.(.*?)`(.*?)`", DynamicColumnMatchEvaluator);
+            //view_query = Regex.Replace(view_query, "rawdata.(.*?)`(.*?)`", DynamicColumnMatchEvaluator);
 
-            if (data_view.options != null)
-            {
-                foreach (var kv in data_view.options.GetDictionary())
-                {
-                    var key = "{" + kv.Key.ToLower() + "}";
-                    view_query = query.Replace(key, kv.Value.ToString());
-                }
-            }
+            //if (data_view.options != null)
+            //{
+            //    foreach (var kv in data_view.options.GetDictionary())
+            //    {
+            //        var key = "{" + kv.Key.ToLower() + "}";
+            //        view_query = query.Replace(key, kv.Value.ToString());
+            //    }
+            //}
 
-            return MariaDBConnector.Instance.GetQuery(view_query);
+            //return MariaDBConnector.Instance.GetQuery(view_query);
+
+            return null;
         }
 
         #endregion

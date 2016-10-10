@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.Json;
 
 namespace Model.Response
 {
@@ -18,7 +19,7 @@ namespace Model.Response
         [DataMember]
         public string member_name { get; set; }
         [DataMember]
-        public List<string> privilege { get; set; }
+        public JsonValue privilege { get; set; }
         [DataMember]
         public string email { get; set; }
         [DataMember]

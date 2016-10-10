@@ -25,7 +25,7 @@ module.exports = React.createClass({
                     data = field.datakey ? row[field.datakey] ? row[field.datakey][field.value] : undefined : row[field.value];
                     if(data) {
                         if(field.type == 'MultiSelect') {
-                            data = data.toString();
+                            data = _.map(data, function(value,key){return value}).toString();
                         } else if(field.type == 'GroupCheckbox') {
                             let result = [];
                             _.each(data, function(row,i){

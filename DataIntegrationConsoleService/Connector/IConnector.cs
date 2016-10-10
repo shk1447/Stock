@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,6 @@ namespace Connector
     {
         List<JsonDictionary> GetQuery(string query, object parameterValues = null);
 
-        CodeMessage SetQuery(string query, object parameterValues = null);
+        JsonObject SetQuery(string query, object parameterValues = null);
     }
 }

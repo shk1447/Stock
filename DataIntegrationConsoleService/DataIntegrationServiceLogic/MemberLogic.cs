@@ -29,29 +29,40 @@ namespace DataIntegrationServiceLogic
             return DataConverter.Serializer<List<FieldSchema>>(fields);
         }
 
-        public string Access(JsonDictionary where)
+        public string Access(JsonValue where)
         {
-            var selectedItems = new List<string>() { "member_id", "password","member_name", "privilege", "email", "phone_number" };
-            var whereKV = where.GetDictionary();
-            var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
-            var member = MariaDBConnector.Instance.GetOneQuery<Member>(selectQuery);
+            var selectedItems = new List<string>() { "member_id", "password", "member_name", "privilege", "email", "phone_number" };
+            var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, where);
+            var member = MariaDBConnector.Instance.GetJsonObject(selectQuery);
 
-            return DataConverter.Serializer<Member>(member);
+            return member.ToString();
         }
 
-        public string Create(JsonDictionary jsonObj)
+        public string GetList()
         {
-            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
+            var selectedItems = new List<string>() { "member_id", "password", "member_name", "privilege", "email", "phone_number" };
+            var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
+            var member = MariaDBConnector.Instance.GetJsonArray(selectQuery);
+
+            return member.ToString();
+        }
+
+        public string Create(JsonValue jsonObj)
+        {
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
-            
-            return DataConverter.Serializer<CodeMessage>(res);
+
+            return res.ToString();
         }
 
-        public object Access(JsonValue where)
+        public string Modify(JsonValue jsonObj)
         {
-            var test = where.ToDictionary(k => k.Key);
-            throw new NotImplementedException();
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
+
+            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+
+            return res.ToString();
         }
     }
 }

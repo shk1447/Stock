@@ -19,6 +19,9 @@ module.exports = React.createClass({
         });
         self.socket.on('member.access',function(data) {
             if(data.member_id) {
+                if(window.sessionStorage) {
+                    sessionStorage.setItem('session', data);
+                }
                 cookies.set('accessToken', data.token);
                 self.context.router.replace('/App/');
             } else {

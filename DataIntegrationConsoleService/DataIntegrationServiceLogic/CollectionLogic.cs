@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,27 +70,27 @@ namespace DataIntegrationServiceLogic
             var selectedItems = new List<string>() { "name", "module_name", "method_name", "COLUMN_JSON(options) as options",
                                                      "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
-            var res = MariaDBConnector.Instance.GetQuery<Collection>(query);
+            var res = MariaDBConnector.Instance.GetJsonArray(query);
 
-            return DataConverter.Serializer<List<Collection>>(res);
+            return res.ToString();
         }
 
-        public string Create(JsonDictionary jsonObj)
+        public string Create(JsonValue jsonObj)
         {
-            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), false);
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
 
-            return DataConverter.Serializer<CodeMessage>(res);
+            return res.ToString();
         }
 
-        public string Modify(JsonDictionary jsonObj)
+        public string Modify(JsonValue jsonObj)
         {
-            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj.GetDictionary(), true);
+            var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
 
-            return DataConverter.Serializer<CodeMessage>(res);
+            return res.ToString();
         }
     }
 }

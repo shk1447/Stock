@@ -6,6 +6,7 @@ require('../../../public/style.css');
 require('react-times/css/material/default.css');
 var MessageBox = require('./MessageBox');
 var DynamicField = require('./DynamicField');
+var SQLEditor = require('./SQLEditor');
 var moment = require('moment');
 
 module.exports = React.createClass({
@@ -137,12 +138,12 @@ module.exports = React.createClass({
                         let defaultData;
                         fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
                         let required= fieldInfo.required ? fieldInfo.required : false;
-                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? typeof(defaultData[fieldInfo.value]) == 'string' ? defaultData[fieldInfo.value].split(',') : defaultData[fieldInfo.value] : [];
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? typeof(defaultData[fieldInfo.value]) == 'object' ? _.map(defaultData[fieldInfo.value], function(value,key){return value}) : defaultData[fieldInfo.value] : [];
                         let error = !required ? false : defaultData[fieldInfo.value].length == 0 ? true : false; fieldInfo['error'] = error;
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} onSearchChange={self.handleSearchChange.bind(self,fieldInfo,fields)}
                                         control={Dropdown} options={fieldInfo.options} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text}
-                                        compact search selection fluid multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
+                                        compact search selection fluid multiple scrolling simple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     } 
                     case 'TextArea' : {
@@ -233,6 +234,10 @@ module.exports = React.createClass({
                                         min={attributes.min} max={attributes.max} error={error}/>;
                         break;
                     }
+                    case 'SQLEditor': {
+                        fieldElement = <Form.Field control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        break;
+                    }
                     case 'AddFields' :{
                         fieldElement = <Form.Field key={fieldInfo.value} className='transparency'>
                                             <label name={fieldInfo.value}>{fieldInfo.text}</label>
@@ -317,6 +322,9 @@ module.exports = React.createClass({
             this.setState(this.state);
         }
     },
+    handleSearchChange : function(field,fields,e,data) {
+        console.log(e);
+    },
     handleChange: function(field,fields,e,data) {
         var self = this;
         switch(field.type.toLowerCase()) {
@@ -376,6 +384,11 @@ module.exports = React.createClass({
                 }
                 break;
             }
+            case 'sqleditor' : {
+                console.log('hohohohoho');
+                console.log(e.target.value);
+                break;
+            }
             case 'timepicker' : {
                 if(field.datakey) {
                     this.state.data[field.datakey][field.value] = data;
@@ -386,9 +399,9 @@ module.exports = React.createClass({
             }
             case 'multiselect' : {
                 if(field.datakey) {
-                    this.state.data[field.datakey][field.value] = data.toString();
+                    this.state.data[field.datakey][field.value] = data;
                 } else {
-                    this.state.data[field.value] = data.toString();
+                    this.state.data[field.value] = data;
                 }
                 break;
             }

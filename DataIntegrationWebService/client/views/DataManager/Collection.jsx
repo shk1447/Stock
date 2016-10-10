@@ -22,14 +22,18 @@ module.exports = React.createClass({
         });
         self.socket.on('collection.create', function(data) {
             if(data.code == "200") {
-                self.refs.ModalForm.setState({active:false});
+                self.refs.CollectionTable.setState({active:false});
+                var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
+                self.socket.emit('fromclient', data);
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
             }
         });
         self.socket.on('collection.modify', function(data) {
             if(data.code == "200") {
-                self.refs.ModalForm.setState({active:false});
+                self.refs.CollectionTable.setState({active:false});
+                var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
+                self.socket.emit('fromclient', data);
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
             }
@@ -58,10 +62,10 @@ module.exports = React.createClass({
     },
     callbackCollection: function (result) {
         if(result.action == 'insert') {
-            var data = {"broadcast":true,"target":"collection.create", "parameters":result.data};
+            var data = {"broadcast":false,"target":"collection.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'update') {
-            var data = {"broadcast":true,"target":"collection.modify", "parameters":result.data};
+            var data = {"broadcast":false,"target":"collection.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
         }
     }

@@ -17,7 +17,7 @@ module.exports = function (httpServer, config) {
         try {
           var msg = JSON.parse(message);
           var target = d.target.split('.');
-          
+        
           modules[target[0]][target[1]](msg);
           
           if(d.broadcast) {
