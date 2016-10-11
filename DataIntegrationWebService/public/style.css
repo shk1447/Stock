@@ -206,3 +206,20 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
   background: #74A9D8;
 }
+
+.textAreaMirror {
+    border-color:transparent;
+    position: absolute;
+}
+
+.textAreaMirror span {
+    opacity:0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space : pre;
+}
+
+.hintTracker {
+    position:absolute;
+    color:black;
+}

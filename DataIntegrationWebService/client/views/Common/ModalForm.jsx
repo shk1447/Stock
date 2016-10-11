@@ -235,7 +235,7 @@ module.exports = React.createClass({
                         break;
                     }
                     case 'SQLEditor': {
-                        fieldElement = <Form.Field control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        fieldElement = <Form.Field key={fieldInfo.value} control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
                     case 'AddFields' :{
