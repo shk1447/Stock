@@ -1,6 +1,6 @@
 var React = require('react');
 var io = require('socket.io-client');
-var {Form,TextArea} = require('stardust')
+var {Form,TextArea} = require('stardust');
 
 module.exports = React.createClass({
     displayName: 'SQLEditor',
@@ -11,35 +11,39 @@ module.exports = React.createClass({
         console.log('render sql editor');
         var self = this;
         var $edit = $(self.refs.sqleditor);
-        var $hint = $(self.refs.sqlhint);
-        var $mirror = $(self.refs.textAreaMirror);
-        $mirror.css('left', $edit.position().left).css('top', $edit.position().top);
+        var $hint = $(self.refs.hintTracker);
+        $hint.hide();
+        $hint.click(function(e){
+            console.log(e.target.innerText);
+        });
         $edit.keyup(function(e){
-            self.update();
+            self.update(e.key);
         });
         $edit.scroll(function(e){
             self.update();
         });
         $edit.mouseup(function(e){
             self.update();
-        })
+        });
     },
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {};
+		return {options:_.cloneDeep(this.props.options)};
 	},
     render : function () {
+        const { options } = this.state;
+        var liArr = [];
+        _.each(options, function(row,i){
+            liArr.push(<li key={i}>{row.name}</li>)
+        });
         return (
             <div>
                 <textarea className='sqleditor' ref='sqleditor' onChange={this.props.onChange.bind(this.handleChange)} />
-                <div className='textAreaMirror' ref='textAreaMirror'>
-                    <span ref='textAreaMirrorInline'></span>
-                </div>
                 <ul className='hintTracker' ref='hintTracker'>
-                    <li>tracker</li>
+                    {liArr}
                 </ul>
             </div>
         )
@@ -47,31 +51,31 @@ module.exports = React.createClass({
     handleChange : function (e) {
         //console.log(e.target.value);
     },
-    handleKeyDown : function(e, commands) {
-        console.log(e.ctrlKey);
-    },
-    update : function () {
-        console.log('update');
+    update : function (key) {
         var computedStyle = getComputedStyle(this.refs.sqleditor);
-
-        var elementHeight = this.refs.sqleditor.clientHeight;
         var elementWidth = this.refs.sqleditor.clientWidth;
-
-        elementHeight -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
         elementWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+        let text = this.refs.sqleditor.value.substr(0, this.refs.sqleditor.selectionStart).replace(/\n$/, "\n");
+        let textArr = text.split("\n");
+        if(textArr.length > 1) text = textArr[textArr.length - 1];
 
-        this.refs.textAreaMirrorInline.innerHTML = this.refs.sqleditor.value.substr(0, this.refs.sqleditor.selectionStart).replace(/\n$/, "\n");
-        var rects = this.refs.textAreaMirrorInline.getClientRects(),
-            lastRect = rects[rects.length - 1],
-            top = lastRect.top - this.refs.sqleditor.scrollTop + $('.modals.dimmer').scrollTop(),
-            left = this.refs.textAreaMirror.offsetLeft + parseFloat(computedStyle.paddingLeft) + (lastRect.width % elementWidth);
-        //elementWidth < lastRect.width ? 
-        
-        console.log(this.refs.textAreaMirror.offsetTop)
-        console.log(this.refs.textAreaMirror.offsetLeft)
-        console.log(top)
-        console.log(left)
-        this.refs.hintTracker.style.top = top + "px";
-        this.refs.hintTracker.style.left = left + "px";
+        if(key && key == '.') {
+            var hintArr = text.split(' ');
+            var hintText = hintArr[hintArr.length - 1];
+            if(key == hintText) {
+                $(this.refs.hintTracker).show();
+            }
+        } else if(key) {
+            $(this.refs.hintTracker).hide();
+        }
+
+        let ctx = document.createElement('canvas').getContext('2d');
+        ctx.font = computedStyle.font;
+        let measureResult = ctx.measureText(text);
+        let fontHeight = parseInt(computedStyle.font.match("\/ (.*?)px")[1]);
+        let fontWidth = measureResult.width;
+        this.refs.hintTracker.style.left = this.refs.sqleditor.offsetLeft + parseFloat(computedStyle.paddingLeft) + (measureResult.width % elementWidth) + "px";
+        this.refs.hintTracker.style.top = this.refs.sqleditor.offsetTop + parseFloat(computedStyle.paddingTop) - this.refs.sqleditor.scrollTop +
+                                          (measureResult.width / elementWidth + (textArr.length - 1)) * fontHeight + "px";
     }
 });

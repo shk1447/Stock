@@ -16,7 +16,8 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.ProvidePlugin({
             _: 'lodash',
-            $: 'jQuery',
+            $: 'jquery',
+            jQuery: 'jquery',
             React : 'react',
             ReactDOM : 'react-dom'
         })

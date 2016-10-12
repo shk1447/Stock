@@ -61,7 +61,22 @@ module.exports = React.createClass({
             {group:8},
             {group:8},
             {value:'AddFields', text:"AddFields", type:"AddFields",group:9},
-            {value:'SQLEditor', text:"SQLEditor", type:"SQLEditor",group:9},
+            {value:'SQLEditor', text:"SQLEditor", type:"SQLEditor",group:9, options:[{
+                name:"current_finance",
+                items:[{
+                    name:"000020",
+                    items:[{
+                        name:"idx",
+                        items:[]
+                    },{
+                        name:"rawdata",
+                        items:["a","b","c"]
+                    },{
+                        name:"unixtime",
+                        items:[]
+                    }]
+                }]
+            }]},
             {
                 value:'DynamicSelect', 
                 text:"DYNAMIC SELECT", 

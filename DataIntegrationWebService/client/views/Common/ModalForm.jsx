@@ -235,7 +235,7 @@ module.exports = React.createClass({
                         break;
                     }
                     case 'SQLEditor': {
-                        fieldElement = <Form.Field key={fieldInfo.value} control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        fieldElement = <Form.Field key={fieldInfo.value} options={fieldInfo.options} control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
                     case 'AddFields' :{
@@ -258,7 +258,7 @@ module.exports = React.createClass({
 
         return (
             <div>
-                <Modal className='ModalForm' basic size={size} closeOnEscape={false} closeOnClickOutside={false} dimmer={dimmer} active={active} onHide={this.hide}>
+                <Modal id='ModalContainer' className='ModalForm' basic size={size} closeOnEscape={false} closeOnClickOutside={false} dimmer={dimmer} active={active} onHide={this.hide}>
                     <Modal.Header>{title}</Modal.Header>
                     <Modal.Content>
                         <Form>
