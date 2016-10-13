@@ -16,6 +16,11 @@ module.exports = React.createClass({
         $hint.click(function(e){
             console.log(e.target.innerText);
         });
+        $edit.keydown(function(e){
+            if (e.which == 9) {
+                e.preventDefault();
+            }
+        });
         $edit.keyup(function(e){
             self.update(e.key);
         });
@@ -31,12 +36,12 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {options:_.cloneDeep(this.props.options)};
+		return {schema:_.cloneDeep(this.props.schema)};
 	},
     render : function () {
-        const { options } = this.state;
+        const { schema } = this.state;
         var liArr = [];
-        _.each(options, function(row,i){
+        _.each(schema, function(row,i){
             liArr.push(<li key={i}>{row.name}</li>)
         });
         return (
@@ -59,13 +64,43 @@ module.exports = React.createClass({
         let textArr = text.split("\n");
         if(textArr.length > 1) text = textArr[textArr.length - 1];
 
+        var hintArr = text.split(' ');
+        var hintText = hintArr[hintArr.length - 1];
         if(key && key == '.') {
-            var hintArr = text.split(' ');
-            var hintText = hintArr[hintArr.length - 1];
             if(key == hintText) {
+                this.setState({schema:this.props.schema});
+                $(this.refs.hintTracker).show();
+            } else if(hintText.length > 1) {
+                let deepHintArr = hintText.split('.');
+                let lastHintArr = this.props.schema;
+                for(var i = 0; i < deepHintArr.length; i++){
+                    let hint = deepHintArr[i];
+                    if(hint == "") continue;
+                    let hints = lastHintArr.find(function(d){
+                        return d.name.startsWith(hint);
+                    });
+                    lastHintArr = hints.items;
+                }
+                this.setState({schema:lastHintArr});
                 $(this.refs.hintTracker).show();
             }
         } else if(key) {
+            if(hintText != "") {
+                let deepHintArr = hintText.split('.');
+                let lastHintText = deepHintArr[deepHintArr.length - 1];
+                var selectedItem = this.state.schema.filter(function(d){
+                    return d.name.startsWith(lastHintText);
+                });
+                if(selectedItem.length > 0) {
+                    this.setState({schema:selectedItem});
+                    $(this.refs.hintTracker).show();
+                } else {
+                    $(this.refs.hintTracker).hide();
+                }
+            } else {
+                $(this.refs.hintTracker).hide();
+            }
+        } else {
             $(this.refs.hintTracker).hide();
         }
 

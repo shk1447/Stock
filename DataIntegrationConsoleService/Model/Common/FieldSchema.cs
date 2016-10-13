@@ -40,6 +40,9 @@ namespace Model.Common
         [DataMember]
         public List<OptionsSchema> options { get; set; }
 
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public List<DataSchema> schema { get; set; }
+
         public FieldSchema(string text, string value, string type, int group, bool required = false)
         {
             this.text = text; this.value = value; this.type = type; this.group = group; this.required = required;
@@ -56,6 +59,12 @@ namespace Model.Common
         public FieldSchema AddOptions(OptionsSchema option)
         {
             this.options.Add(option);
+            return this;
+        }
+
+        public FieldSchema AddSchema(DataSchema schema)
+        {
+            this.schema.Add(schema);
             return this;
         }
     }

@@ -61,19 +61,30 @@ module.exports = React.createClass({
             {group:8},
             {group:8},
             {value:'AddFields', text:"AddFields", type:"AddFields",group:9},
-            {value:'SQLEditor', text:"SQLEditor", type:"SQLEditor",group:9, options:[{
+            {value:'SQLEditor', text:"SQLEditor", type:"SQLEditor",group:9, schema:[{
                 name:"current_finance",
                 items:[{
                     name:"000020",
                     items:[{
-                        name:"idx",
-                        items:[]
+                        name:"idx"
                     },{
                         name:"rawdata",
-                        items:["a","b","c"]
+                        items:[{name:"a"},{name:"b"},{name:"c"}]
                     },{
-                        name:"unixtime",
-                        items:[]
+                        name:"unixtime"
+                    }]
+                }]
+            },{
+                name:"past_finance",
+                items:[{
+                    name:"000020",
+                    items:[{
+                        name:"idx"
+                    },{
+                        name:"rawdata",
+                        items:[{name:"a"},{name:"b"},{name:"c"}]
+                    },{
+                        name:"unixtime"
                     }]
                 }]
             }]},
