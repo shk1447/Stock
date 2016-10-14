@@ -124,9 +124,7 @@ ENGINE=InnoDB;
 CREATE TABLE `data_analysis` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL,
-	`source` VARCHAR(50) NULL DEFAULT NULL,
-	`categories` TEXT NULL DEFAULT NULL,
-	`collected_at` VARCHAR(50) NULL DEFAULT NULL,
+	`target_source` VARCHAR(50) NULL DEFAULT NULL,
 	`analysis_query` TEXT NULL DEFAULT NULL,
 	`options` BLOB NULL DEFAULT NULL,
 	`schedule` BLOB NULL DEFAULT NULL,
@@ -134,7 +132,7 @@ CREATE TABLE `data_analysis` (
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),
-	INDEX `index_columns` (`source`, `unixtime`)
+	INDEX `index_columns` (`target_source`, `unixtime`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
@@ -146,7 +144,7 @@ CREATE TABLE `data_collection` (
 	`method_name` VARCHAR(50) NULL DEFAULT NULL,
 	`options` BLOB NULL DEFAULT NULL,
 	`schedule` BLOB NULL DEFAULT NULL,
-	`status` VARCHAR(50) NULL DEFAULT 'STOP',
+	`status` VARCHAR(50) NULL DEFAULT 'stop',
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),

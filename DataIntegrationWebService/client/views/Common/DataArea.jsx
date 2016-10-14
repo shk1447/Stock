@@ -1,4 +1,5 @@
 var React = require('react');
+var { Icon } =  require('stardust');
 
 module.exports = React.createClass({
     displayName: 'DataArea',
@@ -12,7 +13,6 @@ module.exports = React.createClass({
 		return {data:this.props.data,fields:this.props.fields};
 	},
     render : function () {
-        console.log('render data area');
         var trArr = [];
         var self = this;
         const {data,fields} = this.state;
@@ -38,7 +38,12 @@ module.exports = React.createClass({
                             data = data.value;
                         }
                     }
-                    tdArr.splice(0,0,<td key={index}>{data}</td>);
+                    if(field.type == 'Action') {
+                        let icon = data + " circle";
+                        tdArr.splice(0,0,<td key={index}><Icon size='large' onClick={self.props.executeItem} name={icon}/></td>);
+                    } else {
+                        tdArr.splice(0,0,<td key={index}>{data}</td>);
+                    }
                 }
             });
 
@@ -65,7 +70,7 @@ module.exports = React.createClass({
                 e.target.parentElement.className = 'selected'
             }
         } else if (e.shiftKey) {
-            console.log(e.target.parentElement.attributes.name.value);
+            //console.log(e.target.parentElement.attributes.name.value);
         }
     }
 });

@@ -122,14 +122,17 @@ namespace DIWebSocket.Services
                                 }
                             case "getlist":
                                 {
+                                    returnString = analysisLogic.GetList();
                                     break;
                                 }
                             case "create":
                                 {
+                                    returnString = analysisLogic.Create(reqInfo["parameters"]);
                                     break;
                                 }
                             case "modify":
                                 {
+                                    returnString = analysisLogic.Modify(reqInfo["parameters"]);
                                     break;
                                 }
                             case "delete":

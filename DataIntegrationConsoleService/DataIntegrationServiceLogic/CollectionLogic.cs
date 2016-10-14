@@ -20,6 +20,8 @@ namespace DataIntegrationServiceLogic
         {
             var fields = new List<FieldSchema>();
 
+            fields.Add(new FieldSchema("STATUS", "status", "Action", 5));
+
             fields.Add(new FieldSchema("COLLECTION NAME", "name", "Text", 0, true).AddAttributes("maxlength", 10));
             var moduleField = new FieldSchema("MODULE NAME", "module_name", "Select", 1, true)
             {
@@ -59,7 +61,6 @@ namespace DataIntegrationServiceLogic
             fields.Add(new FieldSchema("START", "start", "TimePicker", 4, true) { datakey = "schedule" });
             fields.Add(new FieldSchema("END", "end", "TimePicker", 4, true) { datakey = "schedule" });
             fields.Add(new FieldSchema("INTERVAL", "interval", "Number", 4, true) { datakey = "schedule" });
-            fields.Add(new FieldSchema("STATUS", "status", "Data", 5));
             fields.Add(new FieldSchema("UPDATED TIME", "unixtime", "Data", 5));
 
             return DataConverter.Serializer<List<FieldSchema>>(fields);

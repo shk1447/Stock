@@ -74,7 +74,6 @@ module.exports = React.createClass({
         )
     },
     signOut : function(e) {
-        console.log('Sign Out');
         cookies.erase('accessToken');
         this.context.router.replace('/Login/');
     },

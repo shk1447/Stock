@@ -14,7 +14,7 @@ module.exports = React.createClass({
 		return {active:this.props.active, fields:this.props.fields, data:this.props.data, title:this.props.title, dimmer:this.props.dimmer};
 	},
     render : function () {
-        console.log('render UpdateControl');
+        //console.log('render UpdateControl');
         const { fields, data, dimmer, title, active } = this.state;
         
         return (

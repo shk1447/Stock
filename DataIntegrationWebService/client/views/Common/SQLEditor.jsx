@@ -42,7 +42,9 @@ module.exports = React.createClass({
         const { schema } = this.state;
         var liArr = [];
         _.each(schema, function(row,i){
-            liArr.push(<li key={i}>{row.name}</li>)
+            if(i > 10) return;
+            var val = row.name ? row.name : row;
+            liArr.push(<li key={i}>{val}</li>)
         });
         return (
             <div>
@@ -77,7 +79,8 @@ module.exports = React.createClass({
                     let hint = deepHintArr[i];
                     if(hint == "") continue;
                     let hints = lastHintArr.find(function(d){
-                        return d.name.startsWith(hint);
+                        var val = d.name ? d.name : d;
+                        return val.startsWith(hint);
                     });
                     lastHintArr = hints.items;
                 }
@@ -89,7 +92,8 @@ module.exports = React.createClass({
                 let deepHintArr = hintText.split('.');
                 let lastHintText = deepHintArr[deepHintArr.length - 1];
                 var selectedItem = this.state.schema.filter(function(d){
-                    return d.name.startsWith(lastHintText);
+                    var val = d.name ? d.name : d;
+                    return val.startsWith(lastHintText);
                 });
                 if(selectedItem.length > 0) {
                     this.setState({schema:selectedItem});

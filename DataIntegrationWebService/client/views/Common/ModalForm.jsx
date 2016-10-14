@@ -33,14 +33,14 @@ module.exports = React.createClass({
 
         if(this.state.fields) {
             this.state.fields = this.state.fields.filter(function(d){
-            return !d.temp;
-        });
-        var dynamicFields = this.state.fields.filter(function(d){
-            return d.type=='Select' && d.dynamic;
-        });
-        if(dynamicFields.length > 0) {
-            self.setDynamicFields(dynamicFields);
-        }
+                return !d.temp;
+            });
+            var dynamicFields = this.state.fields.filter(function(d){
+                return d.type=='Select' && d.dynamic;
+            });
+            if(dynamicFields.length > 0) {
+                self.setDynamicFields(dynamicFields);
+            }
         }
 
         const {fields, size, dimmer, active, title } = this.state;
@@ -63,7 +63,7 @@ module.exports = React.createClass({
             for(let i = 0; i < group.length; i++) {
                 let fieldInfo = group[i];
                 let fieldElement = undefined;
-                if(fieldInfo.type == 'Data') { continue; }
+                if(fieldInfo.type == 'Data' || fieldInfo.type == 'Action') { continue; }
                 switch(fieldInfo.type) {
                     case 'Radio' :{
                         let defaultData;
@@ -143,7 +143,7 @@ module.exports = React.createClass({
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} onSearchChange={self.handleSearchChange.bind(self,fieldInfo,fields)}
                                         control={Dropdown} options={fieldInfo.options} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text}
-                                        compact search selection fluid multiple scrolling simple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
+                                        compact search selection multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     } 
                     case 'TextArea' : {
@@ -235,10 +235,15 @@ module.exports = React.createClass({
                         break;
                     }
                     case 'SQLEditor': {
-                        fieldElement = <Form.Field key={fieldInfo.value} options={fieldInfo.options} control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        fieldElement = <Form.Field key={fieldInfo.value} schema={fieldInfo.schema} control={SQLEditor} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
-                    case 'AddFields' :{
+                    case 'AddFields' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
+                        _.each(defaultData, function(value, key){
+                            console.log(key);
+                        });
                         fieldElement = <Form.Field key={fieldInfo.value} className='transparency'>
                                             <label name={fieldInfo.value}>{fieldInfo.text}</label>
                                             <Button name={fieldInfo.value} type='button' onClick={self.handleChange.bind(self,fieldInfo,fields)} circular icon='plus' />
@@ -385,8 +390,11 @@ module.exports = React.createClass({
                 break;
             }
             case 'sqleditor' : {
-                console.log('hohohohoho');
-                console.log(e.target.value);
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e.target.value;
+                } else {
+                    this.state.data[field.value] = e.target.value;
+                }
                 break;
             }
             case 'timepicker' : {
@@ -434,7 +442,7 @@ module.exports = React.createClass({
                 break;
             }
             case 'addfields' : {
-                this.refs.DynamicField.setState({active:true});
+                this.refs.DynamicField.setState({active:true,field:{datakey:field.datakey}});
                 break;
             }
         }

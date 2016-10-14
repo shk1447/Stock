@@ -25,7 +25,6 @@ module.exports = React.createClass({
 		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data, searchable: this.props.searchable, updatable : this.props.updatable };
 	},
     render : function () {
-        console.log('render DataTable');
         const { data, fields, filters, title } = this.state;
         var thArr = [];
         fields.forEach(function(row,i){
@@ -54,7 +53,7 @@ module.exports = React.createClass({
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
-                        <DataArea ref='DataArea' data={data} fields={fields} modify={this.modifyItem}/>
+                        <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>
             </div>

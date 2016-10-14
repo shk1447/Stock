@@ -55,7 +55,7 @@ module.exports = React.createClass({
         const {data,fields,filters} = this.state;
         return (
             <div style={{height:'850px'}}>
-                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable callback={this.callbackCollection}/>
+                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable executeItem={this.executeCollection} callback={this.callbackCollection}/>
                 <MessageBox ref='alert_messagebox' />
             </div>
         )
@@ -68,5 +68,8 @@ module.exports = React.createClass({
             var data = {"broadcast":false,"target":"collection.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
         }
+    },
+    executeCollection : function(item) {
+        console.log(item);
     }
 });

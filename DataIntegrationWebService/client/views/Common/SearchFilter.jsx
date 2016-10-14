@@ -32,7 +32,6 @@ module.exports = React.createClass({
 		return {fields:this.props.fields, filters:this.props.filters};
 	},
     render : function () {
-        console.log('render search filter');
         const {fields,filters} = this.state;
         var fieldsOptions = [];
         
