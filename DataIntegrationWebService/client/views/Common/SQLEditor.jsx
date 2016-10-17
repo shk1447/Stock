@@ -31,15 +31,18 @@ module.exports = React.createClass({
             self.update();
         });
     },
+    componentWillReceiveProps: function(nextProps) {
+        this.setState({defaultValue:nextProps.defaultValue});
+    },
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {schema:_.cloneDeep(this.props.schema)};
+		return {schema:_.cloneDeep(this.props.schema), defaultValue:this.props.defaultValue};
 	},
     render : function () {
-        const { schema } = this.state;
+        const { schema, defaultValue } = this.state;
         var liArr = [];
         _.each(schema, function(row,i){
             if(i > 10) return;
@@ -48,7 +51,7 @@ module.exports = React.createClass({
         });
         return (
             <div>
-                <textarea className='sqleditor' ref='sqleditor' onChange={this.props.onChange.bind(this.handleChange)} />
+                <textarea className='sqleditor' ref='sqleditor' value={defaultValue} onChange={this.props.onChange.bind(this.handleChange)} />
                 <ul className='hintTracker' ref='hintTracker'>
                     {liArr}
                 </ul>

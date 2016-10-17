@@ -52,7 +52,7 @@ module.exports = React.createClass({
                             </tr>
                         </thead>
                     </table>
-                    <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',direction: 'rtl'}}>
+                    <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto'}}>
                         <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>

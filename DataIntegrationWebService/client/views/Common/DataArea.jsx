@@ -40,9 +40,9 @@ module.exports = React.createClass({
                     }
                     if(field.type == 'Action') {
                         let icon = data + " circle";
-                        tdArr.splice(0,0,<td key={index}><Icon size='large' onClick={self.props.executeItem} name={icon}/></td>);
+                        tdArr.push(<td key={index}><Icon size='large' onClick={self.props.executeItem} name={icon}/></td>)
                     } else {
-                        tdArr.splice(0,0,<td key={index}>{data}</td>);
+                        tdArr.push(<td key={index}>{data}</td>);
                     }
                 }
             });

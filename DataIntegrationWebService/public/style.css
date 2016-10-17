@@ -23,11 +23,14 @@
     padding: 0;
     margin: 0;
 }
-th, td {
-    min-width: 200px;
+table.table-container th, td {
+    min-width: 250px;
+    max-width: 250px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden
 }
 table.table-container {
-    height: 100%;
     width: 100%;
     user-select: none;
     -webkit-user-select: none;
@@ -35,7 +38,7 @@ table.table-container {
 }
 .table-container thead tr {
     height: 45px;
-    background : #35bdb2;
+    background : #205081;
     color: #f9fffa;
 }
 .table-container thead tr th {
