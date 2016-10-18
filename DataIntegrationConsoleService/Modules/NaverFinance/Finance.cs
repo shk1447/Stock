@@ -15,19 +15,20 @@ using System.Threading;
 using Common;
 using Helper;
 using Connector;
+using System.Json;
 
 namespace Finance
 {
     public class Finance : ISourceModule
     {
-        private Dictionary<string, Dictionary<string,object>> config;
+        private Dictionary<string, JsonValue> config;
         private Dictionary<string, Delegate> functionDict;
 
         public Finance()
         {
-            this.config = new Dictionary<string, Dictionary<string, object>>();
+            this.config = new Dictionary<string, JsonValue>();
             this.functionDict = new Dictionary<string, Delegate>();
-            var StockInformationConfig = new Dictionary<string,object>();
+            var StockInformationConfig = new JsonObject();
             StockInformationConfig.Add("days", 1);
             StockInformationConfig.Add("method", "history");
             this.config.Add("StockInformation", StockInformationConfig);
@@ -41,7 +42,7 @@ namespace Finance
 
         #region ISourceModule 멤버
 
-        public void SetConfig(string method, Dictionary<string, object> config)
+        public void SetConfig(string method, JsonValue config)
         {
             foreach (var kv in config)
             {
@@ -55,7 +56,7 @@ namespace Finance
             }
         }
 
-        public Dictionary<string, Dictionary<string, object>> GetConfig()
+        public Dictionary<string, JsonValue> GetConfig()
         {
             return this.config;
         }

@@ -153,5 +153,14 @@ namespace DataIntegrationServiceLogic
 
             return res.ToString();
         }
+
+        public string Delete(JsonValue jsonObj)
+        {
+            var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
+
+            var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+
+            return res.ToString();
+        }
     }
 }

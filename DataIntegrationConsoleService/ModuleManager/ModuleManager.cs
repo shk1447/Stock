@@ -10,6 +10,7 @@ using Model.Request;
 using ModuleInterface;
 using Helper;
 using Model.Response;
+using System.Json;
 
 namespace SourceModuleManager
 {
@@ -47,16 +48,16 @@ namespace SourceModuleManager
             this.sourceModules = AssemblyLoader.LoadAll<ISourceModule>();
         }
 
-        public Dictionary<string, Dictionary<string, JsonDictionary>> GetSourceModuleInfo()
+        public Dictionary<string, Dictionary<string, JsonValue>> GetSourceModuleInfo()
         {
-            var sourceDict = new Dictionary<string,Dictionary<string, JsonDictionary>>();
+            var sourceDict = new Dictionary<string,Dictionary<string, JsonValue>>();
 
             foreach (var module in this.sourceModules)
             {
-                var methodDict = new Dictionary<string, JsonDictionary>();
+                var methodDict = new Dictionary<string, JsonValue>();
                 foreach (var method in module.Value.GetConfig())
                 {
-                    var jsonConfig = new JsonDictionary(method.Value);
+                    var jsonConfig = method.Value;
                     methodDict.Add(method.Key, jsonConfig);
                 }
 
@@ -79,19 +80,19 @@ namespace SourceModuleManager
             return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
         }
 
-        public void ExecuteModule(GetCollectionModuleRes moduleInfo)
+        public void ExecuteModule(JsonValue moduleInfo)
         {
             var assembly = new nvParser();
-            var moduleName = moduleInfo.module_name;
-            var methodName = moduleInfo.method_name;
+            var moduleName = moduleInfo["module_name"].ReadAs<string>();
+            var methodName = moduleInfo["method_name"].ReadAs<string>();
 
             var module = GetSourceModule(moduleName);
-            if (moduleInfo.options != null)
-                module.SetConfig(methodName, moduleInfo.options.GetDictionary());
+            if (moduleInfo["options"] != null)
+                module.SetConfig(methodName, moduleInfo["options"]);
 
             module.ExecuteModule(methodName);
 
-            var whereDict = new Dictionary<string, object>() { { "name", moduleInfo.name } };
+            var whereDict = new Dictionary<string, object>() { { "name", moduleInfo["name"].ReadAs<string>() } };
             var setDict = new Dictionary<string, object>() { { "status", "done" } };
             var statusUpdate = MariaQueryBuilder.UpdateQuery("data_collection", whereDict, setDict);
             MariaDBConnector.Instance.SetQuery(statusUpdate);

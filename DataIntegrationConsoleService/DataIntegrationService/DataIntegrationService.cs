@@ -205,7 +205,7 @@ namespace DataIntegrationService
 
             var res = new GetModuleStructureRes();
 
-            res.collection_modules = ModuleManager.Instance.GetSourceModuleInfo();
+            //res.collection_modules = ModuleManager.Instance.GetSourceModuleInfo();
 
             return res;
         }

@@ -32,47 +32,52 @@ namespace DIWebSocket.Services
             var target = reqInfo["target"].ReadAs<string>().Split('.');
             switch (target[0].ToLower())
             {
+                #region Member
                 case "member":
                     {
-                        var memberLoic = new MemberLogic();
+                        var memberLogic = new MemberLogic();
                         switch (target[1].ToLower())
                         {
                             case "schema":
                                 {
-                                    returnString = memberLoic.Schema();
+                                    returnString = memberLogic.Schema();
                                     break;
                                 }
                             case "access":
                                 {
-                                    var result = memberLoic.Access(reqInfo["parameters"]);
+                                    var result = memberLogic.Access(reqInfo["parameters"]);
                                     returnString = result;
                                     break;
                                 }
                             case "getlist":
                                 {
-                                    var result = memberLoic.GetList();
+                                    var result = memberLogic.GetList();
                                     returnString = result;
                                     break;
                                 }
                             case "create":
                                 {
-                                    var result = memberLoic.Create(reqInfo["parameters"]);
+                                    var result = memberLogic.Create(reqInfo["parameters"]);
                                     returnString = result;
                                     break;
                                 }
                             case "modify":
                                 {
-                                    var result = memberLoic.Modify(reqInfo["parameters"]);
+                                    var result = memberLogic.Modify(reqInfo["parameters"]);
                                     returnString = result;
                                     break;
                                 }
                             case "delete":
                                 {
+                                    returnString = memberLogic.Delete(reqInfo["parameters"]);
                                     break;
                                 }
                         }
                         break;
                     }
+                #endregion
+
+                #region Collection
                 case "collection":
                     {
                         var collectionLogic = new CollectionLogic();
@@ -100,15 +105,20 @@ namespace DIWebSocket.Services
                                 }
                             case "delete":
                                 {
+                                    returnString = collectionLogic.Delete(reqInfo["parameters"]);
                                     break;
                                 }
                             case "execute":
                                 {
+                                    returnString = collectionLogic.Execute(reqInfo["parameters"]);
                                     break;
                                 }
                         }
                         break;
                     }
+                #endregion
+
+                #region Analysis
                 case "analysis":
                     {
                         var analysisLogic = new AnalysisLogic();
@@ -137,6 +147,7 @@ namespace DIWebSocket.Services
                                 }
                             case "delete":
                                 {
+                                    returnString = analysisLogic.Delete(reqInfo["parameters"]);
                                     break;
                                 }
                             case "execute":
@@ -146,6 +157,47 @@ namespace DIWebSocket.Services
                         }
                         break;
                     }
+                #endregion
+
+                #region DataView
+                case "view":
+                    {
+                        var viewLogic = new ViewLogic();
+                        switch (target[1].ToLower())
+                        {
+                            case "schema":
+                                {
+                                    returnString = viewLogic.Schema();
+                                    break;
+                                }
+                            case "getlist":
+                                {
+                                    returnString = viewLogic.GetList();
+                                    break;
+                                }
+                            case "create":
+                                {
+                                    returnString = viewLogic.Create(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "modify":
+                                {
+                                    returnString = viewLogic.Modify(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "delete":
+                                {
+                                    returnString = viewLogic.Delete(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "execute":
+                                {
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                #endregion
             }
 
             this.Send(returnString);

@@ -47,6 +47,8 @@
     <Compile Include="CollectionLogic.cs" />
     <Compile Include="MemberLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scheduler.cs" />
+    <Compile Include="ViewLogic.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

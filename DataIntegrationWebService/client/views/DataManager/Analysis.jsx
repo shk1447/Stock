@@ -26,7 +26,7 @@ module.exports = React.createClass({
                 var data = {"broadcast":true,"target":"analysis.getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
             } else {
-                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+                self.refs.alert_messagebox.setState({title:'ALERT (CREATE ANALYSIS)',message:data.message, active : true})
             }
         });
         self.socket.on('analysis.modify', function(data) {
@@ -35,7 +35,7 @@ module.exports = React.createClass({
                 var data = {"broadcast":true,"target":"analysis.getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
             } else {
-                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+                self.refs.alert_messagebox.setState({title:'ALERT (MODIFY ANALYSIS)',message:data.message, active : true})
             }
         });
 
@@ -67,6 +67,9 @@ module.exports = React.createClass({
         } else if (result.action == 'update') {
             var data = {"broadcast":false,"target":"analysis.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
+        } else if (result.action == 'delete') {
+            console.log(this.refs.AnalysisTable.refs.DataArea.state.selectedItems);
+            console.log(result);
         }
     },
     executeAnalysis : function(item) {

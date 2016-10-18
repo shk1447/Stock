@@ -94,6 +94,29 @@ namespace Connector
             return query;
         }
 
+        public static string UpdateQuery2(string TableName, JsonValue whereKV, JsonValue setKV)
+        {
+            var query = "UPDATE " + TableName + " SET ";
+
+            var count = 1;
+            foreach (var kv in setKV)
+            {
+                var separator = count < setKV.Count ? ", " : "";
+                query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() +"\"" + separator;
+                count++;
+            }
+            query = query + " WHERE ";
+            count = 1;
+            foreach (var kv in whereKV)
+            {
+                var separator = count < whereKV.Count ? "AND " : "";
+                query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() + "\" " + separator;
+                count++;
+            }
+
+            return query;
+        }
+
         public static string UpsertQuery(string table, Dictionary<string, object> row, bool upsert = true)
         {
             var query = "INSERT INTO " + table;
@@ -185,6 +208,20 @@ namespace Connector
             query = query + values.Substring(0, values.Length - 1) + ")";
 
             if (upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
+
+            return query;
+        }
+
+        public static string DeleteQuery(string table, JsonValue where)
+        {
+            var query = "DELETE FROM " + table + " WHERE ";
+
+            foreach (var kv in where)
+            {
+                query = query + kv.Key + "='" + kv.Value.ReadAs<string>() + "' AND";
+            }
+
+            query = query.Substring(0, query.Length - 4);
 
             return query;
         }

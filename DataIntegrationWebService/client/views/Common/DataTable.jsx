@@ -25,6 +25,7 @@ module.exports = React.createClass({
 		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data, searchable: this.props.searchable, updatable : this.props.updatable };
 	},
     render : function () {
+        var self = this;
         const { data, fields, filters, title } = this.state;
         var thArr = [];
         fields.forEach(function(row,i){

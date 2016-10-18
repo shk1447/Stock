@@ -26,7 +26,7 @@ module.exports = React.createClass({
                 var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
             } else {
-                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+                self.refs.alert_messagebox.setState({title:'ALERT (CREATE COLLECTION)',message:data.message, active : true})
             }
         });
         self.socket.on('collection.modify', function(data) {
@@ -35,7 +35,7 @@ module.exports = React.createClass({
                 var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
             } else {
-                self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
+                self.refs.alert_messagebox.setState({title:'ALERT (MODIFY COLLECTION)',message:data.message, active : true})
             }
         });
 

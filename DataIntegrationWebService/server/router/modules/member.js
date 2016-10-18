@@ -28,5 +28,8 @@ module.exports = {
 	},
 	create:function(data) {
 		return data;
-	}
+	},
+    delete : function(data) {
+        return data;
+    }
 };

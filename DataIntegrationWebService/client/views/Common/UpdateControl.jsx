@@ -29,7 +29,7 @@ module.exports = React.createClass({
         )
     },
     removeItems : function(e){
-        
+        this.props.callback({action:"delete"});
     },
     show : function() {
         this.refs.ModalForm.setState({action:'insert', active:true,fields:_.cloneDeep(this.state.fields),data:_.cloneDeep(this.state.data)});

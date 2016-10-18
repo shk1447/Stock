@@ -10,7 +10,7 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {data:this.props.data,fields:this.props.fields};
+		return {data:this.props.data,fields:this.props.fields,selectedItems:[]};
 	},
     render : function () {
         var trArr = [];
@@ -65,8 +65,10 @@ module.exports = React.createClass({
     handleClickItem : function(e) {
         if(e.ctrlKey) {
             if(e.target.parentElement.className == 'selected') {
+                this.state.selectedItems.splice(e.target.parentElement.attributes.name.value,1)
                 e.target.parentElement.className = ''
             } else {
+                this.state.selectedItems.splice(e.target.parentElement.attributes.name.value,1,this.state.data[e.target.parentElement.attributes.name.value])
                 e.target.parentElement.className = 'selected'
             }
         } else if (e.shiftKey) {

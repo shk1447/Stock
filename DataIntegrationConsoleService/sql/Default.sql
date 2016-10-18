@@ -112,11 +112,10 @@ CREATE TABLE `data_view` (
 	`name` VARCHAR(50) NULL DEFAULT NULL,
 	`view_type` VARCHAR(50) NULL DEFAULT NULL,
 	`view_query` TEXT NULL DEFAULT NULL,
-	`options` BLOB NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),
-	INDEX `index_columns` (`unixtime`, `viewtype`)
+	INDEX `index_columns` (`unixtime`, `view_type`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
