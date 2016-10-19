@@ -391,6 +391,10 @@ namespace Connector
                                             if (!string.IsNullOrWhiteSpace(jsonString))
                                                 obj.Add(reader.GetName(i), JsonValue.Parse(jsonString));
                                         }
+                                        else if (reader.GetValue(i).GetType().Name == "DBNull")
+                                        {
+                                            obj.Add(reader.GetName(i), null);
+                                        }
                                         else
                                         {
                                             obj.Add(reader.GetName(i), reader.GetString(i));
@@ -459,6 +463,10 @@ namespace Connector
                                         var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
                                         if (!string.IsNullOrWhiteSpace(jsonString))
                                             ret.Add(reader.GetName(i), JsonValue.Parse(jsonString));
+                                    }
+                                    else if(reader.GetValue(i).GetType().Name == "DBNull")
+                                    {
+                                        ret.Add(reader.GetName(i), null);
                                     }
                                     else
                                     {

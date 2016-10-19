@@ -38,6 +38,10 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY COLLECTION)',message:data.message, active : true})
             }
         });
+        self.socket.on('collection.execute', function(data) {
+            var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
+            self.socket.emit('fromclient', data);
+        });
 
         var data = {"broadcast":false,"target":"collection.schema", "parameters":{}};
         self.socket.emit('fromclient', data);
@@ -70,6 +74,8 @@ module.exports = React.createClass({
         }
     },
     executeCollection : function(item) {
+        var data = {"broadcast":false,"target":"collection.execute", "parameters":{name:item.name,command:'start'}};
+        this.socket.emit('fromclient', data);
         console.log(item);
     }
 });

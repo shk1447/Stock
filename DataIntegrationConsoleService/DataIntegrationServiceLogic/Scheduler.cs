@@ -11,17 +11,18 @@ namespace DataIntegrationServiceLogic
 {
     public static class Scheduler
     {
-        public static void ExecuteScheduler(string tableName, JsonValue whereKV, JsonValue schedule, JsonValue setDict, Func<string, bool> action)
+        public static void ExecuteScheduler(string tableName, string action_type, JsonValue whereKV, JsonValue schedule, JsonValue setDict, Func<string, bool> action)
         {
             string statusUpdate = string.Empty;
             var switchMode = "wait";
-            if (schedule != null)
+            if (action_type == "schedule")
             {
-                var start = DateTime.Parse(schedule["start"].ToString()).TimeOfDay;
-                var end = DateTime.Parse(schedule["end"].ToString()).TimeOfDay;
+                var start = DateTime.Parse(schedule["start"].ReadAs<string>()).TimeOfDay;
+                var end = DateTime.Parse(schedule["end"].ReadAs<string>()).TimeOfDay;
                 //MON,TUE,WED,THU,FRI,SAT,SUN
-                var weekDays = schedule["weekdays"].ToString().Split(',').ToList();
-                var interval = int.Parse(schedule["interval"].ToString());
+                var weekDays = new List<string>();
+                schedule["weekdays"].ToList().ForEach(a => weekDays.Add(a.Value.ReadAs<string>()));
+                var interval = int.Parse(schedule["interval"].ReadAs<string>());
 
                 while (true)
                 {

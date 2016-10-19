@@ -294,7 +294,7 @@ module.exports = React.createClass({
                 var selectedOptions = row.options.find(function(d){
                     return d.value == self.state.data[row.value];
                 });
-                if(selectedOptions) {
+                if(selectedOptions && selectedOptions.fields) {
                     var subDynamicFields = selectedOptions.fields.filter(function(d){
                         return d.type == 'Select' && d.dynamic;
                     });

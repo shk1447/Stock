@@ -25,7 +25,7 @@ namespace SourceModuleManager
             try
             {
                 
-                var assembly = Assembly.LoadFile(Path.Combine(moduleFilePath, moduleName + ".dll"));
+                var assembly = Assembly.LoadFile(Path.Combine(moduleFilePath, moduleName));
 
                 foreach (var type in assembly.GetTypes())
                 {

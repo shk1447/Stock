@@ -149,7 +149,7 @@ namespace Finance
                     result.rawdata = new List<JsonDictionary>();
                     result.source = "Finance";
                     result.category = "종목코드";
-                    result.collected_at = this.config["StockInformation"]["method"].ToString() == "history" ? "날짜" : "";
+                    result.collected_at = this.config["StockInformation"]["method"].ReadAs<string>() == "history" ? "날짜" : "";
                     var json = new JsonDictionary();
 
                     try
@@ -170,7 +170,7 @@ namespace Finance
                         
                         var stockData = string.Empty;
                         var nvParser = new nvParser(종목코드);
-                        var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ToString()));
+                        var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ReadAs<string>()));
                         var columnInfo = new string[] {"날짜","종가","전일비","시가","고가","저가","거래량"};
                         Task.Factory.StartNew(() =>
                         {

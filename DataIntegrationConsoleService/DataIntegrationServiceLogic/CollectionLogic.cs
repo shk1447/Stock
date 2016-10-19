@@ -53,25 +53,33 @@ namespace DataIntegrationServiceLogic
             }
             fields.Add(moduleField);
 
-            fields.Add(new FieldSchema("WEEKDAYS", "weekdays", "MultiSelect", 3, true) { datakey = "schedule" }
-                .AddOptions(new OptionsSchema("MON", "월요일"))
-                .AddOptions(new OptionsSchema("TUE", "화요일"))
-                .AddOptions(new OptionsSchema("WED", "수요일"))
-                .AddOptions(new OptionsSchema("THU", "목요일"))
-                .AddOptions(new OptionsSchema("FRI", "금요일"))
-                .AddOptions(new OptionsSchema("SAT", "토요일"))
-                .AddOptions(new OptionsSchema("SUN", "일요일")));
-            fields.Add(new FieldSchema("START", "start", "TimePicker", 4, true) { datakey = "schedule" });
-            fields.Add(new FieldSchema("END", "end", "TimePicker", 4, true) { datakey = "schedule" });
-            fields.Add(new FieldSchema("INTERVAL", "interval", "Number", 4, true) { datakey = "schedule" });
-            fields.Add(new FieldSchema("UPDATED TIME", "unixtime", "Data", 5));
+            var actionTypeField = new FieldSchema("ACTION TYPE", "action_type", "Select", 3, true)
+            {
+                dynamic = true,
+                temp = false
+            }.AddOptions(new OptionsSchema("schedule", "예약 실행").AddFields(new FieldSchema("WEEKDAYS", "weekdays", "MultiSelect", 4, false) { temp = true, datakey = "schedule" }
+                    .AddOptions(new OptionsSchema("MON", "월요일"))
+                    .AddOptions(new OptionsSchema("TUE", "화요일"))
+                    .AddOptions(new OptionsSchema("WED", "수요일"))
+                    .AddOptions(new OptionsSchema("THU", "목요일"))
+                    .AddOptions(new OptionsSchema("FRI", "금요일"))
+                    .AddOptions(new OptionsSchema("SAT", "토요일"))
+                    .AddOptions(new OptionsSchema("SUN", "일요일")))
+                .AddFields(new FieldSchema("START", "start", "TimePicker", 5, false) { datakey = "schedule", temp = true })
+                .AddFields(new FieldSchema("END", "end", "TimePicker", 5, false) { datakey = "schedule", temp = true })
+                .AddFields(new FieldSchema("INTERVAL", "interval", "Number", 5, false) { datakey = "schedule", temp = true }))
+            .AddOptions(new OptionsSchema("once", "즉시 실행"));
+
+            fields.Add(actionTypeField);
+
+            fields.Add(new FieldSchema("UPDATED TIME", "unixtime", "Data", 6));
 
             return DataConverter.Serializer<List<FieldSchema>>(fields);
         }
 
         public string GetList()
         {
-            var selectedItems = new List<string>() { "name", "module_name", "method_name", "COLUMN_JSON(options) as options",
+            var selectedItems = new List<string>() { "name", "module_name", "method_name", "action_type", "COLUMN_JSON(options) as options",
                                                      "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
             var res = MariaDBConnector.Instance.GetJsonArray(query);
@@ -115,7 +123,8 @@ namespace DataIntegrationServiceLogic
             var name = jsonValue["name"].ReadAs<string>();
             var command = jsonValue["command"].ReadAs<string>();
 
-            var selectedItems = new List<string>() { "name", "module_name", "method_name", "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
+            var selectedItems = new List<string>() { "name", "module_name", "method_name", "action_type",
+                                                     "column_json(options) as options", "column_json(schedule) as schedule", "status", "unixtime" };
             var whereKV = new JsonObject(); whereKV.Add("name", name);
 
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
@@ -153,7 +162,7 @@ namespace DataIntegrationServiceLogic
                         var statusUpdate = string.Empty;
                         var thread = new Thread(new ThreadStart(() =>
                         {
-                            Scheduler.ExecuteScheduler(TableName, whereKV, moduleInfo["schedule"], setDict, action);
+                            Scheduler.ExecuteScheduler(TableName, moduleInfo["action_type"].ReadAs<string>(), whereKV, moduleInfo["schedule"], setDict, action);
                         }));
                         scheduleThread.Add(name, thread);
                         thread.Start();
@@ -170,7 +179,7 @@ namespace DataIntegrationServiceLogic
                     }
             }
 
-            throw new NotImplementedException();
+            return res.ToString();
         }
     }
 }

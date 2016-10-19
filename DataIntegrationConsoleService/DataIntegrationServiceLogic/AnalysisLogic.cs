@@ -64,55 +64,72 @@ namespace DataIntegrationServiceLogic
                                       new KeyValuePair<string, JsonValue>("required", true),
                                       new KeyValuePair<string, JsonValue>("schema", schemaArray)));
 
-            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "WEEKDAYS"),
-                                      new KeyValuePair<string, JsonValue>("value", "weekdays"),
-                                      new KeyValuePair<string, JsonValue>("type", "MultiSelect"),
+            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "ACTION TYPE"),
+                                      new KeyValuePair<string, JsonValue>("value", "action_type"),
+                                      new KeyValuePair<string, JsonValue>("type", "SELECT"),
                                       new KeyValuePair<string, JsonValue>("group", 3),
                                       new KeyValuePair<string, JsonValue>("required", true),
-                                      new KeyValuePair<string, JsonValue>("datakey", "schedule"),
+                                      new KeyValuePair<string, JsonValue>("dynamic", true),
                                       new KeyValuePair<string, JsonValue>("options", new JsonArray(
                                           new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "월요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "MON")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "화요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "TUE")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "수요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "WED")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "목요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "THU")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "금요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "FRI")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "토요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "SAT")
-                                          ), new JsonObject(
-                                              new KeyValuePair<string, JsonValue>("text", "일요일"),
-                                              new KeyValuePair<string, JsonValue>("value", "SUN")
-                                          )))));
-            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "START"),
-                                      new KeyValuePair<string, JsonValue>("value", "start"),
-                                      new KeyValuePair<string, JsonValue>("type", "TimePicker"),
-                                      new KeyValuePair<string, JsonValue>("group", 4),
-                                      new KeyValuePair<string, JsonValue>("datakey", "schedule"),
-                                      new KeyValuePair<string, JsonValue>("required", true)));
-
-            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "END"),
-                                      new KeyValuePair<string, JsonValue>("value", "end"),
-                                      new KeyValuePair<string, JsonValue>("type", "TimePicker"),
-                                      new KeyValuePair<string, JsonValue>("group", 4),
-                                      new KeyValuePair<string, JsonValue>("datakey", "schedule"),
-                                      new KeyValuePair<string, JsonValue>("required", true)));
-
-            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "INTERVAL"),
-                                      new KeyValuePair<string, JsonValue>("value", "interval"),
-                                      new KeyValuePair<string, JsonValue>("type", "Number"),
-                                      new KeyValuePair<string, JsonValue>("group", 4),
-                                      new KeyValuePair<string, JsonValue>("datakey", "schedule"),
-                                      new KeyValuePair<string, JsonValue>("required", true)));
+                                              new KeyValuePair<string, JsonValue>("text", "예약 실행"),
+                                              new KeyValuePair<string, JsonValue>("value", "schedule"),
+                                              new KeyValuePair<string, JsonValue>("fields", new JsonArray(
+                                                  new JsonObject(new KeyValuePair<string, JsonValue>("text", "WEEKDAYS"),
+                                                      new KeyValuePair<string, JsonValue>("value", "weekdays"),
+                                                      new KeyValuePair<string, JsonValue>("type", "MultiSelect"),
+                                                      new KeyValuePair<string, JsonValue>("group", 4),
+                                                      new KeyValuePair<string, JsonValue>("required", false),
+                                                      new KeyValuePair<string, JsonValue>("temp", true),
+                                                      new KeyValuePair<string, JsonValue>("datakey", "schedule"),
+                                                      new KeyValuePair<string, JsonValue>("options", new JsonArray(
+                                                          new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "월요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "MON")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "화요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "TUE")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "수요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "WED")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "목요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "THU")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "금요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "FRI")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "토요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "SAT")
+                                                          ), new JsonObject(
+                                                              new KeyValuePair<string, JsonValue>("text", "일요일"),
+                                                              new KeyValuePair<string, JsonValue>("value", "SUN")
+                                                          )))),
+                                                    new JsonObject(new KeyValuePair<string, JsonValue>("text", "START"),
+                                                        new KeyValuePair<string, JsonValue>("value", "start"),
+                                                        new KeyValuePair<string, JsonValue>("type", "TimePicker"),
+                                                        new KeyValuePair<string, JsonValue>("group", 5),
+                                                        new KeyValuePair<string, JsonValue>("datakey", "schedule"),
+                                                        new KeyValuePair<string, JsonValue>("temp", true),
+                                                        new KeyValuePair<string, JsonValue>("required", false)),
+                                                    new JsonObject(new KeyValuePair<string, JsonValue>("text", "END"),
+                                                        new KeyValuePair<string, JsonValue>("value", "end"),
+                                                        new KeyValuePair<string, JsonValue>("type", "TimePicker"),
+                                                        new KeyValuePair<string, JsonValue>("group", 5),
+                                                        new KeyValuePair<string, JsonValue>("datakey", "schedule"),
+                                                        new KeyValuePair<string, JsonValue>("temp", true),
+                                                        new KeyValuePair<string, JsonValue>("required", false)),
+                                                    new JsonObject(new KeyValuePair<string, JsonValue>("text", "INTERVAL"),
+                                                        new KeyValuePair<string, JsonValue>("value", "interval"),
+                                                        new KeyValuePair<string, JsonValue>("type", "Number"),
+                                                        new KeyValuePair<string, JsonValue>("group", 5),
+                                                        new KeyValuePair<string, JsonValue>("datakey", "schedule"),
+                                                        new KeyValuePair<string, JsonValue>("temp", true),
+                                                        new KeyValuePair<string, JsonValue>("required", false))
+                                          ))), new JsonObject(
+                                                new KeyValuePair<string, JsonValue>("text", "즉시 실행"),
+                                                new KeyValuePair<string, JsonValue>("value", "once"))))
+                                      ));
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "UPDATED TIME"),
                                       new KeyValuePair<string, JsonValue>("value", "unixtime"),
@@ -121,14 +138,14 @@ namespace DataIntegrationServiceLogic
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "OPTIONS"),
                                       new KeyValuePair<string, JsonValue>("value", "options"),
                                       new KeyValuePair<string, JsonValue>("type", "AddFields"),
-                                      new KeyValuePair<string, JsonValue>("group", 5),
+                                      new KeyValuePair<string, JsonValue>("group", 6),
                                       new KeyValuePair<string, JsonValue>("required", true)));
             return fields;
         }
 
         public string GetList()
         {
-            var selectedItems = new List<string>() { "name", "target_source", "analysis_query", "COLUMN_JSON(options) as options",
+            var selectedItems = new List<string>() { "name", "target_source", "analysis_query", "action_type", "COLUMN_JSON(options) as options",
                                                      "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
             var res = MariaDBConnector.Instance.GetJsonArray(query);

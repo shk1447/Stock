@@ -39,8 +39,12 @@ module.exports = React.createClass({
                         }
                     }
                     if(field.type == 'Action') {
-                        let icon = data + " circle";
-                        tdArr.push(<td key={index}><Icon size='large' onClick={self.props.executeItem} name={icon}/></td>)
+                        let icon = data;
+                        let loading = data == "spinner" ? true : false;
+                        if(data == "play" || data == "stop") {
+                            icon = data + " circle";
+                        }
+                        tdArr.push(<td key={index}><Icon size='large' loading={loading} onClick={self.actionItem} name={icon}/></td>)
                     } else {
                         tdArr.push(<td key={index}>{data}</td>);
                     }
@@ -57,6 +61,9 @@ module.exports = React.createClass({
                 </tbody>
             </table>
         )
+    },
+    actionItem : function(e){
+        this.props.executeItem(this.state.data[e.target.parentElement.parentElement.attributes.name.value]);
     },
     handleDoubleClickItem : function(e) {
         var data = _.cloneDeep(this.state.data[e.target.parentElement.attributes.name.value]);
