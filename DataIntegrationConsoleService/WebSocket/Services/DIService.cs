@@ -152,6 +152,7 @@ namespace DIWebSocket.Services
                                 }
                             case "execute":
                                 {
+                                    returnString = analysisLogic.Execute(reqInfo["parameters"]);
                                     break;
                                 }
                         }

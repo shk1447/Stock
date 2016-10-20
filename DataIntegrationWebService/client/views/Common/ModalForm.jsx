@@ -63,7 +63,12 @@ module.exports = React.createClass({
             for(let i = 0; i < group.length; i++) {
                 let fieldInfo = group[i];
                 let fieldElement = undefined;
-                if(fieldInfo.type == 'Data' || fieldInfo.type == 'Action') { continue; }
+                if(fieldInfo.type == 'Data' || fieldInfo.type == 'Action') {
+                    if(self.state.data[fieldInfo.value]){
+                        delete self.state.data[fieldInfo.value];
+                    }
+                    continue;
+                }
                 switch(fieldInfo.type) {
                     case 'Radio' :{
                         let defaultData;

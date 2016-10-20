@@ -33,7 +33,7 @@ namespace Connector
 
         public const string getSourceInformation = "SELECT TABLE_NAME FROM information_schema.`TABLES` WHERE TABLE_SCHEMA = 'datasourcebase' AND TABLE_NAME like 'current_%'";
 
-        public const string getSchema = "SET @@group_concat_max_len = 99999999; SELECT CONCAT('{\"name\":\"',result.source,'\", \"items\":['," +
+        public const string getSchema = "SET @@group_concat_max_len = 9999999999; SELECT CONCAT('{\"name\":\"',result.source,'\", \"items\":['," +
                                                  " GROUP_CONCAT('{\"name\":\"',category,'\",\"items\":[{\"name\":\"idx\"}," +
                                                  " {\"name\":\"unixtime\"},{\"name\":\"rawdata\",\"items\":[',result.rawdata,']}]}'),']}') as `schema`" +
                                         " FROM (" +

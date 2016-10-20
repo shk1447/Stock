@@ -15,7 +15,7 @@ namespace DataIntegrationServiceLogic
 {
     public class CollectionLogic
     {
-        private Dictionary<string, Thread> scheduleThread = new Dictionary<string, Thread>();
+        private static Dictionary<string, Thread> scheduleThread = new Dictionary<string, Thread>();
 
         private const string TableName = "data_collection";
 
@@ -82,7 +82,10 @@ namespace DataIntegrationServiceLogic
             var selectedItems = new List<string>() { "name", "module_name", "method_name", "action_type", "COLUMN_JSON(options) as options",
                                                      "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
-            var res = MariaDBConnector.Instance.GetJsonArray(query);
+            var result = MariaDBConnector.Instance.GetJsonArray(query);
+
+            var state = scheduleThread.Count > 0 ? "running" : "stop";
+            var res = new JsonObject(new KeyValuePair<string, JsonValue>("state", state), new KeyValuePair<string, JsonValue>("result", result));
 
             return res.ToString();
         }
@@ -132,7 +135,7 @@ namespace DataIntegrationServiceLogic
 
             var status = moduleInfo["status"].ReadAs<string>().ToLower();
 
-            if (command != "stop" && status == "play" || status == "wait")
+            if (command != "stop" && (status == "play" || status == "wait" || status == "spinner"))
             {
                 res["code"] = 400; res["message"] = "fail";
                 return res.ToString();

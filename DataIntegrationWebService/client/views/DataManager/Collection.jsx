@@ -18,7 +18,7 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('collection.getlist', function(data) {
-            self.refs.CollectionTable.setState({data:data})
+            self.refs.CollectionTable.refs.DataArea.setState({data:data.result})
         });
         self.socket.on('collection.create', function(data) {
             if(data.code == "200") {
@@ -74,7 +74,7 @@ module.exports = React.createClass({
         }
     },
     executeCollection : function(item) {
-        var data = {"broadcast":false,"target":"collection.execute", "parameters":{name:item.name,command:'start'}};
+        var data = {"broadcast":false,"target":"collection.execute", "parameters":{name:item.name,command:item.status == 'stop' ? 'start':'stop'}};
         this.socket.emit('fromclient', data);
         console.log(item);
     }

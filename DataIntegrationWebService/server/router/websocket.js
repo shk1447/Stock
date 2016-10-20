@@ -14,21 +14,23 @@ module.exports = function (httpServer, config) {
         ws.send(sendData);
       });
       ws.on('message', function(message) {
-        try {
-          var msg = JSON.parse(message);
-          var target = d.target.split('.');
+        var msg = JSON.parse(message);
+        var target = d.target.split('.');
+      
+        modules[target[0]][target[1]](msg);
         
-          modules[target[0]][target[1]](msg);
-          
-          if(d.broadcast) {
-            io.sockets.emit(d.target, msg);
-          } else {
-            socket.emit(d.target, msg);
-          }
-        } catch (error) {
-          
+        if(d.broadcast) {
+          io.sockets.emit(d.target, msg);
+        } else {
+          socket.emit(d.target, msg);
         }
-        ws.close();
+        if(msg.state && msg.state == "running") {
+          setTimeout(function(){
+            ws.send(sendData);
+          },1000)
+        } else {
+          ws.close();
+        }
       });
     })
   });

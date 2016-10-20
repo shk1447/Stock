@@ -18,7 +18,7 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('analysis.getlist', function(data) {
-            self.refs.AnalysisTable.setState({data:data})
+            self.refs.AnalysisTable.setState({data:data.result})
         });
         self.socket.on('analysis.create', function(data) {
             if(data.code == "200") {
@@ -73,6 +73,8 @@ module.exports = React.createClass({
         }
     },
     executeAnalysis : function(item) {
+        var data = {"broadcast":false,"target":"analysis.execute", "parameters":{name:item.name,command:item.status == 'stop' ? 'start':'stop'}};
+        this.socket.emit('fromclient', data);
         console.log(item);
     }
 });
