@@ -38,6 +38,14 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY VIEW)',message:data.message, active : true})
             }
         });
+        self.socket.on('view.delete', function(data){
+            if(data.code == "200") {
+                var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
+                self.socket.emit('fromclient', data);
+            } else {
+                self.refs.alert_messagebox.setState({title:'ALERT (DELETE VIEW)',message:data.message, active : true})
+            }
+        });
 
         var data = {"broadcast":false,"target":"view.schema", "parameters":{}};
         self.socket.emit('fromclient', data);
@@ -61,12 +69,19 @@ module.exports = React.createClass({
         )
     },
     callbackView: function (result) {
+        var self = this;
         if(result.action == 'insert') {
             var data = {"broadcast":false,"target":"view.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'update') {
             var data = {"broadcast":false,"target":"view.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
+        } else if (result.action == 'delete') {
+            var selectedItems = this.refs.ViewTable.refs.DataArea.state.selectedItems;
+            _.each(selectedItems, function(row, i){
+                var data = {"broadcast":false,"target":"view.delete", "parameters":{name:row.name}};
+                self.socket.emit('fromclient', data);
+            });
         }
     }
 });

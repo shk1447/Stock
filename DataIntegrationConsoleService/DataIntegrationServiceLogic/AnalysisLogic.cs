@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Connector;
 using Helper;
 using Model.Common;
+using Model.Request;
 
 namespace DataIntegrationServiceLogic
 {
@@ -38,35 +39,27 @@ namespace DataIntegrationServiceLogic
                                       new KeyValuePair<string, JsonValue>("group", 0),
                                       new KeyValuePair<string, JsonValue>("required", true)));
 
-            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "TARGET SOURCE"),
-                                      new KeyValuePair<string, JsonValue>("value", "target_source"),
-                                      new KeyValuePair<string, JsonValue>("type", "Text"),
-                                      new KeyValuePair<string, JsonValue>("group", 1),
-                                      new KeyValuePair<string, JsonValue>("required", true)));
-
             var sourceQuery = MariaQueryDefine.getSourceInformation;
             var sources = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", sourceQuery);
-
-            var schemaArray = new JsonArray();
+            var sourceArray = new JsonArray();
             foreach (var source in sources)
             {
-                var tableName = source["TABLE_NAME"].ReadAs<string>().Replace("current_", "");
-                var schemaQuery = MariaQueryDefine.getSchema.Replace("{source}", tableName);
-                var schemaInfo = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", schemaQuery);
-                var currentJson = JsonValue.Parse(schemaInfo["schema"].ReadAs<string>());
-                var pastJson = JsonValue.Parse(schemaInfo["schema"].ReadAs<string>());
-                currentJson["name"] = "current_" + tableName;
-                schemaArray.Add(currentJson);
-                pastJson["name"] = "past_" + tableName;
-                schemaArray.Add(pastJson);
+                var sourceName = source["TABLE_NAME"].ReadAs<string>().Replace("current_", "");
+                sourceArray.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
+                                               new KeyValuePair<string, JsonValue>("value", sourceName)));
             }
+            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "TARGET SOURCE"),
+                                      new KeyValuePair<string, JsonValue>("value", "target_source"),
+                                      new KeyValuePair<string, JsonValue>("type", "Select"),
+                                      new KeyValuePair<string, JsonValue>("group", 1),
+                                      new KeyValuePair<string, JsonValue>("required", true),
+                                      new KeyValuePair<string, JsonValue>("options", sourceArray)));
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "ANALYSIS QUERY"),
                                       new KeyValuePair<string, JsonValue>("value", "analysis_query"),
-                                      new KeyValuePair<string, JsonValue>("type", "SQLEditor"),
+                                      new KeyValuePair<string, JsonValue>("type", "TextArea"),
                                       new KeyValuePair<string, JsonValue>("group", 2),
-                                      new KeyValuePair<string, JsonValue>("required", true),
-                                      new KeyValuePair<string, JsonValue>("schema", schemaArray)));
+                                      new KeyValuePair<string, JsonValue>("required", true)));
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "ACTION TYPE"),
                                       new KeyValuePair<string, JsonValue>("value", "action_type"),
@@ -257,35 +250,59 @@ namespace DataIntegrationServiceLogic
 
         private void ExecuteAnalysis(JsonValue analysis)
         {
-            var query = analysis["analysis_query"].ReadAs<string>();
-            query = Regex.Replace(query, "FROM (.*?)[.]", DynamicColumnMatchEvaluator);
-            //foreach (var category in analysis.categories)
-            //{
-            //    var query = analysis.analysis_query.Replace("{category}", category).Replace("{analysis.name}", analysis.name);
-            //    foreach (var kv in analysis.options.GetDictionary())
-            //    {
-            //        var key = "{" + kv.Key.ToLower() + "}";
-            //        query = query.Replace(key, kv.Value.ToString());
-            //    }
+            var analysis_name = analysis["name"].ReadAs<string>();
+            var target_source = analysis["target_source"].ReadAs<string>();
+            var analysis_query = analysis["analysis_query"].ReadAs<string>();
+            var analysis_options = analysis["options"];
+            if (analysis_query.Contains("{category}"))
+            {
+                var categories_query = "SELECT category FROM current_" + target_source;
+                var categories = MariaDBConnector.Instance.GetJsonArray(categories_query);
 
-            //    var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-            //    var setSource = new SetDataSourceReq()
-            //    {
-            //        rawdata = data,
-            //        category = category,
-            //        source = analysis.source,
-            //        collected_at = analysis.collected_at
-            //    };
-            //    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-            //    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-            //}
-        }
+                foreach (var row in categories)
+                {
+                    var category = row["category"].ReadAs<string>();
+                    var query = analysis_query.Replace("{category}", category).Replace("{analysis_name}", analysis_name);
+                    foreach (var kv in analysis_options)
+                    {
+                        var key = "{" + kv.Key.ToLower() + "}";
+                        query = query.Replace(key, kv.Value.ReadAs<string>());
+                    }
 
-        private string DynamicColumnMatchEvaluator(Match match)
-        {
-            var value = match.Value.Replace("rawdata.", "").Replace("`", "");
+                    var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
 
-            return "column_get(`rawdata`, '" + value + "' as char) as " + value;
+                    var setSource = new SetDataSourceReq()
+                    {
+                        rawdata = data,
+                        category = category,
+                        source = target_source,
+                        collected_at = "날짜"
+                    };
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                }
+            }
+            else
+            {
+                var query = analysis_query.Replace("{analysis_name}", analysis_name);
+                foreach (var kv in analysis_options)
+                {
+                    var key = "{" + kv.Key.ToLower() + "}";
+                    query = query.Replace(key, kv.Value.ReadAs<string>());
+                }
+
+                var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
+
+                var setSource = new SetDataSourceReq()
+                {
+                    rawdata = data,
+                    category = "카테고리",
+                    source = target_source,
+                    collected_at = "날짜"
+                };
+                var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+            }
         }
     }
 }

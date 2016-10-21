@@ -24,13 +24,8 @@ module.exports = function (httpServer, config) {
         } else {
           socket.emit(d.target, msg);
         }
-        if(msg.state && msg.state == "running") {
-          setTimeout(function(){
-            ws.send(sendData);
-          },1000)
-        } else {
-          ws.close();
-        }
+        
+        ws.close();
       });
     })
   });

@@ -56,6 +56,18 @@ module.exports = React.createClass({
             } else {
                 groups[groupIndex].push(field);
             }
+            if(field.type == 'AddFields' && self.state.data[field.value]) {
+                _.each(self.state.data[field.value], function(value,key){
+                    if(!self.state.fields.find(function(d){return d.value == key})) {
+                        let addedField = {text:key,value:key,type:'Text',required:field.required,datakey:field.value};
+                        if(!groups[groupIndex + 1]){
+                            groups[groupIndex + 1] = [addedField]
+                        } else {
+                            groups[groupIndex + 1].push(addedField);
+                        }
+                    }
+                });
+            }
         });
         
         _.each(groups, function(group,key){
@@ -135,7 +147,8 @@ module.exports = React.createClass({
                         var test = _.cloneDeep(fieldInfo.options);
                         _.each(test, function(row,i) { delete row.fields;});
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact search selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Select}
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact search selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
+                                    control={Select} allowAdditions onAddItem={self.handleAddItem.bind(self,fieldInfo,fields)}
                                     options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     }
@@ -252,14 +265,11 @@ module.exports = React.createClass({
                     }
                     case 'AddFields' : {
                         let defaultData;
-                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
-                        _.each(defaultData, function(value, key){
-                            console.log(key);
-                        });
+                        fieldInfo.value ? defaultData = self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : {} : defaultData = self.state.data;
                         fieldElement = <Form.Field key={fieldInfo.value} className='transparency'>
                                             <label name={fieldInfo.value}>{fieldInfo.text}</label>
                                             <Button name={fieldInfo.value} type='button' onClick={self.handleChange.bind(self,fieldInfo,fields)} circular icon='plus' />
-                                        </Form.Field>
+                                        </Form.Field>;
                         break;
                     }
                     default : {
@@ -341,6 +351,10 @@ module.exports = React.createClass({
     },
     handleSearchChange : function(field,fields,e,data) {
         console.log(e);
+    },
+    handleAddItem : function(field,fields,value) {
+        field.options.push({text:value,value:value});
+        this.setState(this.state.fields);
     },
     handleChange: function(field,fields,e,data) {
         var self = this;
@@ -454,7 +468,7 @@ module.exports = React.createClass({
                 break;
             }
             case 'addfields' : {
-                this.refs.DynamicField.setState({active:true,field:{datakey:field.datakey}});
+                this.refs.DynamicField.setState({active:true,field:{required : field.required, group:field.group+1, datakey:field.value, type:'Text'}});
                 break;
             }
         }

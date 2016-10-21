@@ -22,7 +22,8 @@ module.exports = React.createClass({
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
     },
     getInitialState: function() {
-		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data, searchable: this.props.searchable, updatable : this.props.updatable };
+		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data,
+                searchable: this.props.searchable, updatable : this.props.updatable };
 	},
     render : function () {
         var self = this;

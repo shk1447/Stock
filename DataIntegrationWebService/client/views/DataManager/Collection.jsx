@@ -38,6 +38,14 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY COLLECTION)',message:data.message, active : true})
             }
         });
+        self.socket.on('collection.delete', function(data) {
+            if(data.code == "200") {
+                var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
+                self.socket.emit('fromclient', data);
+            } else {
+                self.refs.alert_messagebox.setState({title:'ALERT (DELETE COLLECTION)',message:data.message, active : true})
+            }
+        });
         self.socket.on('collection.execute', function(data) {
             var data = {"broadcast":true,"target":"collection.getlist", "parameters":{}};
             self.socket.emit('fromclient', data);
@@ -45,8 +53,14 @@ module.exports = React.createClass({
 
         var data = {"broadcast":false,"target":"collection.schema", "parameters":{}};
         self.socket.emit('fromclient', data);
+
+        self.detectInterval = setInterval(function(){
+            var data = {"broadcast":false,"target":"collection.getlist", "parameters":{}};
+            self.socket.emit('fromclient', data);
+        },1000);
     },
     componentWillUnmount : function () {
+        clearInterval(self.detectInterval);
         this.socket.disconnect();
         this.socket.close();
     },
@@ -65,12 +79,19 @@ module.exports = React.createClass({
         )
     },
     callbackCollection: function (result) {
+        var self = this;
         if(result.action == 'insert') {
             var data = {"broadcast":false,"target":"collection.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'update') {
             var data = {"broadcast":false,"target":"collection.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
+        } else if (result.action == 'delete') {
+            var selectedItems = this.refs.CollectionTable.refs.DataArea.state.selectedItems;
+            _.each(selectedItems, function(row, i){
+                var data = {"broadcast":false,"target":"collection.delete", "parameters":{name:row.name}};
+                self.socket.emit('fromclient', data);
+            });
         }
     },
     executeCollection : function(item) {

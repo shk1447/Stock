@@ -51,6 +51,7 @@
     "redux": "^3.6.0",
     "request": "^2.75.0",
     "require-directory": "^2.1.1",
+    "semantic-ui-react": "^0.56.10",
     "socket.io": "^1.4.8",
     "socket.io-client": "^1.4.8",
     "stardust": "^0.45.3",

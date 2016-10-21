@@ -38,6 +38,18 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY ANALYSIS)',message:data.message, active : true})
             }
         });
+        self.socket.on('analysis.delete', function(data) {
+            if(data.code == "200") {
+                var data = {"broadcast":true,"target":"analysis.getlist", "parameters":{}};
+                self.socket.emit('fromclient', data);
+            } else {
+                self.refs.alert_messagebox.setState({title:'ALERT (DELETE ANALYSIS)',message:data.message, active : true})
+            }
+        });
+        self.socket.on('analysis.execute', function(data) {
+            var data = {"broadcast":true,"target":"analysis.getlist", "parameters":{}};
+            self.socket.emit('fromclient', data);
+        });
 
         var data = {"broadcast":false,"target":"analysis.schema", "parameters":{}};
         self.socket.emit('fromclient', data);
@@ -61,6 +73,7 @@ module.exports = React.createClass({
         )
     },
     callbackAnalysis : function(result) {
+        var self = this;
         if(result.action == 'insert') {
             var data = {"broadcast":false,"target":"analysis.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
@@ -68,13 +81,15 @@ module.exports = React.createClass({
             var data = {"broadcast":false,"target":"analysis.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'delete') {
-            console.log(this.refs.AnalysisTable.refs.DataArea.state.selectedItems);
-            console.log(result);
+            var selectedItems = this.refs.AnalysisTable.refs.DataArea.state.selectedItems;
+            _.each(selectedItems, function(row, i){
+                var data = {"broadcast":false,"target":"analysis.delete", "parameters":{name:row.name}};
+                self.socket.emit('fromclient', data);
+            });
         }
     },
     executeAnalysis : function(item) {
         var data = {"broadcast":false,"target":"analysis.execute", "parameters":{name:item.name,command:item.status == 'stop' ? 'start':'stop'}};
         this.socket.emit('fromclient', data);
-        console.log(item);
     }
 });

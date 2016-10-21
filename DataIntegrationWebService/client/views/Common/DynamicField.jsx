@@ -41,12 +41,12 @@ module.exports = React.createClass({
                                 <Form.Field label='VALUE' error={error02} required defaultValue={field.value} className='transparency' name='value' onChange={self.handleChange.bind(self,'value')} control={Input}/>
                             </Form.Group>
                             <Form.Group widths='equal'>
-                                <Form.Field label='TYPE' error={error03} required defaultValue={field.type} className='transparency' name='type' onChange={self.handleChange.bind(self,'type')} options={options} control={Select}/>
-                                <Form.Field label='GROUP' error={error04} required defaultValue={field.group} className='transparency' name='group' onChange={self.handleChange.bind(self,'group')} control={Input} type='number'/>
-                                <Form.Field label='DATA KEY' error={error05} required defaultValue={field.datakey} className='transparency' name='group' onChange={self.handleChange.bind(self,'datakey')} control={Input} type='text'/>
+                                <Form.Field label='TYPE' error={error03} disabled required defaultValue={field.type} className='transparency' name='type' onChange={self.handleChange.bind(self,'type')} options={options} control={Select}/>
+                                <Form.Field label='GROUP' error={error04} disabled required defaultValue={field.group} className='transparency' name='group' onChange={self.handleChange.bind(self,'group')} control={Input} type='number'/>
+                                <Form.Field label='DATA KEY' error={error05} disabled required defaultValue={field.datakey} className='transparency' name='group' onChange={self.handleChange.bind(self,'datakey')} control={Input} type='text'/>
                             </Form.Group>
                             <Form.Group inline>
-                                <Form.Field label='REQUIRED' className='transparency' defaultChecked={field.required} name='required' onChange={self.handleChange.bind(self,'required')} control={Checkbox}/>
+                                <Form.Field label='REQUIRED' disabled className='transparency' defaultChecked={field.required} name='required' onChange={self.handleChange.bind(self,'required')} control={Checkbox}/>
                             </Form.Group>
                         </Form>
                     </Modal.Content>
