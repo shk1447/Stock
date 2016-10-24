@@ -198,6 +198,8 @@ module.exports = function () {
                     tempChart.datasets.forEach(function (d, index) {
                         d.data.push(self.renderData.chart.datasets[index].data[rightIndex + 1])
                     });
+                } else {
+                    continue;
                 }
                 if (tempChart.times.length > 1) {
                     tempChart.times.splice(0, 1), tempChart.labels.splice(0, 1), tempChart.datasets.forEach(function (d) {
@@ -216,6 +218,8 @@ module.exports = function () {
                     tempChart.datasets.forEach(function (d, index) {
                         d.data.splice(0, 0, self.renderData.chart.datasets[index].data[leftIndex - 1])
                     });
+                } else {
+                    continue;
                 }
                 if (tempChart.times.length > 1) {
                     tempChart.times.pop(), tempChart.labels.pop(), tempChart.datasets.forEach(function (d) {
@@ -233,10 +237,6 @@ module.exports = function () {
             if( v === undefined) { return "undefined" }; return v;
         }));
         self.redraw(historyChart);
-        if(zoomHistory.length == 0) {
-            var resetZoomControl = self.controlContainer.find(function(d){return d.id == "ResetZoom"});
-            resetZoomControl.display = false, resetZoomControl.clear();
-        }
     }
 
     function drawZoomIn(range, d) {
@@ -680,7 +680,6 @@ module.exports = function () {
 
     self.renderData = {
         chart : { labels : [], datasets : [], times : [] },
-
         table : "",
         pie : [],
         labels : {}
