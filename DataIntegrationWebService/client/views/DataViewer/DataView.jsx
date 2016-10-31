@@ -1,6 +1,6 @@
 var React = require('react');
 var io = require('socket.io-client');
-var { Table } = require('stardust');
+var {Menu,Icon, Table } = require('stardust');
 var DataTable = require('../Common/DataTable');
 
 module.exports = React.createClass({
@@ -145,11 +145,24 @@ module.exports = React.createClass({
 	},
     render : function () {
         console.log('render data view');
+        var el = ReactDOM.findDOMNode(this);
+        console.log(el);
         const { data, fields } = this.state;
         const filters = [];
         return (
-            <div style={{height:'850px'}}>
-                <DataTable key={'dataview'} title={'DataView'} data={data} fields={fields} filters={filters} updatable searchable callback={this.getData}/>
+            <div>
+                <Menu icon vertical floated fixed>
+                    <Menu.Item name='video camera' active={false}>
+                    <Icon name='video camera' />
+                    </Menu.Item>
+
+                    <Menu.Item name='video play' active={false}>
+                    <Icon name='video play' />
+                    </Menu.Item>
+                </Menu>
+                <div style={{height:'850px'}}>
+                    <DataTable key={'dataview'} title={'DataView'} data={data} fields={fields} filters={filters} updatable searchable callback={this.getData}/>
+                </div>
             </div>
         )
     },

@@ -36,29 +36,11 @@ namespace DataIntegrationServiceLogic
                                               new KeyValuePair<string, JsonValue>("value", "past")
                                           )))));
 
-            var sourceQuery = MariaQueryDefine.getSourceInformation;
-            var sources = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", sourceQuery);
-
-            var schemaArray = new JsonArray();
-            foreach (var source in sources)
-            {
-                var tableName = source["TABLE_NAME"].ReadAs<string>().Replace("current_", "");
-                var schemaQuery = MariaQueryDefine.getSchema.Replace("{source}", tableName);
-                var schemaInfo = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", schemaQuery);
-                var currentJson = JsonValue.Parse(schemaInfo["schema"].ReadAs<string>());
-                var pastJson = JsonValue.Parse(schemaInfo["schema"].ReadAs<string>());
-                currentJson["name"] = "current_" + tableName;
-                schemaArray.Add(currentJson);
-                pastJson["name"] = "past_" + tableName;
-                schemaArray.Add(pastJson);
-            }
-
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "VIEW QUERY"),
                                       new KeyValuePair<string, JsonValue>("value", "view_query"),
-                                      new KeyValuePair<string, JsonValue>("type", "SQLEditor"),
+                                      new KeyValuePair<string, JsonValue>("type", "TextArea"),
                                       new KeyValuePair<string, JsonValue>("group", 1),
-                                      new KeyValuePair<string, JsonValue>("required", true),
-                                      new KeyValuePair<string, JsonValue>("schema", schemaArray)));
+                                      new KeyValuePair<string, JsonValue>("required", true)));
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "UPDATED TIME"),
                                       new KeyValuePair<string, JsonValue>("value", "unixtime"),

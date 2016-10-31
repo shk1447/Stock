@@ -21,6 +21,7 @@ using Model.Request;
 using SourceModuleManager;
 using Helper;
 using Model.Common;
+using System.ServiceModel.Channels;
 
 
 namespace DataIntegrationService
@@ -30,14 +31,14 @@ namespace DataIntegrationService
     {
         public DataIntegrationService()
         {
-            
         }
 
         #region IDataIntegrationService 멤버
 
         public SetDataSourceRes SetDataSource(Stream stream)
         {
-            if (WebOperationContext.Current == null)
+            
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
             {
                 throw new Exception("Can not get current WebOpreationContext.");
             }

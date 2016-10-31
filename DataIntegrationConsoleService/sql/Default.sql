@@ -110,8 +110,8 @@ INSERT INTO member (member_id, member_name, password, privilege, email, phone_nu
 CREATE TABLE `data_view` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NULL DEFAULT NULL,
-	`view_source` VARCHAR(50) NULL DEFAULT NULL,
-	`view_items` TEXT NULL DEFAULT NULL,
+	`view_type` VARCHAR(50) NULL DEFAULT NULL,
+	`view_query` TEXT NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
 	UNIQUE INDEX `unique_columns` (`name`),

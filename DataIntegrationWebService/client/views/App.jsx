@@ -34,12 +34,9 @@ module.exports = React.createClass({
                         <Icon name='users' circular />
                     </Menu.Item>
                     
-                    <Dropdown as={Menu.Item} text='Data Viewer' name='dataview' >
-                        <Dropdown.Menu>
-                            <Dropdown.Item onClick={this.handleDataViewer}>RealTime</Dropdown.Item>
-                            <Dropdown.Item>History</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    <Menu.Item name='dataview' onClick={this.handleDataViewer}>
+                        Data Viewer
+                    </Menu.Item>
 
                     <Dropdown as={Menu.Item} text='Data Manager'>
                         <Dropdown.Menu>
