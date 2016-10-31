@@ -147,9 +147,8 @@ module.exports = React.createClass({
                         var test = _.cloneDeep(fieldInfo.options);
                         _.each(test, function(row,i) { delete row.fields;});
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact search selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
-                                    control={Select} allowAdditions onAddItem={self.handleAddItem.bind(self,fieldInfo,fields)}
-                                    options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
+                                    control={Select} options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     }
                     case 'MultiSelect' : {
@@ -161,7 +160,7 @@ module.exports = React.createClass({
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} onSearchChange={self.handleSearchChange.bind(self,fieldInfo,fields)}
                                         control={Dropdown} options={fieldInfo.options} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text}
-                                        compact search selection multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
+                                        compact selection multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     } 
                     case 'TextArea' : {
