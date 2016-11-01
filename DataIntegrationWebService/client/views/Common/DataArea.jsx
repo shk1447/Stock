@@ -4,55 +4,97 @@ var { Icon } =  require('stardust');
 module.exports = React.createClass({
     displayName: 'DataArea',
     componentDidMount : function() {
+        console.log(ReactDOM.findDOMNode(this));
     },
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {data:this.props.data,fields:this.props.fields,selectedItems:[]};
+		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50};
 	},
     render : function () {
         var trArr = [];
         var self = this;
-        const {data,fields} = this.state;
-        _.each(data, function(row,i){
-            let tdArr = [];
-            let status = '';
-            _.each(fields, function(field,index){
-                if(field.type && field.type != 'AddFields') {
-                    var data = '-';
-                    data = field.datakey ? row[field.datakey] ? row[field.datakey][field.value] : undefined : row[field.value];
-                    if(data) {
-                        if(field.type == 'MultiSelect') {
-                            data = _.map(data, function(value,key){return value}).toString();
-                        } else if(field.type == 'GroupCheckbox') {
-                            let result = [];
-                            _.each(data, function(row,i){
-                                if(row.checked){
-                                    result.push(row.value);
-                                }
-                            });
-                            data = result.toString();
-                        } else if(field.type == 'Radio' || field.type == 'Checkbox') {
-                            data = data.value;
+        const {data,fields,page,pageCount} = this.state;
+        if(data && data.length > 0) {
+            var currentPage = pageCount > data.length ? data.length : page*pageCount;
+            for(var i = ((page-1)*pageCount); i < currentPage; i++) {
+                let row = data[i];
+                let tdArr = [];
+                let status = '';
+                _.each(fields, function(field,index){
+                    if(field.type && field.type != 'AddFields') {
+                        var data = '-';
+                        data = field.datakey ? row[field.datakey] ? row[field.datakey][field.value] : undefined : row[field.value];
+                        if(data) {
+                            if(field.type == 'MultiSelect') {
+                                data = _.map(data, function(value,key){return value}).toString();
+                            } else if (field.type == 'GroupCheckbox') {
+                                let result = [];
+                                _.each(data, function(row,i){
+                                    if(row.checked){
+                                        result.push(row.value);
+                                    }
+                                });
+                                data = result.toString();
+                            } else if(field.type == 'Radio' || field.type == 'Checkbox') {
+                                data = data.value;
+                            }
+                        }
+                        if(field.type == 'Action') {
+                            let icon = data;
+                            let loading = data == "spinner" ? true : false;
+                            if(data == "play" || data == "stop") {
+                                icon = data + " circle";
+                            }
+                            tdArr.push(<td key={index}><Icon size='large' loading={loading} onClick={self.actionItem} name={icon}/></td>)
+                        } else {
+                            tdArr.push(<td key={index}>{data}</td>);
                         }
                     }
-                    if(field.type == 'Action') {
-                        let icon = data;
-                        let loading = data == "spinner" ? true : false;
-                        if(data == "play" || data == "stop") {
-                            icon = data + " circle";
-                        }
-                        tdArr.push(<td key={index}><Icon size='large' loading={loading} onClick={self.actionItem} name={icon}/></td>)
-                    } else {
-                        tdArr.push(<td key={index}>{data}</td>);
-                    }
-                }
-            });
+                });
 
-            trArr.push(<tr key={i} name={i} onClick={self.handleClickItem} onDoubleClick={self.handleDoubleClickItem} className={status}>{tdArr}</tr>);
-        });
+                trArr.push(<tr key={i} name={i} onClick={self.handleClickItem} onDoubleClick={self.handleDoubleClickItem} className={status}>{tdArr}</tr>);
+            }
+        } 
+        // _.each(data, function(row,i){
+        //     let tdArr = [];
+        //     let status = '';
+        //     _.each(fields, function(field,index){
+        //         if(field.type && field.type != 'AddFields') {
+        //             var data = '-';
+        //             data = field.datakey ? row[field.datakey] ? row[field.datakey][field.value] : undefined : row[field.value];
+        //             if(data) {
+        //                 if(field.type == 'MultiSelect') {
+        //                     data = _.map(data, function(value,key){return value}).toString();
+        //                 } else if (field.type == 'GroupCheckbox') {
+        //                     let result = [];
+        //                     _.each(data, function(row,i){
+        //                         if(row.checked){
+        //                             result.push(row.value);
+        //                         }
+        //                     });
+        //                     data = result.toString();
+        //                 } else if(field.type == 'Radio' || field.type == 'Checkbox') {
+        //                     data = data.value;
+        //                 }
+        //             }
+        //             if(field.type == 'Action') {
+        //                 let icon = data;
+        //                 let loading = data == "spinner" ? true : false;
+        //                 if(data == "play" || data == "stop") {
+        //                     icon = data + " circle";
+        //                 }
+        //                 tdArr.push(<td key={index}><Icon size='large' loading={loading} onClick={self.actionItem} name={icon}/></td>)
+        //             } else {
+        //                 tdArr.push(<td key={index}>{data}</td>);
+        //             }
+        //         }
+        //     });
+
+        //     trArr.push(<tr key={i} name={i} onClick={self.handleClickItem} onDoubleClick={self.handleDoubleClickItem} className={status}>{tdArr}</tr>);
+        // });
 
         return (
             <table className="table-container" ref="table_contents">

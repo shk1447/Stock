@@ -193,6 +193,7 @@ namespace DIWebSocket.Services
                                 }
                             case "execute":
                                 {
+                                    returnString = viewLogic.Execute(reqInfo["parameters"]);
                                     break;
                                 }
                         }

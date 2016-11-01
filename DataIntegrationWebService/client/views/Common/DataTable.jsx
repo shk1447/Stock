@@ -1,8 +1,9 @@
 var React = require('react');
-var { Button, Menu } =  require('stardust');
+var { Button, Menu, Radio, Select } =  require('stardust');
 var DataArea = require('./DataArea');
 var SearchFilter = require('./SearchFilter');
 var UpdateControl = require('./UpdateControl');
+var GridControl = require('./GridControl');
 
 module.exports = React.createClass({
     displayName: 'DataTable',
@@ -12,14 +13,16 @@ module.exports = React.createClass({
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
-        if(this.state.searchable) {
+        if(this.state.searchable && this.state.data.length > 0) {
             this.refs.SearchFilter.setState({fields:this.state.fields});
         }
-        if(this.state.updatable) {
+        if(this.state.updatable && this.state.data.length > 0) {
             this.refs.UpdateControl.setState({fields:this.state.fields});
         }
-        this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
-        this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
+        if(this.state.data.length > 0) {
+            this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
+            this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
+        }
     },
     getInitialState: function() {
 		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data,
@@ -34,16 +37,20 @@ module.exports = React.createClass({
                 thArr.push(<th key={i}>{row.text}</th>)
             };
         });
-        if(this.state.searchable) {
+        if(this.state.searchable && data.length > 0) {
             var searchControl = <SearchFilter ref='SearchFilter' fields={fields} filters={filters}/>;
         }
-        if(this.state.updatable) {
+        if(this.state.updatable && data.length > 0) {
             var updateControl = <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>;
+        }
+        if(data.length > 0) {
+            var gridControl = <GridControl action={this.handlePagination}/>;
         }
         return (
             <div style={{height:'100%', width:'100%'}}>
                 <div style={{width:'100%'}}>
                     {searchControl}
+                    {gridControl}
                     {updateControl}
                 </div>
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'4px'}}>
@@ -58,10 +65,22 @@ module.exports = React.createClass({
                         <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>
+                <div>
+                </div>
             </div>
         )
     },
-    modifyItem : function(result){
-        this.refs.UpdateControl.refs.ModalForm.setState({action:'update', active:true,data:_.cloneDeep(result),fields:_.cloneDeep(this.state.fields)});
+    modifyItem : function(result) {
+        if(this.state.updatable) {
+            this.refs.UpdateControl.refs.ModalForm.setState({action:'update', active:true,data:_.cloneDeep(result),fields:_.cloneDeep(this.state.fields)});
+        }
+    },
+    handlePagination: function(direction) {
+        if(direction == 'next') {
+            this.refs.DataArea.state.page += 1;
+        } else {
+            this.refs.DataArea.state.page -= 1;
+        }
+        this.refs.DataArea.setState(this.refs.DataArea.state);
     }
 });

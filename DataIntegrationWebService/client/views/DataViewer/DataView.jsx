@@ -17,6 +17,9 @@ module.exports = React.createClass({
         self.socket.on('view.getlist', function(data) {
             self.setState({viewlist:data});
         });
+        self.socket.on('view.execute', function(response) {
+            self.refs.DataViewTable.setState({data:response.data,fields: response.fields})
+        });
         var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
         self.socket.emit('fromclient', data);
     },
@@ -25,16 +28,17 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[]};
+		return {activeItem : '',viewlist:[], data:[],fields:[]};
 	},
     render : function () {
         console.log('render data view');
+        var self = this;
         const { activeItem, viewlist } = this.state;
         let viewArr = [];
         _.each(viewlist, function(row,i){
             if(row.view_type == activeItem) {
                 let icon = row.view_type == "current" ? "table" : "line chart"
-                var item = <List.Item>
+                var item = <List.Item key={i} onClick={self.executeItem.bind(self,row.name)}>
                                 <List.Icon name={icon} size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header as='a'>{row.name}</List.Header>
@@ -48,26 +52,30 @@ module.exports = React.createClass({
         const filters = [];
         return (
             <div>
-                <Menu icon vertical floated>
-                    <Menu.Item name='current' onClick={this.handleItemClick} active={activeItem === 'current'}>
-                        <Icon name='table' />
-                    </Menu.Item>
+                <div>
+                    <Menu icon vertical floated>
+                        <Menu.Item name='current' onClick={this.handleItemClick} active={activeItem === 'current'}>
+                            <Icon name='table' />
+                        </Menu.Item>
 
-                    <Menu.Item name='past' onClick={this.handleItemClick} active={activeItem === 'past'}>
-                        <Icon name='line chart' />
-                    </Menu.Item>
-                </Menu>
-                <div ref='ViewList' style={{height:'900px',position:'absolute',left:'60px',marginLeft:'-600px',boxShadow:'rgba(34, 36, 38, 0.2002) 1px 2px 2px 1px',
-                                            zIndex:'1000',borderRadius:'10px',background:'white',display:'none', width:'16%',padding:'15px'}}>
-                    <div style={{height:'4%'}}>{activeItem.toUpperCase()}</div>
-                    <div style={{height:'96%', overflow:'auto'}}>
-                        <List animated divided relaxed verticalAlign='middle'>
-                            {viewArr}
-                        </List>
+                        <Menu.Item name='past' onClick={this.handleItemClick} active={activeItem === 'past'}>
+                            <Icon name='line chart' />
+                        </Menu.Item>
+                    </Menu>
+                    <div ref='ViewList' style={{position:'absolute',left:'60px',marginLeft:'-600px',boxShadow:'rgba(34, 36, 38, 0.2002) 1px 2px 2px 1px',
+                                                zIndex:'1000',borderRadius:'10px',background:'white', minWidth:'200px', padding:'15px'}}>
+                        <div style={{height:'30px'}}>{activeItem.toUpperCase()}</div>
+                        <div style={{maxHeight:'700px', overflow:'auto'}}>
+                            <List animated divided relaxed verticalAlign='middle'>
+                                {viewArr}
+                            </List>
+                        </div>
                     </div>
                 </div>
-                <div style={{height:'850px',float:'left',width:'96%'}}>
-                    <DataTable key={'dataview'} title={'DataView'} data={[]} fields={[]} filters={filters} searchable callback={this.getData}/>
+                <div style={{position:'absolute', left:'60px'}}>
+                    <div style={{height:document.documentElement.offsetHeight - 200 + 'px',float:'left',width:document.documentElement.offsetWidth - 70 + 'px'}}>
+                        <DataTable ref='DataViewTable' key={'dataview'} title={'DataView'} data={this.state.data} fields={this.state.fields} filters={filters} searchable callback={this.getData}/>
+                    </div>
                 </div>
             </div>
         )
@@ -78,7 +86,6 @@ module.exports = React.createClass({
             this.$ViewList.animate({"margin-left": '-=600'});
             itemName = '';
         } else {
-            this.$ViewList.show();
             if(this.$ViewList.css("margin-left") == "-600px") {
                 this.$ViewList.animate({"margin-left": '+=600'});
             } else {
@@ -93,5 +100,9 @@ module.exports = React.createClass({
     },
     handleSelectRow : function(e,d){
 
+    },
+    executeItem : function(value) {
+        var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
+        this.socket.emit('fromclient', data);
     }
 });

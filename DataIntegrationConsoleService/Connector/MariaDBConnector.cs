@@ -383,7 +383,7 @@ namespace Connector
                                     JsonObject obj = new JsonObject();
                                     for (int i = 0; i < reader.FieldCount; i++)
                                     {
-                                        if (reader.GetValue(i).GetType().Name == "DBNull") continue;
+                                        //if (reader.GetValue(i).GetType().Name == "DBNull") continue;
                                         
                                         if (reader.GetValue(i).GetType() == typeof(byte[]))
                                         {

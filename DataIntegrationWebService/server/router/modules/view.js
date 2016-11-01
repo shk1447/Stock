@@ -13,5 +13,8 @@ module.exports = {
     },
     delete : function(data) {
         return data;
+    },
+    execute : function(data){
+        return data;
     }
 };

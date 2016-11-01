@@ -18,7 +18,7 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('collection.getlist', function(data) {
-            self.refs.CollectionTable.refs.DataArea.setState({data:data.result})
+            self.refs.CollectionTable.setState({data:data.result})
         });
         self.socket.on('collection.create', function(data) {
             if(data.code == "200") {
@@ -54,13 +54,10 @@ module.exports = React.createClass({
         var data = {"broadcast":false,"target":"collection.schema", "parameters":{}};
         self.socket.emit('fromclient', data);
 
-        self.detectInterval = setInterval(function(){
-            var data = {"broadcast":false,"target":"collection.getlist", "parameters":{}};
-            self.socket.emit('fromclient', data);
-        },1000);
+        var data = {"broadcast":false,"target":"collection.getlist", "parameters":{}};
+        self.socket.emit('fromclient', data);        
     },
     componentWillUnmount : function () {
-        clearInterval(self.detectInterval);
         this.socket.disconnect();
         this.socket.close();
     },
@@ -72,7 +69,7 @@ module.exports = React.createClass({
     render : function () {
         const {data,fields,filters} = this.state;
         return (
-            <div style={{height:'850px'}}>
+            <div style={{height:document.documentElement.offsetHeight - 200 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
                 <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable executeItem={this.executeCollection} callback={this.callbackCollection}/>
                 <MessageBox ref='alert_messagebox' />
             </div>
