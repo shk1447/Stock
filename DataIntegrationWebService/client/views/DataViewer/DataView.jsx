@@ -3,6 +3,7 @@ var io = require('socket.io-client');
 var {Menu,Icon} = require('stardust');
 var {List} = require('semantic-ui-react');
 var DataTable = require('../Common/DataTable');
+var Chart = require('../Common/Chart');
 
 module.exports = React.createClass({
     displayName: 'DataView',
@@ -18,17 +19,19 @@ module.exports = React.createClass({
             self.setState({viewlist:data});
         });
         self.socket.on('view.execute', function(response) {
-            self.refs.DataViewTable.setState({data:response.data,fields: response.fields})
+            self.refs.contents.setState({title:self.state.currentView, data:response.data,fields: response.fields})
         });
         var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
         self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
+        this.socket.disconnect();
+        this.socket.close();
     },
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[], data:[],fields:[]};
+		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:''};
 	},
     render : function () {
         console.log('render data view');
@@ -48,8 +51,13 @@ module.exports = React.createClass({
                 viewArr.push(item);
             }
         });
-        
         const filters = [];
+        if(activeItem == 'past') {
+            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView} data={this.state.data} fields={this.state.fields} />;
+        } else if(activeItem =='current') {
+            var contents = <DataTable ref='contents' key={'dataview_current'} title={'DataView'} data={this.state.data}
+                                        fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;
+        }
         return (
             <div>
                 <div>
@@ -74,7 +82,7 @@ module.exports = React.createClass({
                 </div>
                 <div style={{position:'absolute', left:'60px'}}>
                     <div style={{height:document.documentElement.offsetHeight - 200 + 'px',float:'left',width:document.documentElement.offsetWidth - 70 + 'px'}}>
-                        <DataTable ref='DataViewTable' key={'dataview'} title={'DataView'} data={this.state.data} fields={this.state.fields} filters={filters} searchable callback={this.getData}/>
+                        {contents}
                     </div>
                 </div>
             </div>
@@ -83,8 +91,11 @@ module.exports = React.createClass({
     handleItemClick : function (e, {name}) {
         var itemName = name;
         if(this.state.activeItem == name) {
-            this.$ViewList.animate({"margin-left": '-=600'});
-            itemName = '';
+            if(this.$ViewList.css("margin-left") == "-600px") {
+                this.$ViewList.animate({"margin-left": '+=600'});
+            } else {
+                this.$ViewList.animate({"margin-left": '-=600'});
+            }
         } else {
             if(this.$ViewList.css("margin-left") == "-600px") {
                 this.$ViewList.animate({"margin-left": '+=600'});
@@ -95,13 +106,24 @@ module.exports = React.createClass({
         }
         this.setState({activeItem:itemName});
     },
-    getData : function(result) {
-        console.log('result : ', result);
+    callbackDataView : function(result) {
+        var self = this;
+        if(result.action == 'repeat_on') {
+            if(self.state.currentView != '') {
+                self.repeatInterval = setInterval(function(){
+                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView}};
+                    self.socket.emit('fromclient', data);
+                },1000)
+            }
+        } else if(result.action == 'repeat_off') {
+            clearInterval(self.repeatInterval);
+        }
     },
     handleSelectRow : function(e,d){
 
     },
     executeItem : function(value) {
+        this.state.currentView = value;
         var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
         this.socket.emit('fromclient', data);
     }

@@ -6,7 +6,7 @@ const options = [
             {value:"<", text:"미만"},
             {value:">=", text:"이상"},
             {value:"<=", text:"이하"},
-            {value:"=", text:"동일"}
+            {value:"==", text:"동일"}
         ];
 
 module.exports = React.createClass({
@@ -54,10 +54,6 @@ module.exports = React.createClass({
                         selection
                         fluid
                         multiple
-                        allowAdditions
-                        additionPosition='top'
-                        additionLabel='Search Filters'
-                        onAddItem={this.handleAdditionMultiple}
                         onChange={this.handleChangeMultiple}
                     />
                 </div>
@@ -85,15 +81,12 @@ module.exports = React.createClass({
     addFilter: function(){
         var filter = {
             text:this.filterInfo.target.text + ' ' + this.filterInfo.comparison.value + ' ' + this.filterInfo.value,
-            value:this.filterInfo.target.value + ' ' + this.filterInfo.comparison.value + ' ' + this.filterInfo.value
+            value:"data." + this.filterInfo.target.value + ' ' + this.filterInfo.comparison.value + ' "' + this.filterInfo.value + '"'
         };
         this.state.filters.push(filter);
         this.setState(this.state.filters);
     },
-    handleAdditionMultiple : function(value) {
-
-    },
     handleChangeMultiple: function(e, values) {
-
+        this.props.action(values);
     }
 });

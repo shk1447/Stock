@@ -11,6 +11,7 @@ var {Router,browserHistory,IndexRoute,Route} = require('react-router')
 let rootElement = document.getElementById('contents');
 
 ReactDOM.render(<Router history = {browserHistory}>
+    <Route path="/" component = {App} />
     <Route path="/Login" component={Login}/>
     <Route path="/App" component = {App} >
         <Route path="DataViewer/DataView" component={DataView}></Route>

@@ -191,8 +191,6 @@ namespace Finance
                             }
                             result.rawdata.Add(json);
 
-                            Console.WriteLine("종목명 : {0}, 데이터 갯수 : {1}", 종목명, result.rawdata.Count);
-
                             var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                             MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                         });

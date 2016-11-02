@@ -17,6 +17,10 @@ module.exports = function () {
         return URL.createObjectURL(blob);
     }
 
+    self.fire = function (type) {
+        
+    }
+
     var renderWorker = new Worker(getInlineJS());
 
     renderWorker.onmessage = onRenderMessage;
@@ -55,21 +59,18 @@ module.exports = function () {
     };
 
     String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s += this; } return s;};
-
-
-
     String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
     Number.prototype.zf = function(len){return this.toString().zf(len);};
 
     var convertDateToTimestamp = function(date) {
         if (date instanceof Date) {
-            return Math.floor(date.getTime() / 1000);
+            return Math.floor(date.getTime());
         }
         return null;
     };
 
     var convertTimestampToDate = function(timestamp) {
-        return new Date(timestamp * 1000);
+        return new Date(timestamp);
     };
 
     self.controlContainer = [];
@@ -315,19 +316,17 @@ module.exports = function () {
     }
 
     self.options = {
+        title:"",
         chartType: "line",
-        orderType : "Object",
-        storedProcedure: "default",
-        objectIds : [],
         start : 0,
         end : 0,
         fake: false,
         data: undefined,
-        timeRangeSync : true,
+        timeRangeSync : false,
         samplingMethod: "all",
         samplingInterval : 3600,
-        xAxisField: undefined,
-        fixedUnit:undefined,
+        xAxisField: "unixtime",
+        fixedUnit:"",
         timeFormat:"yyyy-MM-dd\r\nHH:mm:ss",
         yAxisFormat:2,
         yMaximum:"smart",
@@ -372,6 +371,7 @@ module.exports = function () {
                     annotateBorderRadius: "3px",
                     annotateBorder: "2px rgba(170,170,170,0.7) solid",
                     annotateBackgroundColor: 'rgba(255,255,255,0.5)',
+                    annotateFontColor: "rgba(0,0,0,1)",
                     annotateFunction: "mousemove",
                     annotateRelocate: true,
                     scaleShowLine: false,
@@ -400,7 +400,7 @@ module.exports = function () {
                 }
             },
             chart: {
-                canvasBackgroundColor: '#292829',
+                canvasBackgroundColor: 'rgba(0,0,0,0)',
                 graphTitle: "",
                 graphTitleFontFamily: "'Open Sans'",
                 graphTitleFontStyle: "normal normal",
@@ -528,6 +528,7 @@ module.exports = function () {
                                 navigator.clear();
                             }
                         }
+                        self._deferred.resolve(self);
                         console.log('END DRAW DATA FUNC : ' + (new Date() - self.startDraw) + 'ms');
                     }
                 },
@@ -651,7 +652,7 @@ module.exports = function () {
                 annotateFunctionIn: function(a,b,c,d,e,f,g) { },
                 annotateFunctionOut: function(a,b,c,d,e,f,g,h) { },
                 annotatePadding: "5px 5px 5px 5px", annotateFontFamily: "'Open Sans'", annotateFontStyle: "normal normal", annotateFontColor: "rgba(0,0,0,1)", annotateFontSize: 11, annotateBorderRadius: "3px", annotateBorder: "2px rgba(170,170,170,0.7) solid ",
-                annotateBackgroundColor: 'rgba(255,255,255,0.5)', annotateFunction: "mousemove", annotateRelocate: true,
+                annotateBackgroundColor: 'rgba(255,255,255,0.5)', annotateFontColor: "rgba(0,0,0,1)", annotateFunction: "mousemove", annotateRelocate: true,
                 legend: true, showSingleLegend: true, maxLegendCols: 5, legendBlockSize: 15, legendFillColor: 'rgba(255,255,255,0.00)', legendColorIndicatorStrokeWidth: 1, legendPosX: -2, legendPosY: 4, legendXPadding: 0, legendYPadding: 0,
                 legendBorders: false, legendBordersWidth: 1, legendBordersStyle: "solid", legendBordersColors: "rgba(102,102,102,1)", legendBordersSpaceBefore: 5, legendBordersSpaceLeft: 5, legendBordersSpaceRight: 5, legendBordersSpaceAfter: 5,
                 legendSpaceBeforeText: 5, legendSpaceLeftText: 5, legendSpaceRightText: 5, legendSpaceAfterText: 5, legendSpaceBetweenBoxAndText: 10, legendSpaceBetweenTextHorizontal: 50, legendSpaceBetweenTextVertical: 5,
@@ -704,32 +705,13 @@ module.exports = function () {
         return date;
     };
 
-    self.initialize = function(div, url, options) {
-        console.log("init chart");
-        self.url = url;
-        self.$container = $('#' + div);
+    self.initialize = function(div) {
+        self.$container = $(div);
         self.$container.empty();
-        self.divId = div;
-        self.canvasId = div + '_' + 'canvas';
-        self.overlayId= div + '_' + 'overlay';
         self.overlay = document.createElement("canvas");
-        $(self.overlay).attr("id", self.overlayId).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "absolute").css("z-index",10).css("pointer-events", "none");
-        document.getElementById(self.divId).appendChild(self.overlay);
-        self.overlayCtx = document.getElementById(self.overlayId).getContext("2d");
-
-        var sSign, sTime, sUnit, eSign, eTime, eUnit;
-
-        if (options.start !== parseInt(options.start) && options.end !== parseInt(options.end)) {
-            sSign = options.start.match(/[-+]/g) == null ? "+" : options.start.match(/[-+]/g);
-            sTime = options.start.replace(/[^0-9]/g, "");
-            sUnit = options.start.replace(/[^A-Za-z]/g, "") == "" ? "d" : options.start.replace(/[^A-Za-z]/g, "");
-            eSign = options.end.match(/[-+]/g) == null ? "+" : options.end.match(/[-+]/g);
-            eTime = options.end.replace(/[^0-9]/g, "");
-            eUnit = options.end.replace(/[^A-Za-z]/g, "") == "" ? "d" : options.end.replace(/[^A-Za-z]/g, "");
-
-            options.start = convertDateToTimestamp(calcDate(sSign, sTime, sUnit));
-            options.end = convertDateToTimestamp(calcDate(eSign, eTime, eUnit));
-        };
+        $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
+        self.$container.append(self.overlay);
+        self.overlayCtx = self.overlay.getContext('2d');
 
         self.$container.bind("mousemove.setting", function(e) {
             var insideController = self.controlContainer.find(function(d) { return d.isPointInside(e.offsetX, e.offsetY) });
@@ -759,7 +741,7 @@ module.exports = function () {
         }).bind("click.setting", function(e) {
             var insideController = self.controlContainer.find(function(d) { return d.isPointInside(e.offsetX, e.offsetY) });
             if(typeof insideController != "undefined") {
-                document.getElementById(self.divId).style.cursor = 'default';
+                self.$container[0].style.cursor = 'default';
                 insideController.funct.click(insideController, self);
             }
         }).bind("mousedown.setting", function(e){
@@ -776,40 +758,26 @@ module.exports = function () {
             if(panningDrag.state) {
                 panningDrag.state = false;
                 delta.p = 0;
+        }});
 
+        var prevHeight = self.$container.height();
+        var prevWidth = self.$container.width();
+        self.detectInterval = setInterval(function(){
+            if(self.$container.height() !== prevHeight || self.$container.width() !== prevWidth) {
+                prevHeight = self.$container.height();
+                prevWidth = self.$container.width();
+                var message = {
+                    type : "redraw"
+                };
+                renderWorker.postMessage(message);
+                var message2 = {
+                    type : "redrawControl"
+                };
+                renderWorker.postMessage(message2);
+            }
+        },100)
 
-            }});
-        $.extend(true, self.options, options);
-        self.options.style.chart.yAxisFormat = self.options.yAxisFormat, self.options.style.chart.yMaximum = self.options.yMaximum, self.options.style.chart.yMinimum = self.options.yMinimum;
-        self.options.style.table.innerChartOptions.yMaximum = self.options.yMaximum, self.options.style.table.innerChartOptions.yMinimum = self.options.yMinimum;
-
-        if(self.options.style.theme == "WHITE") {
-            var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == "WHITE";});
-            self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
-            self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
-            self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
-            self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
-        }
-        simpleSetting.request.start = self.options.start, simpleSetting.request.end = self.options.end, simpleSetting.request.sampling.select = self.options.samplingMethod.toUpperCase();
-        simpleSetting.chart.select = self.options.chartType.toUpperCase(), simpleSetting.style.select = self.options.style.theme.toUpperCase(), simpleSetting.request.timeRangeSync = self.options.timeRangeSync;
-
-        AddNavigationControl();
-        //initializeControl();
-    };
-
-    var initializeControl = function () {
-        var settingControl = self.controlContainer.find(function(d){return d.id == "SettingMode"});
-        if(!settingControl) {
-            var controlSize = (self.options.style.chart.graphTitleFontSize + self.options.style.chart.graphTitleFontSize) / 2;
-            AddDefaultControl(controlSize);
-            AddNavigationControl();
-            if(self.options.usePeriodControl) AddPeriodControl(controlSize);
-
-        } else {
-            settingControl.clear(), settingControl.drawText();
-            var zoomControl = self.controlContainer.find(function(d){return d.id == "ResetZoom"});
-            zoomControl.display = false, zoomControl.clear();
-        }
+        AddChartControl();
     };
 
     self.resize = function () {
@@ -823,10 +791,8 @@ module.exports = function () {
         renderWorker.postMessage(message2);
     };
 
-    self.load = function(guid, timestamp) {
+    self.load = function() {
         isOrigin = true;
-        self.guid = guid;
-        self._uniqueID = guid;
         this._deferred = $.Deferred();
         self.renderData = {
             chart : { labels : [], datasets : [], times : [] },
@@ -837,26 +803,45 @@ module.exports = function () {
         zoomHistory = [];
         self.overlay.width = self.$container.width();
         self.overlay.height = self.$container.height();
-        simpleSetting.chart.type = [{name: "TABLE", unicode : "f0ce"}, {name : "LINE", unicode : "f201"}, {name : "AREA", unicode : "f1fe"}, {name : "BAR", unicode : "f080"}, {name : "PIE", unicode : "f200"}];
-        simpleSetting.unit.single = [], simpleSetting.unit.multi = [];
+
+        self.options.style.chart.yAxisFormat = self.options.yAxisFormat, self.options.style.chart.yMaximum = self.options.yMaximum, self.options.style.chart.yMinimum = self.options.yMinimum;
+        var yMinInterval = 1;
+        for(var i = 0; i < parseInt(self.options.yAxisFormat); i++){
+            yMinInterval = yMinInterval * 1/10
+        }
+        self.options.style.chart.yAxisMinimumInterval = yMinInterval;
+        self.options.style.chart.yAxisMinimumInterval2 = yMinInterval;
+
+        if(self.options.style.theme == "WHITE") {
+            var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == "WHITE";});
+            self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
+            self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
+            self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
+            self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
+        } else {
+            var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == "BLACK";});
+            self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
+            self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
+            self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
+            self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
+        }
+
         if(self.options.fake) {
             if(self.options.data != null && typeof self.options.data != "undefined") {
                 deserializeData(self.options.data);
             }
             self.draw();
-        } else {
-            getMetricData();
         }
-        var complete = this._deferred.promise();
+        this._deferred.promise();
 
-        return complete;
+        return this._deferred;
     };
 
     self.setOptions = function (options) {
         $.extend(true, self.options, options);
     };
 
-    var AddNavigationControl = function () {
+    var AddChartControl = function () {
         var navigatorConfig = {x : undefined,y : undefined,width : undefined,height : 6,fill : "white", type: "navi", shape : "rectangle",
             stroke : "rgba(100,120,150,0.8)" ,strokewidth : 1,radius : { lt : 2, lb : 2, rt : 2, rb : 2 },text : "",textfill : "rgba(160,160,163,0)",font : 0,
             highlight : "rgba(150,120,100,0.5)",onColor : "red",hover : false,on : false,icon : false,keeping : true,display : true};
@@ -877,72 +862,6 @@ module.exports = function () {
         }});
 
         self.controlContainer.push(navigatorControl);
-    };
-
-    var AddDefaultControl = function (controlSize) {
-        var settingControlConfig = {x : standard.right - (controlSize * 2.5),y : standard.top - controlSize*2,width : controlSize,height : controlSize,fill : "rgba(255,255,255,0)", shape : "rectangle",
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 0, rb : 0 },text : "f013",textfill : "rgba(160,160,163,1)",font : controlSize,
-            highlight : "orange",onColor : "red",hover : false,on : false,icon : true,keeping : true,display : true, description : "Setting Mode"};
-        var settingControl = new controller(self.overlayCtx, "SettingMode", settingControlConfig, { hover : hoverFunction, click : settingFunction});
-        var resetZoomConfig = {x : standard.right - (controlSize * 5),y : standard.top - controlSize*2,width : controlSize,height : controlSize,fill : "rgba(255,255,255,0)", shape : "rectangle",
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 0, rb : 0 },text : "f010",textfill : "rgba(160,160,163,1)",font : controlSize,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : true,keeping : true,display : false, description : "Reset Zoom"};
-        var resetZoomControl = new controller(self.overlayCtx, "ResetZoom", resetZoomConfig, { hover : hoverFunction, click : function(m){
-            m.clear(), m.display = false;
-            zoomHistory = [];
-            var message = {
-                type : "draw"
-            };
-            renderWorker.postMessage(message);
-        }});
-        settingControl.drawText();
-        self.controlContainer.push(settingControl);
-        self.controlContainer.push(resetZoomControl);
-    };
-
-    var AddPeriodControl = function (controlSize) {
-        var label = ["-3M", "-6M", "-1Y", "-2Y", "+-3M"];
-        var periodConfig5 = {x : standard.right - (controlSize*11),y : standard.top - controlSize*2,width : controlSize*2,height : controlSize,fill : "rgba(255,255,255,0)",stroke : "rgba(160,160,163,1)", shape : "rectangle",
-            strokewidth : 1,radius : { lt : 3, lb : 3, rt : 3, rb : 3 },text : label[4],textfill : "rgba(160,160,163,1)",font : 10,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : true,display : true};
-        var periodConfig4 = {x : standard.right - (controlSize*13+6),y : standard.top - controlSize*2,width : controlSize*2,height : controlSize,fill : "rgba(255,255,255,0)",stroke : "rgba(160,160,163,1)", shape : "rectangle",
-            strokewidth : 1,radius : { lt : 3, lb : 3, rt : 3, rb : 3 },text : label[3],textfill : "rgba(160,160,163,1)",font : 10,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : true,display : true};
-        var periodConfig3 = {x : standard.right - (controlSize*15+12),y : standard.top - controlSize*2,width : controlSize*2,height : controlSize,fill : "rgba(255,255,255,0)",stroke : "rgba(160,160,163,1)", shape : "rectangle",
-            strokewidth : 1,radius : { lt : 3, lb : 3, rt : 3, rb : 3 },text : label[2],textfill : "rgba(160,160,163,1)",font : 10,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : true,display : true};
-        var periodConfig2 = {x : standard.right - (controlSize*17+18),y : standard.top - controlSize*2,width : controlSize*2,height : controlSize,fill : "rgba(255,255,255,0)",stroke : "rgba(160,160,163,1)", shape : "rectangle",
-            strokewidth : 1,radius : { lt : 3, lb : 3, rt : 3, rb : 3 },text : label[1],textfill : "rgba(160,160,163,1)",font : 10,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : true,display : true};
-        var periodConfig1 = {x : standard.right - (controlSize*19+24),y : standard.top - controlSize*2,width : controlSize*2,height : controlSize,fill : "rgba(255,255,255,0)",stroke : "rgba(160,160,163,1)", shape : "rectangle",
-            strokewidth : 1,radius : { lt : 3, lb : 3, rt : 3, rb : 3 },text : label[0],textfill : "rgba(160,160,163,1)",font : 10,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : true,display : true};
-        var periodControl5 = new controller(self.overlayCtx, "period5", periodConfig5, { hover : hoverFunction, click : function(m){
-            applyPeriod(Date.now().addMonths(-3), Date.now().addMonths(3));
-        }});
-        var periodControl4 = new controller(self.overlayCtx, "period4", periodConfig4, { hover : hoverFunction, click : function(m){
-            applyPeriod(Date.now().addMonths(-24), Date.now());
-        }});
-        var periodControl3 = new controller(self.overlayCtx, "period3", periodConfig3, { hover : hoverFunction, click : function(m){
-            applyPeriod(Date.now().addMonths(-12), Date.now());
-        }});
-        var periodControl2 = new controller(self.overlayCtx, "period2", periodConfig2, { hover : hoverFunction, click : function(m){
-            applyPeriod(Date.now().addMonths(-6), Date.now());
-        }});
-        var periodControl1 = new controller(self.overlayCtx, "period1", periodConfig1, { hover : hoverFunction, click : function(m){
-            applyPeriod(Date.now().addMonths(-3), Date.now());
-        }});
-        periodControl5.clear(), periodControl5.drawShape(), periodControl5.drawText();
-        periodControl4.clear(), periodControl4.drawShape(), periodControl4.drawText();
-        periodControl3.clear(), periodControl3.drawShape(), periodControl3.drawText();
-        periodControl2.clear(), periodControl2.drawShape(), periodControl2.drawText();
-        periodControl1.clear(), periodControl1.drawShape(), periodControl1.drawText();
-        self.controlContainer.push(periodControl5),self.controlContainer.push(periodControl4),self.controlContainer.push(periodControl3),self.controlContainer.push(periodControl2),self.controlContainer.push(periodControl1);
-    };
-
-    var applyPeriod = function(start, end) {
-        self.options.start = convertDateToTimestamp(start), self.options.end = convertDateToTimestamp(end);
-        self.load(self.guid);
     };
 
     var hoverFunction = function (d, e) {
@@ -972,50 +891,6 @@ module.exports = function () {
         }
     };
 
-    var settingFunction = function(d) {
-        if(!d.on) {
-            d.on = true, self.settingMode();
-        } else {
-            d.on = false;
-            var tempControls = [];
-            self.controlContainer.forEach(function(data, index){
-                if(data.keeping) {
-                    tempControls.push(data);
-                } else {
-                    data.clear();
-                }
-            });
-            self.controlContainer = tempControls;
-            $(self.overlay).css("pointer-events", "none");
-        }
-    };
-
-    var getMetricData = function () {
-        var start = new Date();
-        $.ajax({
-            type :'GET',
-            url : self.url,
-            dataType : 'json',
-            contentType : 'application/json',
-            //data : JSON.stringify(parameters),
-            beforeSend	: function(){
-            },
-            success : function(d){
-                console.log('Get Metric Data : ' + (new Date() - start) + 'ms');
-                var aaa = new Date();
-                deserializeData(d);
-                console.log('deserialize : ' + (new Date() - aaa) + 'ms');
-                var message = {
-                    type : "draw"
-                };
-                renderWorker.postMessage(message);
-            },
-            error : function(e) {
-
-            }
-        });
-    };
-
     function convertHex(hex,opacity){
         hex = hex.replace('#','');
         var r = parseInt(hex.substring(0,2), 16);
@@ -1034,306 +909,132 @@ module.exports = function () {
         ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
     }
 
-    var deserializeData = function (data) {
-        var start = convertTimestampToDate(self.options.start).format("yyyy-MM-dd");
-        var end = convertTimestampToDate(self.options.end).format("yyyy-MM-dd");
+    var deserializeData = function (result) {
+        // var start = convertTimestampToDate(self.options.start).format("yyyy-MM-dd");
+        // var end = convertTimestampToDate(self.options.end).format("yyyy-MM-dd");
+        // self.options.style.chart.graphSubTitle = 'Range : ' + start + " ~ " + end;
+        self.options.style.chart.graphTitle = self.options.title;
 
-        self.options.style.chart.graphSubTitle = 'Range : ' + start + " ~ " + end;
-        self.tableId = self.divId + "_table";
-        var _result = data;
-        var objectId = self._uniqueID;
-        self.options.objectIds[objectId] = {};
-        var fields = _result.Fields;
-        var objectInfo = self.options.objectIds[objectId];
-        objectInfo["fields"] = [], objectInfo["chart"] = {};
-        objectInfo["chart"]["datasets"] = [], objectInfo["chart"]["labels"] = [], objectInfo["labels"] = {}, objectInfo.labels["createdtime"] = [], objectInfo["chart"]["times"] = [], objectInfo["pie"] = [];
-        objectInfo["table"] = "<div id='"+self.tableId+"' style='overflow-y:auto; height:"+ self.$container.height()+"px; width:"+ self.$container.width() +"px';'><table id='table-sparkline' style='width:100%;'><colgroup><col span='1' style='width: 5%;'><col span='1' style='width: 30%;'><col span='1' style='width: 64%;'></colgroup>";
-        var headerTag = "<thead><tr id='table-title' style='pointer-events:none;'><th colspan='3'>" + objectId + "<br><div>" + self.options.style.chart.graphSubTitle + "</div></th></tr><tr id='table-columnHeader'><th><i class='fa fa-eye fa-lg'></i></th><th>Metric<i class='fa fa-sort-alpha-asc fa-fw'></i></th><th colspan='2'>Chart</th>";
-        objectInfo["table"] = objectInfo["table"] + headerTag + "</thead><tbody id='tbody-sparkline'>";
-        var colorIndex = 0;
-        for(var fIndex = 0; fIndex < fields.length; fIndex++) {
-            var field = fields[fIndex];
-            if(field.Name != 'createdtime') {
-                var color = convertHex(self.options.style.chart.seriesColor[colorIndex], 50);
-                var series = {
-                    fillColor: color,
-                    strokeColor: color,
-                    pointColor: color,
-                    markerShape: "circle",
-                    pointStrokeColor: "rgba(255,255,255,0)",
-                    data: [],
-                    title: field.DisplayName,
-                    id: objectId + field.Name,
-                    unit : typeof self.options.fixedUnit == "undefined" ? "" : self.options.fixedUnit,
-                    datasetFill : true,
-                    tooltip : true,
-                    visible : true,
-                    hover : false
-                };
-                var pieSeries = {
-                    value: 0,
-                    color: color,
-                    title: field.Name,
-                    id : objectId + field.Name,
-                    unit : typeof self.options.fixedUnit == "undefined" ? "" : self.options.fixedUnit,
-                    datasetFill : true,
-                    tooltip : true,
-                    visible : true,
-                    hover : false
-                };
+        var _result = result.data;
 
-                if(typeof self.options.fixedUnit == "undefined") {
+        var fieldsLen = result.fields.length;
+        if(result.fields.length > 0) {
+            self.options.Fields = [];
+            var colorIndex = 0;
+            for(var i = 0; i < fieldsLen; i++) {
+                var field = result.fields[i];
+                if (field.value !== "unixtime" && field.type !== "Text") {
+                    var color = convertHex(self.options.style.chart.seriesColor[colorIndex], 50);
+                    var series = {
+                        fillColor: color,
+                        strokeColor: color,
+                        pointColor: color,
+                        markerShape: "circle",
+                        pointStrokeColor: "rgba(255,255,255,0)",
+                        data: [],
+                        title: field.value,
+                        id: field.value,
+                        unit : self.options.fixedUnit,
+                        datasetFill : true,
+                        tooltip : true,
+                        visible : true,
+                        hover : false
+                    };
 
-                }
-                objectInfo["table"] += "<tr><th><i class='fa fa-eye fa-lg'></i><th>"+ series.title +"</th><th><canvas id='" + self.divId + "_table" + colorIndex + "'/></th></tr>";
+                    var pieSeries = {
+                        value: 0,
+                        color: color,
+                        title: field.value,
+                        id : field.value,
+                        unit : self.options.fixedUnit,
+                        datasetFill : true,
+                        tooltip : true,
+                        visible : true,
+                        hover : false
+                    };
 
-                objectInfo.chart.datasets.push(series);
-                objectInfo.pie.push(pieSeries);
-                colorIndex++;
-            } else {
-                objectInfo.labels[field.Name] = [];
-            }
-            objectInfo.fields.push(field);
-        }
-        objectInfo["table"] += "</tbody></table></div>";
-        var metric = _result.Data;
-        var timeIndex = objectInfo.fields.findIndex(function(c) { return c.Name == "createdtime" });
-        if(self.options.timeRangeSync) {
-            var interval = Math.abs(metric[metric.length-1][timeIndex] - metric[0][timeIndex])/metric.length;
-            var requestRange = (self.options.end - self.options.start) / 86400;
-            if(requestRange < 30 && interval < 60) {
-                interval = 60;
-            } else if(requestRange < 90 && interval < 300) {
-                interval = 300;
-            } else if(requestRange < 180 && interval < 600) {
-                interval = 600;
-            } else if(requestRange < 360 && interval < 1800) {
-                interval = 1800;
-            } else if(requestRange > 360 && interval < 3600) {
-                interval = 3600;
-            }
-            var dataFirstTime = parseInt(metric[0][timeIndex]);
-            for(var u = dataFirstTime; u > self.options.start*1000; u = u - interval) {
-                if(u == dataFirstTime) continue;
-                metric.splice(0,0,[u]);
-            }
-            metric.splice(0,0,[self.options.start*1000]);
-            var dataLastTime = parseInt(metric[metric.length - 1][timeIndex]);
-            for(var u2 = dataLastTime; u2 < self.options.end*1000; u2 = u2 + interval) {
-                if(u2 == dataLastTime) continue;
-                metric.push([u2]);
-            }
-            metric.push([self.options.end*1000]);
-        };
-        var sameCount = 1;
-        var metricTime = 0;
-        for(var dIndex = 0; dIndex < metric.length; dIndex++) {
-            var fieldInfo = objectInfo.fields;
-            for(var f = 0; f < fieldInfo.length; f++) {
-                if(fieldInfo[f].Name == "createdtime") {
-                    var dataTime = parseInt(metric[dIndex]["createdtime"])*1000;
-                    metricTime == dataTime ? (metricTime = dataTime + sameCount, sameCount++) : (metricTime = dataTime,sameCount = 1);
-                    var standardTime = new Date(metricTime).format(self.options.timeFormat);
-                    objectInfo.labels["createdtime"].push(standardTime), objectInfo.chart.times.push(metricTime);
-
-                    metricTime = dataTime;
+                    self.renderData.chart.datasets.push(series);
+                    self.renderData.pie.push(pieSeries);
+                    self.options.Fields.push(field.value);
+                    colorIndex++;
                 } else {
-                    var key = fieldInfo[f].Name;
-                    var chartSeries = objectInfo.chart.datasets.find(function(k) { return k.id == (objectId + key);});
-                    var pieSeries = objectInfo.pie.find(function(k) { return k.id == (objectId + key);});
-
-
-                    var val = parseFloat(metric[dIndex][key]);
-                    if(isNaN(val)) val = undefined;
-                    chartSeries.data.push(val);
-                    pieSeries.value = pieSeries.value + (typeof val == "undefined" ? 0 : parseInt(val));
+                    self.renderData.labels[field.value] = [];
                 }
             }
         }
 
+        var metric = _result;
+
+        if(metric != undefined && metric.length > 0) {
+            var colorIndex = 0;
+            var sameCount = 1;
+            var metricTime = 0;
+            var metricLen = metric.length;
+            for(var a = 0; a < metricLen; a++) {
+                var dataTime = parseInt(metric[a]['unixtime']);
+                metricTime == dataTime ? (metricTime = dataTime + sameCount, sameCount++) : (metricTime = dataTime,sameCount = 1);
+                var standardTime = new Date(metricTime*1000).format(self.options.timeFormat);
+                self.renderData.labels["unixtime"].push(standardTime), self.renderData.chart.times.push(metricTime*1000);
+
+                var subLen = self.options.Fields.length;
+                for(var b = 0; b < subLen; b++) {
+                    var find = self.renderData.chart.datasets.find(function(d) { return d.id == self.options.Fields[b];});
+                    var find2 = self.renderData.pie.find(function(d) { return d.id == self.options.Fields[b];});
+                    var val = parseFloat(metric[a][self.options.Fields[b]]);
+                    if(isNaN(val)) val = undefined;
+                    find2.value = find2.value + (typeof val == "undefined" ? 0 : parseInt(val));
+                    find.data.push(val);
+                    colorIndex++;
+                }
+
+                for(var label in self.renderData.labels) {
+                    if(label !== 'unixtime') {
+                        self.renderData.labels[label].push(typeof metric[a][label] == "undefined" ? "" : metric[a][label]);
+                    }
+                }
+
+                metricTime = dataTime*1000;
+            }
+        }
         return;
     };
 
     self.draw = function() {
-        self.startDraw = new Date();
-        $('#' + self.tableId).detach();
-        $('#' + self.canvasId).detach();
-        self.options.style.chart.graphTitle = self.guid;
-        self.renderData.pie = self.options.objectIds[self.guid].pie;
-        self.renderData.table = self.options.objectIds[self.guid].table;
-        self.renderData.chart = self.options.objectIds[self.guid].chart;
-        self.renderData.labels = self.options.objectIds[self.guid].labels;
+        $(self.canvas).detach();
         self.renderData.chart.labels = self.renderData.labels[self.options.xAxisField];
-        if(self.options.chartType.toLowerCase() === 'table') {
-            $(self.renderData.table).appendTo(self.$container);
-            for(var i = 0; i < self.renderData.chart.datasets.length; i++) {
-                var innerId = self.divId + '_table' + i;
-                var thContainer = $("#" + innerId);
-                if(self.renderData.chart.datasets[i].id == self.options.xAxisField) {
-                    thContainer.parent().parent().detach();
-                } else {
-                    thContainer.attr("width", thContainer.parent().width());
-                    var innerChartCtx = document.getElementById(innerId).getContext("2d");
-                    var innerChartObj = new Chart(innerChartCtx);
-                    var tableRenderData = {
-                        labels : self.renderData.chart.labels,
-                        datasets : [],
-                        times : self.renderData.chart.times
-                    };
-                    tableRenderData.datasets.push(self.renderData.chart.datasets[i]);
-                    tableRenderData.datasets[0].datasetFill = true;
-                    var evalText = 'innerChartObj.Line(tableRenderData, self.options.style.table.innerChartOptions); innerChartCtx.stroke();';
-                    eval(evalText);
-                    self.chartObj = innerChartObj;
-                }
-            }
-            applyTableStyle(), applyTableEvent();
-        } else {
-            self.canvas = document.createElement("canvas");
-            $(self.canvas).attr("id", self.canvasId).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "relative");
-            document.getElementById(self.divId).appendChild(self.canvas);
-            self.chartCtx = document.getElementById(self.canvasId).getContext("2d");
-            var chartType = 'Line';
-            var chartTypeOption = self.options.chartType.toLowerCase();
-            tempChart = $.extend(true, {}, self.renderData.chart);
-            var xindex = tempChart.datasets.findIndex(function(d) {return d.id == self.options.xAxisField} );
-            if(xindex != -1) tempChart.datasets.splice(xindex, 1);
-            if (chartTypeOption  == 'line' || chartTypeOption == 'area') {
-                tempChart.datasets = tempChart.datasets.filter(function(d) { return d.unit == simpleSetting.unit.select; });
-                chartType = 'Line';
-                tempChart.datasets.forEach(function(d) {d.datasetFill = chartTypeOption == 'area' ? true : false; d.axis = 1;});
-                self.options.style.chart.yAxisRight = false;
-                self.options.style.chart.yAxisUnit = simpleSetting.unit.select;
-                self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
-            } else if( chartTypeOption == 'pie') {
-                tempChart = $.extend(true, [], self.renderData.pie);
-                var pieIndex = tempChart.findIndex(function(d) {return d.id == self.options.xAxisField} );
-                if(pieIndex != -1) tempChart.splice(pieIndex, 1);
-                chartType = 'Pie';
-                self.options.style.chart.annotateLabel = '<span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v2%> <%=unit%>';
-                self.options.style.chart.yAxisRight = false;
-            } else if (chartTypeOption == 'bar' || chartTypeOption == 'combination') {
-                chartType = 'Bar';
-                self.options.style.chart.yAxisRight = false;
-                self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
-                if(chartTypeOption == 'combination') {
-                    self.options.style.chart.yAxisRight = true;
-                    var selectedUnits = simpleSetting.unit.select.split(',');
-                    var tempsets = [];
-                    for(var i in selectedUnits) {
-                        tempChart.datasets.forEach(function(d) {
-                            if(selectedUnit == d.unit) {
-                                d["axis"] = i % 2 + 1;
-                                d["type"] = i % 2 == 1 ? 'Line' : 'Bar';
-                                d["datasetFill"] = i % 2 == 1 ? false : true;
-                                tempsets.push(d);
-                            }
-                        });
-                        i % 2 == 1 ? self.options.style.chart.yAxisUnit2 = selectedUnits[i].trim() : self.options.style.chart.yAxisUnit = selectedUnits[i].trim();
-                    }
-                    tempChart.datasets = tempsets;
-                } else {
-                    tempChart.datasets = tempChart.datasets.filter(function(d) { return d.unit == simpleSetting.unit.select; });
-                    tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
-                    self.options.style.chart.yAxisUnit = simpleSetting.unit.select;
-                }
-            };
-            self.chartObj = new Chart(self.chartCtx);
-            var evalText = 'self.chartObj.'+chartType+'(tempChart, self.options.style.chart); self.chartCtx.stroke();'
-            eval(evalText);
-        }
-        self._deferred.resolve(self);
-    };
 
-    var applyTableStyle = function () {
-        var lineText = "px solid ";
-        var table = self.$container.find('#table-sparkline');
-        table.children('thead').children('tr').css('border', self.options.style.table.innerLineSize + lineText + self.options.style.table.innerLineColor);
-        table.children('tbody').children('tr').css('border', self.options.style.table.innerLineSize + lineText + self.options.style.table.innerLineColor);
-
-        var title = self.$container.find('#table-title');
-        title.css('background', self.options.style.table.background);
-        title .children('th').css('font-size', self.options.style.table.titleFontSize + 'px').css('color', self.options.style.table.titleFontColor).css('text-align', self.options.style.table.titleFontAlign);
-        title .children('th').children('div').css('font-size', self.options.style.table.subTitleFontSize + 'px').css('color', self.options.style.table.subTitleFontColor);
-
-        var header = self.$container.find('#table-columnHeader');
-        header.css('background', self.options.style.table.background);
-        header.children('th').css('font-size', self.options.style.table.innerFontSize + 'px').css('color', self.options.style.table.innerFontColor);
-
-        var contents = self.$container.find('#tbody-sparkline').children('tr');
-        contents.css('background', self.options.style.table.background);
-        contents.children('th').css('font-size', self.options.style.table.innerFontSize + 'px').css('color', self.options.style.table.innerFontColor);
-    };
-
-    var applyTableEvent = function () {
-        self.$container.find('#table-columnHeader').children('th').each(function () {
-            var header = $(this);
-            if(header.index() < 2) {
-                header.click(function () {
-                    changeVisibility(this);
-                });
-            }
-        });
-
-        self.$container.find('#tbody-sparkline').find('tr th').each(function () {
-            if ($(this).index() === 0) {
-                $(this).click(function () {
-                    if ($(this).children().hasClass('fa-eye')) {
-                        $(this).children().removeClass('fa-eye').addClass('fa-eye-slash');
-                        $($(this).parent().children()[2]).children().hide();
-                    } else if ($(this).children().hasClass('fa-eye-slash')) {
-                        $(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
-                        $($(this).parent().children()[2]).children().show();
-                    }
-                });
-            }
-        });
-    };
-
-    var changeVisibility = function (obj) {
-        if (obj.innerText === 'Metric') {
-            var table = $(obj).parents('table').eq(0)
-            var rows = table.find('tr:gt(2)').toArray().sort(comparer($(obj).index()))
-            obj.asc = !obj.asc
-            if (!obj.asc) {
-                rows = rows.reverse();
-                $(obj).find('i').removeClass('fa-sort-alpha-asc').addClass('fa-sort-alpha-desc');
-            } else {
-                $(obj).find('i').removeClass('fa-sort-alpha-desc').addClass('fa-sort-alpha-asc');
-            }
-            for (var i = 0; i < rows.length; i++) {
-                table.append(rows[i])
-            }
-        }
-
-        if ($(obj).children().hasClass('fa-eye')) {
-            self.$container.find('#tbody-sparkline').find('tr th').each(function () {
-                if ($(this).index() === 0) {
-                    $(this).children().removeClass('fa-eye').addClass('fa-eye-slash');
-                    $($(this).parent().children()[2]).children().hide();
-                }
-            });
-            $(obj).children().removeClass('fa-eye').addClass('fa-eye-slash');
-        } else if ($(obj).children().hasClass('fa-eye-slash')) {
-            self.$container.find('#tbody-sparkline').find('tr th').each(function () {
-                if ($(this).index() === 0) {
-                    $(this).children().removeClass('fa-eye-slash').addClass('fa-eye');
-                    $($(this).parent().children()[2]).children().show();
-                }
-            });
-            $(obj).children().removeClass('fa-eye-slash').addClass('fa-eye');
-        }
-    };
-
-    function comparer(index) {
-        return function (a, b) {
-            var valA = getCellValue(a, index), valB = getCellValue(b, index)
-            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB)
-        }
-    };
-
-    function getCellValue(row, index) {
-        return $(row).children('th').eq(index).html()
+        self.canvas = document.createElement("canvas");
+        $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "relative");
+        self.$container.append(self.canvas);
+        self.chartCtx = self.canvas.getContext("2d");
+        var chartType = 'Line';
+        var chartTypeOption = self.options.chartType.toLowerCase();
+        tempChart = $.extend(true, {}, self.renderData.chart);
+        
+        if (chartTypeOption  == 'line' || chartTypeOption == 'area') {
+            chartType = 'Line';
+            tempChart.datasets.forEach(function(d) {d.datasetFill = chartTypeOption == 'area' ? true : false; d.axis = 1;});
+            self.options.style.chart.yAxisRight = false;
+            self.options.style.chart.yAxisUnit = self.options.fixedUnit;
+            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
+        } else if( chartTypeOption == 'pie') {
+            tempChart = $.extend(true, [], self.renderData.pie);
+            var pieIndex = tempChart.findIndex(function(d) {return d.id == self.options.xAxisField} );
+            if(pieIndex != -1) tempChart.splice(pieIndex, 1);
+            chartType = 'Pie';
+            self.options.style.chart.annotateLabel = '<span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v2%> <%=unit%>';
+            self.options.style.chart.yAxisRight = false;
+        } else if (chartTypeOption == 'bar') {
+            chartType = 'Bar';
+            self.options.style.chart.yAxisRight = false;
+            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
+            
+            tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
+            self.options.style.chart.yAxisUnit = self.options.fixedUnit;
+        };
+        self.chartObj = new Chart(self.chartCtx);
+        var evalText = 'self.chartObj.'+chartType+'(tempChart, self.options.style.chart); self.chartCtx.stroke();'
+        eval(evalText);
     };
 
     self.reflow = function () {
@@ -1397,9 +1098,9 @@ module.exports = function () {
             }
             $(self.canvas).detach();
             self.canvas = document.createElement("canvas");
-            $(self.canvas).attr("id", self.canvasId).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "relative");
-            document.getElementById(self.divId).appendChild(self.canvas);
-            self.chartCtx = document.getElementById(self.canvasId).getContext("2d");
+            $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "relative");
+            self.$container.append(self.canvas);
+            self.chartCtx = self.canvas.getContext("2d");
             self.chartObj = new Chart(self.chartCtx);
             eval('self.chartObj.'+type+'(data, self.options.style.chart); self.chartCtx.stroke();');
         }
@@ -1417,8 +1118,7 @@ module.exports = function () {
         },
         style :{
             theme : [{name : "BLACK", background : "#292829", header : "#ffffff", footer : "#ffffff", body : "#a8a0a8", line : "#575457"},
-                {name : "WHITE", background : "#ffffff", header : "#000000", footer : "#000000", body : "#575457", line : "#a8a0a8"},
-                //{name : "CUSTOM", popup : function () { styleSettingPopup(); }}
+                {name : "WHITE", background : "#ffffff", header : "#000000", footer : "#000000", body : "#575457", line : "#a8a0a8"}
             ],
             select : ""
         },
@@ -1431,227 +1131,16 @@ module.exports = function () {
             },
             timeRangeSync : true
         }
-
-    };
-
-    self.settingMode = function () {
-        simpleSetting.chart.select = self.options.chartType, simpleSetting.style.select = self.options.style.theme, simpleSetting.request.start = self.options.start, simpleSetting.request.end = self.options.end;
-        simpleSetting.request.sampling.select = self.options.samplingMethod.toUpperCase(), simpleSetting.request.timeRangeSync = self.options.timeRangeSync;
-        if(self.options.chartType.toLowerCase() != "combination") {
-            simpleSetting.unit.select = self.options.style.chart.yAxisUnit;
-        } else {
-            simpleSetting.unit.select = self.options.style.chart.yAxisUnit + " , " + self.options.style.chart.yAxisUnit2;
-        }
-
-        var selectChartConfig = {x : self.overlay.width*1/8,y : self.overlay.height*1/3,width : self.overlay.width*1/16,height : self.overlay.height*1/12,fill : self.options.style.chart.graphTitleFontColor,
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 5, lb : 5, rt : 0, rb : 0 }, shape : "rectangle",
-            text : simpleSetting.chart.type.find(function(d){ return d.name.toLowerCase() ==  self.options.chartType.toLowerCase()}).unicode,
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : true,keeping : false,display : true, description : "Select Chart Type", cursor : self.chartObj.getDivCursor()};
-
-        var setChartConfig = {x : selectChartConfig.x + selectChartConfig.width + 2,y : self.overlay.height*1/3,width : selectChartConfig.width * 5/2,height : self.overlay.height*1/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 5, rb : 5 }, shape : "rectangle",
-            text : self.options.chartType.toUpperCase(),textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,
-            highlight : "orange",onColor : "red",hover : false,on : false,icon : false,keeping : false,display : true};
-
-        var selectUnitConfig = {x : selectChartConfig.x * 3,y : self.overlay.height*1/3,width : self.overlay.width*1/16,height : self.overlay.height*1/12,fill : self.options.style.chart.graphTitleFontColor,
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 5, lb : 5, rt : 0, rb : 0 },text : "f03a",textfill : self.options.style.chart.canvasBackgroundColor, shape : "rectangle",
-            font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red",hover : false,on : false,icon : true,keeping : false,display : true,
-            description : "Select Unit", cursor : self.chartObj.getDivCursor()
-        };
-
-        var setUnitConfig = {x : (selectChartConfig.x*3) + selectChartConfig.width + 2,y : self.overlay.height*1/3,width : selectChartConfig.width * 5/2,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 5, rb : 5 }, shape : "rectangle",
-            text : self.options.chartType.toLowerCase() == "combination" ? self.options.style.chart.yAxisUnit + " , " + self.options.style.chart.yAxisUnit2 : self.options.style.chart.yAxisUnit == "" ? "No Units" : self.options.style.chart.yAxisUnit,
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,highlight : "orange",onColor : "red",
-            hover : false,on : false,icon : false,keeping : false,display : true};
-
-        var selectStyleConfig = {x : (selectChartConfig.x * 5),y : self.overlay.height*1/3,width : self.overlay.width*1/16,height : self.overlay.height*1/12,fill : self.options.style.chart.graphTitleFontColor,
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 5, lb : 5, rt : 0, rb : 0 },text : "f044",textfill : self.options.style.chart.canvasBackgroundColor, shape : "rectangle",
-            font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red",hover : false,on : false,icon : true,keeping : false,display : true,
-            description : "Select Theme", cursor : self.chartObj.getDivCursor()
-        };
-
-        var setStyleConfig = {x : (selectChartConfig.x*5) + selectChartConfig.width + 2,y : self.overlay.height*1/3,width : selectChartConfig.width * 5/2,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 5, rb : 5 },text : self.options.style.theme,
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,highlight : "orange",onColor : "red", shape : "rectangle",
-            hover : false,on : false,icon : false,keeping : false,display : true, description : "Set Style & Options", cursor : self.chartObj.getDivCursor()};
-
-        var selectCalendarConfig = {x : selectChartConfig.x,y : self.overlay.height*1/2,width : selectChartConfig.width,height : self.overlay.height/12,fill : self.options.style.chart.graphTitleFontColor,
-            stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 5, lb : 5, rt : 0, rb : 0 },text : "f073",textfill : self.options.style.chart.canvasBackgroundColor, shape : "rectangle",
-            font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red",hover : false,on : false,icon : true,keeping : false,display : true,
-            description : "Set Time Range", cursor : self.chartObj.getDivCursor()
-        };
-
-        var start = convertTimestampToDate(self.options.start).format("yyyy/MM/dd HH:mm:dd");
-        var end = convertTimestampToDate(self.options.end).format("yyyy/MM/dd HH:mm:dd");
-        var setCalendarConfig = {x : selectChartConfig.x + selectChartConfig.width + 2,y : self.overlay.height*1/2,width : selectChartConfig.width * (11/2) - 2,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 0, rb : 0 },text : start + "~" + end,
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,highlight : "orange",onColor : "red", shape : "rectangle",
-            hover : false,on : false,icon : false,keeping : false,display : true};
-
-        var toggleTimeSyncConfig = {x : setCalendarConfig.x + setCalendarConfig.width + 2,y : self.overlay.height*1/2,width : selectCalendarConfig.width,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 5, rb : 5 },text : self.options.timeRangeSync ? "f0c1" : "f127",
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red", shape : "rectangle",
-            hover : false,on : self.options.timeRangeSync,icon : true,keeping : false,display : true, description : "Use Time Sync", cursor : self.chartObj.getDivCursor()};
-
-        var selectSamplingConfig = {x : (selectChartConfig.x * 5),y : self.overlay.height*1/2,width : self.overlay.width*1/16,height : self.overlay.height*1/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 5, lb : 5, rt : 0, rb : 0 },text : "f1ec",
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphTitleFontSize,highlight : "orange",onColor : "red", shape : "rectangle",
-            hover : false,on : false,icon : true,keeping : false,display : true, description : "Select Sampling Method", cursor : self.chartObj.getDivCursor()};
-
-        var setSamplingConfig = {x : (selectChartConfig.x*5) + selectChartConfig.width + 2,y : self.overlay.height*1/2,width : selectChartConfig.width * 5/2,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphTitleFontColor,stroke : "rgba(160,160,163,0)",strokewidth : 0,radius : { lt : 0, lb : 0, rt : 5, rb : 5 },text : self.options.samplingMethod.toUpperCase(),
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,highlight : "orange",onColor : "red", shape : "rectangle",
-            hover : false,on : false,icon : false,keeping : false,display : true};
-
-        var applyConfig = {x : (selectChartConfig.x*5) + selectChartConfig.width + 2,y : self.overlay.height*2/3,width : selectChartConfig.width * 5/2,height : self.overlay.height/12,
-            fill : self.options.style.chart.graphSubTitleFontColor,stroke : "rgba(160,160,163,1)",strokewidth : 1,radius : { lt : 5, lb : 5, rt : 5, rb : 5 },text : "APPLY",
-            textfill : self.options.style.chart.canvasBackgroundColor,font : self.options.style.chart.graphSubTitleFontSize,highlight : "red",onColor : "red", shape : "rectangle",
-            hover : false,on : false,icon : false,keeping : false,display : true};
-
-        var setChartControl = new controller(self.overlayCtx, "SetChart", setChartConfig, { hover : function(d,e) {}, click : function (m) { }});
-        var setUnitControl = new controller(self.overlayCtx, "SetUnit", setUnitConfig, { hover : function (d,e) {  }, click : function (m) { }});
-        var setStyleControl = new controller(self.overlayCtx, "SetStyle", setStyleConfig, { hover : function(d,e) {
-            if(simpleSetting.style.select == "CUSTOM") {
-                hoverFunction(d,e);
-            }
-        }, click : function (m) {
-            if(simpleSetting.style.select == "CUSTOM")
-                simpleSetting.style.theme.find(function(d) {
-                    return d.name == "CUSTOM";
-                }).popup();
-        }});
-        var setCalendarControl = new controller(self.overlayCtx, "SetCalendar", setCalendarConfig, { hover : function (d,e) {  }, click : function (m) { }});
-        var setSamplingControl = new controller(self.overlayCtx, "SetSampling", setSamplingConfig, { hover : function (d,e) {  }, click : function (m) { }});
-
-        var selectChartControl = new controller(self.overlayCtx, "SelectChart", selectChartConfig, { hover : hoverFunction, click : function (m) {
-            var index = simpleSetting.chart.type.findIndex(function(d) { return d.unicode == m.text });
-            (index >= simpleSetting.chart.type.length - 1 || index == -1) ? index = 0 : index++;
-            var selectedItem = simpleSetting.chart.type[index];
-            m.text = selectedItem.unicode, setChartControl.text = selectedItem.name;
-            m.clear(), setChartControl.clear(), m.drawShape(), m.drawText(), setChartControl.drawShape(), setChartControl.drawText();
-            simpleSetting.chart.select = selectedItem.name;
-            if(selectedItem.name == "COMBINATION") simpleSetting.unit.select = simpleSetting.unit.multi[0], setUnitControl.text = simpleSetting.unit.multi[0], setUnitControl.clear(), setUnitControl.drawShape(), setUnitControl.drawText();
-            else setUnitControl.text == "No Units" ? "" : (simpleSetting.unit.select = simpleSetting.unit.single[0], setUnitControl.text = simpleSetting.unit.single[0], setUnitControl.clear(), setUnitControl.drawShape(), setUnitControl.drawText());
-        }});
-
-        var selectUnitControl = new controller(self.overlayCtx, "SelectUnit", selectUnitConfig, { hover : hoverFunction, click : function (m) {
-            if(setUnitControl.text == "No Units") return;
-            var items;
-            if(simpleSetting.chart.select.toLowerCase() == "combination") {
-                items = simpleSetting.unit.multi;
-            } else {
-                items = simpleSetting.unit.single;
-            }
-            var index = items.findIndex(function(d) { return d == simpleSetting.unit.select });
-            (index >= items.length - 1 || index == -1) ? index = 0 : index++;
-            var selectedItem = items[index];
-            simpleSetting.unit.select = selectedItem, setUnitControl.text = selectedItem;
-            setUnitControl.clear(), setUnitControl.drawShape(), setUnitControl.drawText();
-        }});
-
-        var selectStyleControl = new controller(self.overlayCtx, "SelectStyle", selectStyleConfig, { hover : hoverFunction, click : function (m) {
-            var index = simpleSetting.style.theme.findIndex(function(d) { return d.name == setStyleControl.text });
-            (index >= simpleSetting.style.theme.length - 1 || index == -1) ? index = 0 : index++;
-            var selectedItem = simpleSetting.style.theme[index];
-            setStyleControl.text = selectedItem.name;
-            simpleSetting.style.select = selectedItem.name;
-            setStyleControl.clear(), setStyleControl.drawShape(), setStyleControl.drawText();
-        }});
-
-        var selectCalendarControl = new controller(self.overlayCtx, "SelectCalendar", selectCalendarConfig, { hover : hoverFunction, click : function (m) {
-            timeBackSetting();
-
-        }});
-        var toggleTimeSyncControl = new controller(self.overlayCtx, "ToggleTimeSync", toggleTimeSyncConfig, { hover : hoverFunction, click : function (m) {
-            if(m.on) {
-                m.on = false, simpleSetting.request.timeRangeSync = false;
-            } else {
-                m.on = true, simpleSetting.request.timeRangeSync = true;
-            }
-            m.text = simpleSetting.request.timeRangeSync ? "f0c1" : "f127";
-            m.clear(), m.drawShape(), m.drawText();
-        }});
-
-        var selectSamplingControl = new controller(self.overlayCtx, "SelectSampling", selectSamplingConfig, { hover : hoverFunction, click : function (m) {
-            var index = simpleSetting.request.sampling.methods.findIndex(function(d) { return d == simpleSetting.request.sampling.select });
-            (index >= simpleSetting.request.sampling.methods.length - 1 || index == -1) ? index = 0 : index++;
-            var selectedItem = simpleSetting.request.sampling.methods[index];
-            setSamplingControl.text = selectedItem;
-            m.clear(), setSamplingControl.clear(), m.drawShape(), m.drawText(), setSamplingControl.drawShape(), setSamplingControl.drawText();
-            simpleSetting.request.sampling.select = selectedItem;
-        }});
-
-        var applyControl = new controller(self.overlayCtx, "SetSampling", applyConfig, { hover : hoverFunction, click : function (m) {
-            self.options.chartType = simpleSetting.chart.select;
-            var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == simpleSetting.style.select;});
-            var regen = false;
-            if(simpleSetting.style.select != "CUSTOM") {
-                self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
-                self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
-                self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
-                self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
-                self.options.style.theme = selectedStyle.name;
-            } else if(typeof selectedStyle.background != "undefined") {
-                self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
-                self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
-                self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
-                self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
-
-                self.options.style.chart.graphTitleFontSize = selectedStyle.headersize, self.options.style.chart.graphSubTitleFontSize = selectedStyle.headersize * (2/3);
-                self.options.style.table.titleFontSize = selectedStyle.headersize, self.options.style.table.subTitleFontSize = selectedStyle.headersize * (2/3);
-                self.options.style.chart.scaleFontSize = selectedStyle.bodysize, self.options.style.chart.yAxisFontSize = selectedStyle.bodysize;
-                self.options.style.table.innerFontSize = selectedStyle.bodysize, self.options.style.chart.legendFontSize = selectedStyle.footersize;
-                self.options.style.chart.graphAlign = selectedStyle.headeralign, self.options.style.chart.graphAlign == "left" ? self.options.style.chart.graphPosX = 50 :self.options.style.chart.graphPosX =  self.$container.width()/2, self.options.style.table.titleFontAlign = selectedStyle.headeralign;
-                self.options.yAxisFormat = selectedStyle.ydigitformat, self.options.style.chart.yAxisFormat = selectedStyle.ydigitformat;
-                self.options.yMinimum = selectedStyle.ymin, self.options.style.table.innerChartOptions.yMinimum = selectedStyle.ymin, self.options.style.chart.yMinimum = selectedStyle.ymin;
-                self.options.yMaximum = selectedStyle.ymax, self.options.style.table.innerChartOptions.yMaximum = selectedStyle.ymax, self.options.style.chart.yMaximum = selectedStyle.ymax;
-                self.options.xAxisField = selectedStyle.xfield;
-                if(self.options.timeFormat != selectedStyle.xtimeformat) self.options.timeFormat = selectedStyle.xtimeformat, regen = true;
-                if(self.options.fixedUnit != selectedStyle.yunit) self.options.fixedUnit = selectedStyle.yunit, simpleSetting.unit.select = selectedStyle.yunit, setUnitControl.clear(), setUnitControl.text = selectedStyle.yunit == '' ? 'No Units' : selectedStyle.yunit, setUnitControl.drawShape(), setUnitControl.drawText(), regen = true;
-
-                for(var i in selectedStyle.seriesColor) {
-                    var color = convertHex(selectedStyle.seriesColor[i], 50);
-                    self.options.style.chart.seriesColor[i] = selectedStyle.seriesColor[i], self.renderData.chart.datasets[i].fillColor = color;
-                    self.renderData.chart.datasets[i].strokeColor = color, self.renderData.chart.datasets[i].pointColor = color;
-                    self.renderData.pie[i].color = color;
-                }
-
-                self.options.style.chart.seriesColor = selectedStyle.seriesColor;
-                self.options.style.theme = selectedStyle.name;
-            }
-
-            if(simpleSetting.request.start != self.options.start || self.options.end != simpleSetting.request.end || self.options.samplingMethod != simpleSetting.request.sampling.select.toLowerCase() || self.options.timeRangeSync != simpleSetting.request.timeRangeSync || regen) {
-                self.options.start = simpleSetting.request.start, self.options.end = simpleSetting.request.end, self.options.samplingMethod = simpleSetting.request.sampling.select.toLowerCase(), self.options.timeRangeSync = simpleSetting.request.timeRangeSync;
-                self.load(self.guid);
-            } else {
-                var message = {
-                    type : "draw"
-                }
-                renderWorker.postMessage(message);
-            }
-        }});
-
-        setChartControl.drawShape(), setChartControl.drawText(), setUnitControl.drawShape(), setUnitControl.drawText(), setStyleControl.drawShape(), setStyleControl.drawText();
-        setSamplingControl.drawShape(), setSamplingControl.drawText(), setCalendarControl.drawShape(), setCalendarControl.drawText();
-        selectCalendarControl.drawShape(), selectCalendarControl.drawText(), selectSamplingControl.drawShape(), selectSamplingControl.drawText();
-        selectChartControl.drawShape(), selectChartControl.drawText(), selectUnitControl.drawShape(), selectUnitControl.drawText();
-        selectStyleControl.drawShape(), selectStyleControl.drawText(), applyControl.drawShape(), applyControl.drawText();
-        toggleTimeSyncControl.drawShape(), toggleTimeSyncControl.drawText();
-
-        self.controlContainer.push(selectChartControl), self.controlContainer.push(setChartControl), self.controlContainer.push(selectUnitControl), self.controlContainer.push(setUnitControl);
-        self.controlContainer.push(selectStyleControl), self.controlContainer.push(setStyleControl), self.controlContainer.push(selectCalendarControl), self.controlContainer.push(setCalendarControl);
-        self.controlContainer.push(selectSamplingControl), self.controlContainer.push(setSamplingControl), self.controlContainer.push(applyControl), self.controlContainer.push(toggleTimeSyncControl);
-
-        $(self.overlay).css("pointer-events", "auto");
     };
 
     self.close = function() {
+        clearInterval(self.detectInterval);
         self.$container.unbind(".setting");
         self.renderData = null, self.options = null, tempChart = null, self.pointerArr = null, zoomHistory = null, self.controlContainer = null;
         var annotateDIV = document.getElementById("divCursor");
-        annotateDIV.style.display = "none";
+        if(annotateDIV) {
+            annotateDIV.style.display = "none";
+        }
         self.chartObj.dispose();
 
         renderWorker.terminate();

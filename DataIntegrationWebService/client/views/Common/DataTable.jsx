@@ -38,7 +38,7 @@ module.exports = React.createClass({
             };
         });
         if(this.state.searchable && data.length > 0) {
-            var searchControl = <SearchFilter ref='SearchFilter' fields={fields} filters={filters}/>;
+            var searchControl = <SearchFilter ref='SearchFilter' fields={fields} filters={filters} action={this.handleSearch}/>;
         }
         if(this.state.updatable && data.length > 0) {
             var updateControl = <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>;
@@ -75,12 +75,23 @@ module.exports = React.createClass({
             this.refs.UpdateControl.refs.ModalForm.setState({action:'update', active:true,data:_.cloneDeep(result),fields:_.cloneDeep(this.state.fields)});
         }
     },
-    handlePagination: function(direction) {
-        if(direction == 'next') {
+    handlePagination: function(control) {
+        if(control == 'next') {
             this.refs.DataArea.state.page += 1;
-        } else {
+        } else if(control == 'prev') {
             this.refs.DataArea.state.page -= 1;
+        } else {
+            this.props.callback({action:control});
         }
         this.refs.DataArea.setState(this.refs.DataArea.state);
+    },
+    handleSearch: function(searches) {
+        var filteredData = this.state.data.filter(function(data){
+            let condition = '';
+             _.each(searches,function(row,i){
+                 condition = condition + row + " && ";
+             })
+        });
+        console.log(searches);
     }
 });

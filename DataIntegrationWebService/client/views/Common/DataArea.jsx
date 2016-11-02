@@ -21,6 +21,9 @@ module.exports = React.createClass({
             var currentPage = pageCount > data.length ? data.length : page*pageCount;
             for(var i = ((page-1)*pageCount); i < currentPage; i++) {
                 let row = data[i];
+                if(row == undefined) {
+                    continue;
+                }
                 let tdArr = [];
                 let status = '';
                 _.each(fields, function(field,index){
@@ -32,7 +35,7 @@ module.exports = React.createClass({
                                 data = _.map(data, function(value,key){return value}).toString();
                             } else if (field.type == 'GroupCheckbox') {
                                 let result = [];
-                                _.each(data, function(row,i){
+                                _.each(data, function(row,i) {
                                     if(row.checked){
                                         result.push(row.value);
                                     }

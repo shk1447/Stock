@@ -397,7 +397,20 @@ namespace Connector
                                         }
                                         else
                                         {
-                                            obj.Add(reader.GetName(i), reader.GetString(i));
+                                            var type = reader.GetDataTypeName(i).ToLower();
+                                            var value = string.Empty;
+                                            if (type.Contains("char"))
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetString(i));
+                                            }
+                                            else if (type.Contains("int"))
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetInt64(i));
+                                            }
+                                            else if (type.Contains("double") || type.Contains("float") || type.Contains("decimal"))
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetDouble(i));
+                                            }
                                         }
                                     }
                                     ret.Add(obj);
@@ -426,6 +439,121 @@ namespace Connector
                 LogWriter.Error(ex.ToString());
                 ret = null;
             }
+
+            return ret;
+        }
+
+        public JsonObject GetJsonArrayWithSchema(string query, object parameterValues = null)
+        {
+            var ret = new JsonObject();
+            var data = new JsonArray();
+            var fields = new JsonArray();
+            try
+            {
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=15;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                using (var connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                    {
+                        try
+                        {
+                            var cmd = connection.CreateCommand();
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = query;
+
+                            if (parameterValues != null)
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.Add("@queryText", parameterValues.ToString());
+                            }
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                bool isExists = false;
+                                while (reader.Read())
+                                {
+                                    var count = 0;
+                                    JsonObject obj = new JsonObject();
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        //if (reader.GetValue(i).GetType().Name == "DBNull") continue;
+                                        var fieldType = "Text";
+                                        if (reader.GetValue(i).GetType() == typeof(byte[]))
+                                        {
+                                            fieldType = "AddFields";
+                                            var jsonString = Encoding.UTF8.GetString(reader[i] as byte[]);
+                                            if (!string.IsNullOrWhiteSpace(jsonString))
+                                                obj.Add(reader.GetName(i), JsonValue.Parse(jsonString));
+                                        }
+                                        else if (reader.GetValue(i).GetType().Name == "DBNull")
+                                        {
+                                            obj.Add(reader.GetName(i), null);
+                                        }
+                                        else
+                                        {
+                                            var type = reader.GetDataTypeName(i).ToLower();
+                                            var value = string.Empty;
+                                            if (type.Contains("char"))
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetString(i));
+                                            }
+                                            else if (type.Contains("int"))
+                                            {
+                                                fieldType = "Number";
+                                                obj.Add(reader.GetName(i), reader.GetInt64(i));
+                                            }
+                                            else if (type.Contains("double") || type.Contains("float") || type.Contains("decimal"))
+                                            {
+                                                fieldType = "Number";
+                                                obj.Add(reader.GetName(i), reader.GetDouble(i));
+                                            }
+                                            else
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetString(i));
+                                            }
+                                        }
+
+                                        if (!isExists)
+                                        {
+                                            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", reader.GetName(i)),
+                                                            new KeyValuePair<string, JsonValue>("value", reader.GetName(i)),
+                                                            new KeyValuePair<string, JsonValue>("type", fieldType),
+                                                            new KeyValuePair<string, JsonValue>("group", count / 2),
+                                                            new KeyValuePair<string, JsonValue>("required", false)));
+                                            count++;
+                                        }
+                                    }
+                                    data.Add(obj);
+                                    isExists = true;
+                                }
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            LogWriter.Error(ex.ToString());
+                            LogWriter.Error("[GET QUERY] " + query);
+                            data = null;
+                            fields = null;
+                        }
+                        finally
+                        {
+                            transaction.Dispose();
+                            connection.Close();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWriter.Error(ex.ToString());
+                data = null;
+                fields = null;
+            }
+            ret.Add(new KeyValuePair<string, JsonValue>("data", data));
+            ret.Add(new KeyValuePair<string, JsonValue>("fields", fields));
 
             return ret;
         }

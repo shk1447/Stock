@@ -91,26 +91,7 @@ namespace DataIntegrationServiceLogic
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
-            var data = MariaDBConnector.Instance.GetJsonArray(viewInfo["view_query"].ReadAs<string>());
-            var res = new JsonObject();
-
-            var fields = new JsonArray();
-            if (data.Count > 0)
-            {
-                var count = 0;
-                foreach (var item in data[0])
-                {
-                    fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", item.Key),
-                                          new KeyValuePair<string, JsonValue>("value", item.Key),
-                                          new KeyValuePair<string, JsonValue>("type", "Text"),
-                                          new KeyValuePair<string, JsonValue>("group", count / 2),
-                                          new KeyValuePair<string, JsonValue>("required", false)));
-
-                    count++;
-                }
-            }
-            res.Add(new KeyValuePair<string, JsonValue>("data", data));
-            res.Add(new KeyValuePair<string, JsonValue>("fields", fields));
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
             return res.ToString();
         }
     }
