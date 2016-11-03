@@ -78,18 +78,18 @@ CREATE TABLE IF NOT EXISTS `data_view` (
   PRIMARY KEY (`idx`),
   UNIQUE KEY `unique_columns` (`name`,`member_id`),
   KEY `index_columns` (`unixtime`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table datasourcebase.data_view: ~7 rows (대략적)
 /*!40000 ALTER TABLE `data_view` DISABLE KEYS */;
 INSERT INTO `data_view` (`idx`, `member_id`, `name`, `view_type`, `view_query`, `unixtime`) VALUES
-	(1, 'admin', '현재 주가', 'current', 'SELECT column_get(`rawdata`, \'종목명\' as char) as `종목명`, column_get(`rawdata`, \'종가\' as int) `종가`,  `unixtime` as `수집시간` FROM current_finance;', '2016-11-03 09:25:04.440'),
-	(2, 'admin', '실시간 고가', 'current', 'SELECT column_get(`rawdata`, \'종목명\' as char) as `종목명`, column_get(`rawdata`, \'고가\' as char) as `고가` FROM current_finance;', '2016-11-01 12:13:24.436'),
-	(13, 'admin', '과거 종가', 'past', 'SELECT `종가`,`5일_이동평균`, UNIX_TIMESTAMP(`unixtime`) as unixtime FROM (SELECT AVG(column_get(`rawdata`, \'종가\' as int)) as `종가`, AVG(column_get(`rawdata`, \'5일_이동평균\' as int)) as `5일_이동평균`, `unixtime` FROM past_finance WHERE category=\'000020\' GROUP BY unixtime DESC) as result GROUP BY DATE(unixtime);', '2016-11-02 13:57:46.188'),
-	(29, 'admin', '당기순이익/시가총액', 'current', 'SELECT * FROM (SELECT column_get(rawdata, \'종목명\' as char) as `종목명`, column_get(rawdata, \'종가\' as int) as `현재가`, column_get(rawdata, \'당기순이익\' as int) / column_get(rawdata, \'시가총액\' as int) as `수익률`, unixtime FROM current_finance) as result ORDER BY `수익률` DESC;', '2016-11-03 09:33:56.721'),
+	(1, 'admin', '현재 주가', 'current', 'SELECT column_get(`rawdata`, \'종목명\' as char) as `종목명`, column_get(`rawdata`, \'종가\' as int) `종가`,  `unixtime` as `수집시간` FROM current_finance', '2016-11-03 16:35:34.640'),
+	(2, 'admin', '실시간 고가', 'current', 'SELECT column_get(`rawdata`, \'종목명\' as char) as `종목명`, column_get(`rawdata`, \'고가\' as char) as `고가` FROM current_finance', '2016-11-03 16:35:37.390'),
+	(13, 'admin', '과거 종가', 'past', 'SELECT `종가`,`5일_이동평균`, UNIX_TIMESTAMP(`unixtime`) as unixtime FROM (SELECT AVG(column_get(`rawdata`, \'종가\' as int)) as `종가`, AVG(column_get(`rawdata`, \'5일_이동평균\' as int)) as `5일_이동평균`, `unixtime` FROM past_finance WHERE category=\'000020\' GROUP BY unixtime DESC) as result GROUP BY DATE(unixtime)', '2016-11-03 16:35:41.415'),
+	(29, 'admin', '당기순이익/시가총액', 'current', 'SELECT * FROM (SELECT column_get(rawdata, \'종목명\' as char) as `종목명`, column_get(rawdata, \'종가\' as int) as `현재가`, column_get(rawdata, \'당기순이익\' as int) / column_get(rawdata, \'시가총액\' as int) as `수익률`, unixtime FROM current_finance) as result ORDER BY `수익률` DESC', '2016-11-03 16:35:44.086'),
 	(30, 'shkim', '주가TOP100', 'current', 'SELECT column_get(rawdata,\'종목명\' as char) as `종목명`, column_get(rawdata,\'종가\' as int) as `종가`, unixtime as `수집시간` FROM current_finance ORDER BY column_get(rawdata,\'종가\' as int) DESC LIMIT 100;', '2016-11-03 10:46:02.573'),
-	(34, 'admin', '루멘스(038060)', 'past', 'SELECT column_get(`rawdata`, \'종가\' as int) as `종가`,  column_get(`rawdata`, \'5일_이동평균\' as int) as `5일_이동평균`,UNIX_TIMESTAMP(`unixtime`) as unixtime FROM past_finance WHERE category=\'038060\' ORDER BY unixtime ASC;', '2016-11-03 13:21:34.520'),
-	(35, 'admin', '루멘스(038060)_일봉', 'past', 'SELECT `종가`,`5일_이동평균`, UNIX_TIMESTAMP(`unixtime`) as unixtime FROM (SELECT AVG(column_get(`rawdata`, \'종가\' as int)) as `종가`, AVG(column_get(`rawdata`, \'5일_이동평균\' as int)) as `5일_이동평균`, `unixtime` FROM past_finance WHERE category=\'038060\' GROUP BY unixtime DESC) as result GROUP BY DATE(unixtime);', '2016-11-03 12:56:38.677');
+	(34, 'admin', '루멘스(038060)', 'past', 'SELECT column_get(`rawdata`, \'종가\' as int) as `종가`,  column_get(`rawdata`, \'5일_이동평균\' as int) as `5일_이동평균`,UNIX_TIMESTAMP(`unixtime`) as unixtime FROM past_finance WHERE category=\'038060\' ORDER BY unixtime ASC', '2016-11-03 16:35:46.966'),
+	(35, 'admin', '루멘스(038060)_일봉', 'past', 'SELECT `종가`,`5일_이동평균`, UNIX_TIMESTAMP(`unixtime`) as unixtime FROM (SELECT AVG(column_get(`rawdata`, \'종가\' as int)) as `종가`, AVG(column_get(`rawdata`, \'5일_이동평균\' as int)) as `5일_이동평균`, `unixtime` FROM past_finance WHERE category=\'038060\' GROUP BY unixtime DESC) as result GROUP BY DATE(unixtime)', '2016-11-03 16:35:49.839');
 /*!40000 ALTER TABLE `data_view` ENABLE KEYS */;
 
 
@@ -114,6 +114,33 @@ INSERT INTO `member` (`idx`, `member_id`, `member_name`, `password`, `privilege`
 	(1, 'admin', '김석환', 'soul1087', 'super', 'sukan8822@gmail.com', '01057721447', '2016-11-03 09:50:52.538'),
 	(2, 'shkim', '홍길동', 'soul1087', '\0\0\0\0\00!user', 'shk1447@n3n.co.kr', '112', '2016-11-03 10:05:29.134');
 /*!40000 ALTER TABLE `member` ENABLE KEYS */;
+
+
+-- 프로시저 datasourcebase의 구조를 덤프합니다. DynamicQueryExecuter
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DynamicQueryExecuter`(IN `queryText` LONGTEXT)
+BEGIN
+	SET @count = 1;
+	WHILE SPLIT_TEXT(queryText, ';', @count) != '' DO
+		SET @SQLString = SPLIT_TEXT(queryText, ';', @count);
+		PREPARE st FROM @SQLString;
+		EXECUTE st;
+		DEALLOCATE PREPARE st;
+	
+		SET @count = @count + 1;
+	END WHILE;
+END//
+DELIMITER ;
+
+
+-- 함수 datasourcebase의 구조를 덤프합니다. SPLIT_TEXT
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` FUNCTION `SPLIT_TEXT`(`x` LONGTEXT, `delim` VARCHAR(12), `pos` INT) RETURNS longtext CHARSET utf8
+    DETERMINISTIC
+RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos),
+       CHAR_LENGTH(SUBSTRING_INDEX(x, delim, pos - 1)) + 1),
+       delim, '')//
+DELIMITER ;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

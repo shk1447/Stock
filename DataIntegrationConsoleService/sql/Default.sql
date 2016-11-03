@@ -109,12 +109,13 @@ INSERT INTO member (member_id, member_name, password, privilege, email, phone_nu
 
 CREATE TABLE `data_view` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
+	`member_id` VARCHAR(50) NULL DEFAULT NULL,
 	`name` VARCHAR(50) NULL DEFAULT NULL,
 	`view_type` VARCHAR(50) NULL DEFAULT NULL,
 	`view_query` TEXT NULL DEFAULT NULL,
 	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
 	PRIMARY KEY (`idx`),
-	UNIQUE INDEX `unique_columns` (`name`),
+	UNIQUE INDEX `unique_columns` (`name`,`member_id`),
 	INDEX `index_columns` (`unixtime`)
 )
 COLLATE='utf8_general_ci'
