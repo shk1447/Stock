@@ -32,7 +32,7 @@ namespace Finance
             StockInformationConfig.Add("days", 1);
             StockInformationConfig.Add("method", "history");
             this.config.Add("StockInformation", StockInformationConfig);
-            this.functionDict.Add("StockInformation", new Func<bool>(StockInformation));
+            this.functionDict.Add("StockInformation", new Func<string, bool>(StockInformation));
         }
 
         private object CurrentStock()
@@ -61,9 +61,9 @@ namespace Finance
             return this.config;
         }
 
-        public object ExecuteModule(string method)
+        public object ExecuteModule(string method, string collectionName)
         {
-            var result = this.functionDict[method].DynamicInvoke();
+            var result = this.functionDict[method].DynamicInvoke(collectionName);
 
             return result;
         }
@@ -84,7 +84,7 @@ namespace Finance
         private const string CellPattern = "<td[^>]*>(.*?)</td>";
         private static readonly DateTime unixBase = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-        private bool StockInformation()
+        private bool StockInformation(string collectionName)
         {
             string htmlCode = "";
 
@@ -112,7 +112,7 @@ namespace Finance
 
                 try
                 {
-                    SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥");
+                    SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥", collectionName);
                 }
                 catch (Exception ex)
                 {
@@ -124,14 +124,14 @@ namespace Finance
                     reqParam.Url = url.Replace("{pageNumber}", i.ToString()).Replace("{exchange}", k.ToString());
                     htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
 
-                    SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥");
+                    SetRawData(htmlCode, k == 0 ? "코스피" : "코스닥", collectionName);
                 }
             }
 
             return true;
         }
 
-        private void SetRawData(string htmlCode, string type)
+        private void SetRawData(string htmlCode, string type, string collectionName)
         {
             MatchCollection tableMatches = Regex.Matches(WithoutComments(htmlCode), TablePattern, ExpressionOptions);
             string tableHtmlWithoutComments = WithoutComments(tableMatches[1].Value);
@@ -147,7 +147,7 @@ namespace Finance
 
                     var result = new SetDataSourceReq();
                     result.rawdata = new List<JsonDictionary>();
-                    result.source = "Finance";
+                    result.source = collectionName;
                     result.category = "종목코드";
                     result.collected_at = this.config["StockInformation"]["method"].ReadAs<string>() == "history" ? "날짜" : "";
                     var json = new JsonDictionary();

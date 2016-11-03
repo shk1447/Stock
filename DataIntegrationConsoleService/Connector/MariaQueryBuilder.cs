@@ -218,7 +218,7 @@ namespace Connector
 
             foreach (var kv in where)
             {
-                query = query + kv.Key + "='" + kv.Value.ReadAs<string>() + "' AND";
+                query = query + kv.Key + "='" + kv.Value.ReadAs<string>() + "' AND ";
             }
 
             query = query.Substring(0, query.Length - 4);

@@ -21,7 +21,7 @@ module.exports = React.createClass({
         self.socket.on('view.execute', function(response) {
             self.refs.contents.setState({title:self.state.currentView, data:response.data,fields: response.fields})
         });
-        var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
+        var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
         self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
@@ -53,7 +53,7 @@ module.exports = React.createClass({
         });
         const filters = [];
         if(activeItem == 'past') {
-            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView} data={this.state.data} fields={this.state.fields} />;
+            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView} data={this.state.data} fields={this.state.fields} action={this.callbackDataView} />;
         } else if(activeItem =='current') {
             var contents = <DataTable ref='contents' key={'dataview_current'} title={'DataView'} data={this.state.data}
                                         fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;

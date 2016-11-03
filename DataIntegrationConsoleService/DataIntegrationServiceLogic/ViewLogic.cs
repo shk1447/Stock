@@ -50,10 +50,10 @@ namespace DataIntegrationServiceLogic
         }
 
 
-        public string GetList()
+        public string GetList(JsonValue jsonObj)
         {
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
-            var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
+            var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonObj);
             var res = MariaDBConnector.Instance.GetJsonArray(query);
 
             return res.ToString();

@@ -59,8 +59,8 @@ module.exports = React.createClass({
                 </div>
                 <div style={{float:'left',padding:'8px'}}>
                     <Input className='small left icon action' icon='search' onChange={this.changeValue} placeholder='Input Value'>
-                        <Select key='target' options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
-                        <Select key='comparison' options={options} defaultValue='' onChange={this.changeComparison} />
+                        <Select key='target' compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
+                        <Select key='comparison' compact options={options} defaultValue='' onChange={this.changeComparison} />
                         <Button type='submit' onClick={this.addFilter}>Add Filter</Button>
                     </Input>
                 </div>

@@ -23,10 +23,13 @@ module.exports = React.createClass({
         const trigger = (
                         <span>
                             <Icon name='user' />
-                            Hello, Admin
+                            Hello, {sessionStorage['member_name']}
                         </span>
                         )
-
+        if(sessionStorage['privilege'] == "super") {
+            var collectionPage = <Dropdown.Item onClick={this.handleDataManager}>Collection</Dropdown.Item>,
+                analysisPage = <Dropdown.Item onClick={this.handleDataManager}>Analysis</Dropdown.Item>; 
+        }
         return (
             <div>
                 <Menu stackable>
@@ -40,8 +43,8 @@ module.exports = React.createClass({
 
                     <Dropdown as={Menu.Item} text='Data Manager'>
                         <Dropdown.Menu>
-                            <Dropdown.Item onClick={this.handleDataManager}>Collection</Dropdown.Item>
-                            <Dropdown.Item onClick={this.handleDataManager}>Analysis</Dropdown.Item>
+                            {collectionPage}
+                            {analysisPage}
                             <Dropdown.Item onClick={this.handleDataManager}>View</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
@@ -51,7 +54,7 @@ module.exports = React.createClass({
                             <Dropdown trigger={trigger}>
                                 <Dropdown.Menu>
                                     <Dropdown.Item disabled>
-                                        Signed in as <strong>Admin</strong>
+                                        Signed in as <strong>{sessionStorage['member_id']}</strong>
                                     </Dropdown.Item>
                                     <Dropdown.Divider />
                                     <Dropdown.Item>Your Profile</Dropdown.Item>

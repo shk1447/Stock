@@ -83,6 +83,7 @@ namespace SourceModuleManager
         public void ExecuteModule(JsonValue moduleInfo)
         {
             var assembly = new nvParser();
+            var collectionName = moduleInfo["name"].ReadAs<string>();
             var moduleName = moduleInfo["module_name"].ReadAs<string>();
             var methodName = moduleInfo["method_name"].ReadAs<string>();
 
@@ -90,7 +91,7 @@ namespace SourceModuleManager
             if (moduleInfo["options"] != null)
                 module.SetConfig(methodName, moduleInfo["options"]);
 
-            module.ExecuteModule(methodName);
+            module.ExecuteModule(methodName, collectionName);
 
             var whereDict = new Dictionary<string, object>() { { "name", moduleInfo["name"].ReadAs<string>() } };
             var setDict = new Dictionary<string, object>() { { "status", "done" } };

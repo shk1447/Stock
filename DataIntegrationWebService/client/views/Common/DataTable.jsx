@@ -13,13 +13,13 @@ module.exports = React.createClass({
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
-        if(this.state.searchable && this.state.data.length > 0) {
+        if(this.state.searchable && this.state.fields.length > 0) {
             this.refs.SearchFilter.setState({fields:this.state.fields});
         }
-        if(this.state.updatable && this.state.data.length > 0) {
+        if(this.state.updatable && this.state.fields.length > 0) {
             this.refs.UpdateControl.setState({fields:this.state.fields});
         }
-        if(this.state.data.length > 0) {
+        if(this.state.fields.length > 0) {
             this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
         }
@@ -37,13 +37,13 @@ module.exports = React.createClass({
                 thArr.push(<th key={i}>{row.text}</th>)
             };
         });
-        if(this.state.searchable && data.length > 0) {
+        if(this.state.searchable && fields.length > 0) {
             var searchControl = <SearchFilter ref='SearchFilter' fields={fields} filters={filters} action={this.handleSearch}/>;
         }
-        if(this.state.updatable && data.length > 0) {
+        if(this.state.updatable && fields.length > 0) {
             var updateControl = <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>;
         }
-        if(data.length > 0) {
+        if(fields.length > 0) {
             var gridControl = <GridControl action={this.handlePagination}/>;
         }
         return (
@@ -53,7 +53,7 @@ module.exports = React.createClass({
                     {gridControl}
                     {updateControl}
                 </div>
-                <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'4px'}}>
+                <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'6px'}}>
                     <table className="table-container" ref="table_headers">
                         <thead>
                             <tr>

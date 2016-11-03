@@ -476,7 +476,6 @@ namespace Connector
                                     JsonObject obj = new JsonObject();
                                     for (int i = 0; i < reader.FieldCount; i++)
                                     {
-                                        //if (reader.GetValue(i).GetType().Name == "DBNull") continue;
                                         var fieldType = "Text";
                                         if (reader.GetValue(i).GetType() == typeof(byte[]))
                                         {
@@ -487,6 +486,7 @@ namespace Connector
                                         }
                                         else if (reader.GetValue(i).GetType().Name == "DBNull")
                                         {
+                                            fieldType = "Number";
                                             obj.Add(reader.GetName(i), null);
                                         }
                                         else

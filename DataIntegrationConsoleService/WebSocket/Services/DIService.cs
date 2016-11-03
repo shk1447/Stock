@@ -173,7 +173,7 @@ namespace DIWebSocket.Services
                                 }
                             case "getlist":
                                 {
-                                    returnString = viewLogic.GetList();
+                                    returnString = viewLogic.GetList(reqInfo["parameters"]);
                                     break;
                                 }
                             case "create":

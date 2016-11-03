@@ -20,7 +20,9 @@ module.exports = React.createClass({
         self.socket.on('member.access',function(data) {
             if(data.member_id) {
                 if(window.sessionStorage) {
-                    sessionStorage.setItem('session', data);
+                    sessionStorage['member_id'] = data.member_id;
+                    sessionStorage['member_name'] = data.member_name;
+                    sessionStorage['privilege'] = data.privilege;
                 }
                 cookies.set('accessToken', data.token);
                 self.context.router.replace('/App/');
@@ -85,7 +87,7 @@ module.exports = React.createClass({
     },
     handleCreate: function(result) {
         if(result.action == 'insert') {
-            var data = {"broadcast":false,"target":"member.create", "parameters":data};
+            var data = {"broadcast":false,"target":"member.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         }
     },
@@ -95,6 +97,6 @@ module.exports = React.createClass({
         this.socket.emit('fromclient', data);
     },
     show : function(e,v) {
-        this.refs.ModalForm.setState({active:true});
+        this.refs.ModalForm.setState({active:true,action:'insert',data:{}});
     }
 });

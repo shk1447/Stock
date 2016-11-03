@@ -476,12 +476,21 @@ module.exports = React.createClass({
     },
     hide : function(e) {
         if(!e) return;
+        var self = this;
         e.preventDefault();
         if(e.target.name == 'save') {
             if(this.props.callback) {
+                var values = {};
                 this.state.fields.filter(function(d){
+                    if(d.type != "Action" && d.type != "Data") {
+                        if(d.datakey) {
+                        values[d.datakey] = self.state.data[d.datakey];
+                        } else {
+                            values[d.value] = self.state.data[d.value];
+                        }
+                    }
                     return d.error;
-                }).length > 0 ? this.refs.MessageBox.setState({active:true}) : (this.props.callback({action:this.state.action,data:this.state.data}), this.setState({active:false}));
+                }).length > 0 ? this.refs.MessageBox.setState({active:true}) : (this.props.callback({action:this.state.action,data:values}), this.setState({active:false}));
             }
         } else {
             if(this.props.callback) {

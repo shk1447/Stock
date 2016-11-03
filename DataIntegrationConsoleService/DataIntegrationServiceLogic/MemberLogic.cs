@@ -21,8 +21,7 @@ namespace DataIntegrationServiceLogic
             fields.Add(new FieldSchema("MEMBER ID", "member_id", "Text", 0, true).AddAttributes("maxlength", 10));
             fields.Add(new FieldSchema("PASSWORD", "password", "Password", 0, true).AddAttributes("maxlength", 10));
             fields.Add(new FieldSchema("MEMBER NAME", "member_name", "Text", 1, true).AddAttributes("maxlength", 10));
-            fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2)
-                  .AddOptions(new OptionsSchema("manager", "MANAGER")).AddOptions(new OptionsSchema("user", "USER")));
+            fields.Add(new FieldSchema("PRIVILEGE", "privilege", "MultiSelect", 2).AddOptions(new OptionsSchema("user", "USER")));
             fields.Add(new FieldSchema("E-MAIL", "email", "Text", 3));
             fields.Add(new FieldSchema("PHONE NUMBER", "phone_number", "Text", 4));
 

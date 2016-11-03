@@ -14,7 +14,7 @@ module.exports = React.createClass({
         self.socket = io.connect();
         self.socket.on('view.schema',function(data){
             self.refs.ViewTable.setState({fields:data})
-            var data = {"broadcast":false,"target":"view.getlist", "parameters":{}};
+            var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
             self.socket.emit('fromclient', data);
         });
         self.socket.on('view.getlist', function(data) {
@@ -23,7 +23,7 @@ module.exports = React.createClass({
         self.socket.on('view.create', function(data) {
             if(data.code == "200") {
                 self.refs.ViewTable.setState({active:false});
-                var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
+                var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE VIEW)',message:data.message, active : true})
@@ -32,7 +32,7 @@ module.exports = React.createClass({
         self.socket.on('view.modify', function(data) {
             if(data.code == "200") {
                 self.refs.ViewTable.setState({active:false});
-                var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
+                var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY VIEW)',message:data.message, active : true})
@@ -40,7 +40,7 @@ module.exports = React.createClass({
         });
         self.socket.on('view.delete', function(data){
             if(data.code == "200") {
-                var data = {"broadcast":true,"target":"view.getlist", "parameters":{}};
+                var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE VIEW)',message:data.message, active : true})
@@ -71,15 +71,17 @@ module.exports = React.createClass({
     callbackView: function (result) {
         var self = this;
         if(result.action == 'insert') {
+            result.data["member_id"] = sessionStorage.member_id;
             var data = {"broadcast":false,"target":"view.create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'update') {
+            result.data["member_id"] = sessionStorage.member_id;
             var data = {"broadcast":false,"target":"view.modify", "parameters":result.data};
             this.socket.emit('fromclient', data);
         } else if (result.action == 'delete') {
             var selectedItems = this.refs.ViewTable.refs.DataArea.state.selectedItems;
             _.each(selectedItems, function(row, i){
-                var data = {"broadcast":false,"target":"view.delete", "parameters":{name:row.name}};
+                var data = {"broadcast":false,"target":"view.delete", "parameters":{name:row.name,member_id:sessionStorage.member_id}};
                 self.socket.emit('fromclient', data);
             });
         }

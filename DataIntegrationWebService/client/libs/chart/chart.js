@@ -338,7 +338,7 @@ window.Chart = function(context) {
                     }), myStatData, config), textMsr = ctx.measureTextMultiLine(dispString, 1 * annotateDIV.style.fontSize.replace("pt", "")), ctx.restore(), annotateDIV.innerHTML = dispString, show = !0) : "function" == typeof funct && funct(event, ctx, config, data, myStatData), "annotate" == action && jsGraphAnnotate[ctx.ChartNewId][i][4]))
                     if (x = bw.ns4 || bw.ns5 ? event.pageX : event.x, y = bw.ns4 || bw.ns5 ? event.pageY : event.y, (bw.ie4 || bw.ie5) && (y += eval(scrolled)), config.annotateRelocate === !0) {
                         var colorInfo = data.datasets.filter(function(d) {return d.title == myStatData.v1});
-                        if(!colorInfo[0].tooltip) { return; }
+                        if(!colorInfo[0].tooltip) { show = 0; continue; }
                         annotateDIV.style.borderColor = colorInfo[0].strokeColor;
                         annotateDIV.innerHTML = annotateDIV.innerHTML.replace('{color}', colorInfo[0].strokeColor);
                         var relocateX, relocateY;
@@ -362,7 +362,7 @@ window.Chart = function(context) {
                     }), myStatData, config), textMsr = ctx.measureTextMultiLine(dispString, 1 * annotateDIV.style.fontSize.replace("pt", "")), ctx.restore(), annotateDIV.innerHTML = dispString, show = !0) : "function" == typeof funct && funct(event, ctx, config, data, myStatData), "annotate" == action && jsGraphAnnotate[ctx.ChartNewId][i][4]))
                     if (x = bw.ns4 || bw.ns5 ? event.pageX : event.x, y = bw.ns4 || bw.ns5 ? event.pageY : event.y, (bw.ie4 || bw.ie5) && (y += eval(scrolled)), config.annotateRelocate === !0) {
                         var colorInfo = data.datasets.filter(function(d) {return d.title == myStatData.v1});
-                        if(!colorInfo[0].tooltip) { return; }
+                        if(!colorInfo[0].tooltip) { show = 0; continue; }
                         annotateDIV.style.borderColor = colorInfo[0].strokeColor;
                         annotateDIV.innerHTML = annotateDIV.innerHTML.replace('{color}', colorInfo[0].strokeColor);
                         var relocateX, relocateY;

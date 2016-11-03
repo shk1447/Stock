@@ -23,6 +23,7 @@
     padding: 0;
     margin: 0;
 }
+
 table.table-container th, td {
     min-width: 250px;
     max-width: 250px;
@@ -99,6 +100,9 @@ table.table-container tbody tr.selected {
 }
 .ui.form .field.transparency>div>label {
     color:white;
+}
+.ui.modal>.content {
+    overflow: auto !important;
 }
 
 .time_picker_modal_container {

@@ -971,10 +971,10 @@ module.exports = function () {
             var metricTime = 0;
             var metricLen = metric.length;
             for(var a = 0; a < metricLen; a++) {
-                var dataTime = parseInt(metric[a]['unixtime']);
+                var dataTime = parseInt(metric[a]['unixtime']) * 1000;
                 metricTime == dataTime ? (metricTime = dataTime + sameCount, sameCount++) : (metricTime = dataTime,sameCount = 1);
-                var standardTime = new Date(metricTime*1000).format(self.options.timeFormat);
-                self.renderData.labels["unixtime"].push(standardTime), self.renderData.chart.times.push(metricTime*1000);
+                var standardTime = new Date(metricTime).format(self.options.timeFormat);
+                self.renderData.labels["unixtime"].push(standardTime), self.renderData.chart.times.push(metricTime);
 
                 var subLen = self.options.Fields.length;
                 for(var b = 0; b < subLen; b++) {
@@ -992,14 +992,15 @@ module.exports = function () {
                         self.renderData.labels[label].push(typeof metric[a][label] == "undefined" ? "" : metric[a][label]);
                     }
                 }
-
-                metricTime = dataTime*1000;
+                console.log(sameCount);
+                metricTime = dataTime;
             }
         }
         return;
     };
 
     self.draw = function() {
+        self.startDraw = new Date();
         $(self.canvas).detach();
         self.renderData.chart.labels = self.renderData.labels[self.options.xAxisField];
 
@@ -1138,10 +1139,8 @@ module.exports = function () {
         self.$container.unbind(".setting");
         self.renderData = null, self.options = null, tempChart = null, self.pointerArr = null, zoomHistory = null, self.controlContainer = null;
         var annotateDIV = document.getElementById("divCursor");
-        if(annotateDIV) {
-            annotateDIV.style.display = "none";
-        }
-        self.chartObj.dispose();
+        if(annotateDIV) annotateDIV.style.display = "none";
+        if(self.chartObj) self.chartObj.dispose();
 
         renderWorker.terminate();
     }
