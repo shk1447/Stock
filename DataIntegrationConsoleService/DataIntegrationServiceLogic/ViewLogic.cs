@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Json;
 using System.Linq;
 using System.Text;
@@ -93,6 +95,20 @@ namespace DataIntegrationServiceLogic
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
             return res.ToString();
+        }
+
+        public byte[] Download(JsonValue jsonValue)
+        {
+            var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]).Replace(@"\", "/");
+            var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
+            var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
+            var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
+            var filePath = repository + "/" + "temp.csv";
+            var outFileQuery = viewInfo["view_query"].ReadAs<string>() + " INTO OUTFILE '" + filePath + "' CHARACTER SET utf8 FIELDS TERMINATED BY ','";
+            MariaDBConnector.Instance.SetQuery(outFileQuery);
+            var result = File.ReadAllBytes(filePath);
+            File.Delete(filePath);
+            return result;
         }
     }
 }

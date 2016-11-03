@@ -16,5 +16,8 @@ module.exports = {
     },
     execute : function(data){
         return data;
+    },
+    download : function(data){
+        return data;
     }
 };

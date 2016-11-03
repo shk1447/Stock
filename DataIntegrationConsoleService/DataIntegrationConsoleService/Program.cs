@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -24,6 +25,12 @@ namespace DataIntegrationConsoleService
             MariaDBConnector.Instance.Uid = ConfigurationManager.AppSettings["DatabaseUid"];
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
+
+            var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]);
+            if (!Directory.Exists(repository))
+            {
+                Directory.CreateDirectory(repository);
+            }
 
             try
             {

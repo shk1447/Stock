@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Json;
 using System.Linq;
 using System.Text;
@@ -26,10 +27,11 @@ namespace DIWebSocket.Services
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            var reqInfo = JsonValue.Parse(e.Data);   
-            
+            var reqInfo = JsonValue.Parse(e.Data);
+            byte[] file = null;
             var returnString = string.Empty;
             var target = reqInfo["target"].ReadAs<string>().Split('.');
+            bool isFile = false;
             switch (target[0].ToLower())
             {
                 #region Member
@@ -196,13 +198,25 @@ namespace DIWebSocket.Services
                                     returnString = viewLogic.Execute(reqInfo["parameters"]);
                                     break;
                                 }
+                            case "download":
+                                {
+                                    isFile = true;
+                                    file = viewLogic.Download(reqInfo["parameters"]);
+                                    break;
+                                }
                         }
                         break;
                     }
                 #endregion
             }
-
-            this.Send(returnString);
+            if (isFile)
+            {
+                this.Send(file);
+            }
+            else
+            {
+                this.Send(returnString);
+            }
         }
     }
 }

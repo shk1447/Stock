@@ -10,13 +10,18 @@ module.exports = function (httpServer, config) {
       var d = data; 
       var ws = new WebSocket(config.url.wsUrl);
       var sendData = JSON.stringify(data);
+      ws.binaryType = "arraybuffer";
       ws.on('open', function() {
         ws.send(sendData);
       });
       ws.on('message', function(message) {
-        var msg = JSON.parse(message);
+        var msg;
         var target = d.target.split('.');
-      
+        if(target[1] == "download") {
+          msg = message;
+        } else {
+          msg = JSON.parse(message);
+        }
         modules[target[0]][target[1]](msg);
         
         if(d.broadcast) {

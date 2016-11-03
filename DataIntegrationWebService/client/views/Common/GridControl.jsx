@@ -20,10 +20,14 @@ module.exports = React.createClass({
                     <Button icon='chevron left' onClick={function(){self.props.action('prev')}}/>
                     <Button icon='chevron right' onClick={function(){self.props.action('next')}}/>
                     <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
+                    <Button icon='download' onClick={this.downloadItem} />
                     <Button icon='settings' />
                 </Button.Group>
             </div>
         )
+    },
+    downloadItem : function(e){
+        this.props.action("download");
     },
     handleToggle : function(){
         this.setState({repeat:!this.state.repeat});

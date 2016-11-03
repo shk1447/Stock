@@ -22,7 +22,6 @@ module.exports = React.createClass({
                 <Button.Group basic size='small'>
                     <Button icon='save' onClick={this.show}/>
                     <Button icon='remove' onClick={this.removeItems}/>
-                    <Button icon='download' />
                 </Button.Group>
                 <ModalForm ref='ModalForm' action={'insert'} size={'large'} title={title} active={active} fields={_.cloneDeep(fields)} data={_.cloneDeep(data)} callback={this.props.callback}/>
             </div>

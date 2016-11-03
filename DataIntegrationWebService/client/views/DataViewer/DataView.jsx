@@ -21,6 +21,11 @@ module.exports = React.createClass({
         self.socket.on('view.execute', function(response) {
             self.refs.contents.setState({title:self.state.currentView, data:response.data,fields: response.fields})
         });
+        self.socket.on('view.download', function(response) {
+            var dataView = new DataView(response);
+            var blob = new Blob([dataView]);
+            self.saveFile(blob);
+        });
         var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
         self.socket.emit('fromclient', data);
     },
@@ -111,12 +116,15 @@ module.exports = React.createClass({
         if(result.action == 'repeat_on') {
             if(self.state.currentView != '') {
                 self.repeatInterval = setInterval(function(){
-                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView}};
+                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView,member_id:sessionStorage.member_id}};
                     self.socket.emit('fromclient', data);
                 },1000)
             }
         } else if(result.action == 'repeat_off') {
             clearInterval(self.repeatInterval);
+        } else if(result.action == 'download') {
+            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView,member_id:sessionStorage.member_id}};
+            self.socket.emit('fromclient', data);
         }
     },
     handleSelectRow : function(e,d){
@@ -126,5 +134,11 @@ module.exports = React.createClass({
         this.state.currentView = value;
         var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
         this.socket.emit('fromclient', data);
+    },
+    saveFile : function (blob) {
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = this.state.currentView + ".csv";
+        link.click();
     }
 });
