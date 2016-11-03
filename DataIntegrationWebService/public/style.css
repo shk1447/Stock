@@ -85,7 +85,6 @@ table.table-container tbody tr.selected {
 }
  
 ::-webkit-scrollbar-corner {
-    background-color: #e6e6e6;
 }
  
 ::-webkit-scrollbar-thumb {

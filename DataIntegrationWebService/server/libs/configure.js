@@ -11,7 +11,7 @@ module.exports = {
     config: {},
     default : {
         listen : {
-            bind : 'localhost',
+            bind : '0.0.0.0',
             port : 80,
         },
         url : {

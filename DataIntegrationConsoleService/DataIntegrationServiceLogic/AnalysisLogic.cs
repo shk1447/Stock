@@ -42,11 +42,14 @@ namespace DataIntegrationServiceLogic
             var sourceQuery = MariaQueryDefine.getSourceInformation;
             var sources = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", sourceQuery);
             var sourceArray = new JsonArray();
-            foreach (var source in sources)
+            if (sources != null)
             {
-                var sourceName = source["TABLE_NAME"].ReadAs<string>().Replace("current_", "");
-                sourceArray.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
-                                               new KeyValuePair<string, JsonValue>("value", sourceName)));
+                foreach (var source in sources)
+                {
+                    var sourceName = source["TABLE_NAME"].ReadAs<string>().Replace("current_", "");
+                    sourceArray.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
+                                                   new KeyValuePair<string, JsonValue>("value", sourceName)));
+                }
             }
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "TARGET SOURCE"),
                                       new KeyValuePair<string, JsonValue>("value", "target_source"),

@@ -108,8 +108,8 @@ module.exports = React.createClass({
                 this.$ViewList.animate({"margin-left": '-=600'});
                 this.$ViewList.animate({"margin-left": '+=600'});
             }
+            this.setState({activeItem:itemName});
         }
-        this.setState({activeItem:itemName});
     },
     callbackDataView : function(result) {
         var self = this;

@@ -181,8 +181,9 @@ module.exports = React.createClass({
                         defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : moment().format("HH:mm");
                         let error = !required ? false : !defaultData[fieldInfo.value] ? true : false; fieldInfo['error'] = error;
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        let refKey = fieldInfo.datakey ? fieldInfo.datakey + "_" + fieldInfo.value : fieldInfo.value; 
                         fieldElement = <Form.Field key={fieldInfo.value} error={error} className='transparency'><label>{mainlabel}</label>
-                                        <TimePicker ref={fieldInfo.value} defaultTime={defaultData[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
+                                        <TimePicker ref={refKey} defaultTime={defaultData[fieldInfo.value]} timeMode={24} onTimeChange={self.handleChange.bind(self,fieldInfo,fields,null)}
                                                     onFocusChange={self.onFocusChange.bind(self,fieldInfo)}/>
                                        </Form.Field>                                        
                         break;
@@ -332,13 +333,23 @@ module.exports = React.createClass({
     },
     onFocusChange : function(field,focus) {
         if(focus) {
-            console.log(this.state.data[field.value]);
-            var time = moment(this.state.data[field.value], "HH:mm");
+            var value;
+            if(field.datakey) {
+                value = this.state.data[field.datakey][field.value];
+            } else {
+                value = this.state.data[field.value];
+            }
+            var time = moment(value, "HH:mm");
             if(time.isValid()){
                 time.minute(time.minute() + 1);
                 var minute = time.format("mm")
-                this.refs[field.value].setState({minute:minute});
-                this.state.data[field.value] = time.format("HH:mm");
+                if(field.datakey) {
+                    this.refs[field.datakey + "_" + field.value].setState({minute:minute});
+                    this.state.data[field.datakey][field.value] = time.format("HH:mm");
+                } else {
+                    this.refs[field.value].setState({minute:minute});
+                    this.state.data[field.value] = time.format("HH:mm");
+                }
             }
         }
     },

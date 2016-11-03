@@ -992,7 +992,6 @@ module.exports = function () {
                         self.renderData.labels[label].push(typeof metric[a][label] == "undefined" ? "" : metric[a][label]);
                     }
                 }
-                console.log(sameCount);
                 metricTime = dataTime;
             }
         }
