@@ -14,6 +14,7 @@ module.exports = function(config) {
 
     app.use('/semantic', express.static(path.resolve(__dirname, '../../semantic')));
     app.use('/public', express.static(path.resolve(__dirname, '../../public')));
+    app.use('/video', express.static(path.resolve(__dirname, '../../video')));
     app.use(cookieParser());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());

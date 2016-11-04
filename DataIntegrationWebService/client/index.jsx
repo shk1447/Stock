@@ -6,7 +6,8 @@ var DataView = require('./views/DataViewer/DataView');
 var Collection = require('./views/DataManager/Collection');
 var Analysis = require('./views/DataManager/Analysis');
 var View = require('./views/DataManager/View');
-var {Router,browserHistory,IndexRoute,Route} = require('react-router')
+var {Router,browserHistory,IndexRoute,Route} = require('react-router');
+var cookies = require('browser-cookies');
 
 let rootElement = document.getElementById('contents');
 
@@ -20,3 +21,7 @@ ReactDOM.render(<Router history = {browserHistory}>
         <Route path="DataManager/View" component={View}/>
     </Route>
 </Router>, rootElement);
+
+// $(window).unload(function() {
+//     cookies.erase('accessToken');
+// });

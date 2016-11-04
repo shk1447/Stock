@@ -36,6 +36,9 @@ namespace DataIntegrationServiceLogic
                                           ), new JsonObject(
                                               new KeyValuePair<string, JsonValue>("text", "과거"),
                                               new KeyValuePair<string, JsonValue>("value", "past")
+                                          ), new JsonObject(
+                                              new KeyValuePair<string, JsonValue>("text", "영상"),
+                                              new KeyValuePair<string, JsonValue>("value", "video")
                                           )))));
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "VIEW QUERY"),

@@ -45,7 +45,7 @@ module.exports = React.createClass({
         let viewArr = [];
         _.each(viewlist, function(row,i){
             if(row.view_type == activeItem) {
-                let icon = row.view_type == "current" ? "table" : "line chart"
+                let icon = row.view_type == "current" ? "table" : row.view_type == "past" ? "line chart" : "file video outline";
                 var item = <List.Item key={i} onClick={self.executeItem.bind(self,row.name)}>
                                 <List.Icon name={icon} size='large' verticalAlign='middle' />
                                 <List.Content>
@@ -62,6 +62,8 @@ module.exports = React.createClass({
         } else if(activeItem =='current') {
             var contents = <DataTable ref='contents' key={'dataview_current'} title={'DataView'} data={this.state.data}
                                         fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;
+        } else if(activeItem == 'video') {
+            var contents = <video ref='contents' style={{height:'100%',width:'100%'}} controls/>
         }
         return (
             <div>
@@ -73,6 +75,10 @@ module.exports = React.createClass({
 
                         <Menu.Item name='past' onClick={this.handleItemClick} active={activeItem === 'past'}>
                             <Icon name='line chart' />
+                        </Menu.Item>
+
+                        <Menu.Item name='video' onClick={this.handleItemClick} active={activeItem === 'video'}>
+                            <Icon name='video' />
                         </Menu.Item>
                     </Menu>
                     <div ref='ViewList' style={{position:'absolute',left:'60px',marginLeft:'-600px',boxShadow:'rgba(34, 36, 38, 0.2002) 1px 2px 2px 1px',
@@ -120,25 +126,34 @@ module.exports = React.createClass({
                     self.socket.emit('fromclient', data);
                 },1000)
             }
-        } else if(result.action == 'repeat_off') {
+        } else if (result.action == 'repeat_off') {
             clearInterval(self.repeatInterval);
-        } else if(result.action == 'download') {
+        } else if (result.action == 'download') {
             var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView,member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
         }
     },
-    handleSelectRow : function(e,d){
-
-    },
     executeItem : function(value) {
         this.state.currentView = value;
-        var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
-        this.socket.emit('fromclient', data);
+        if(this.state.activeItem != 'video') {
+            var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
+            this.socket.emit('fromclient', data);
+        } else {
+            var viewInfo = this.state.viewlist.find(function(d){
+                return d.name == value;
+            });
+            var video = ReactDOM.findDOMNode(this.refs.contents);
+            video.src = this.validateURL(viewInfo.view_query) ? viewInfo.view_query : "/video/" + viewInfo.view_query;
+        }
     },
     saveFile : function (blob) {
         var link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = this.state.currentView + ".csv";
         link.click();
+    },
+    validateURL : function (textval) {
+        var urlregex = /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
+        return urlregex.test(textval);
     }
 });
