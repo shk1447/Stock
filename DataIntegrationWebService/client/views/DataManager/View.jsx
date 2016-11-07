@@ -47,7 +47,7 @@ module.exports = React.createClass({
             }
         });
 
-        var data = {"broadcast":false,"target":"view.schema", "parameters":{}};
+        var data = {"broadcast":false,"target":"view.schema", "parameters":{privilege:sessionStorage['privilege']}};
         self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {

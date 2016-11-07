@@ -162,7 +162,7 @@ module.exports = React.createClass({
                                         control={Dropdown} options={fieldInfo.options} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text}
                                         compact selection multiple defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
-                    } 
+                    }
                     case 'TextArea' : {
                         let defaultData;
                         fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
@@ -305,9 +305,10 @@ module.exports = React.createClass({
     setDynamicFields : function(dynamicFields) {
         var self = this;
         _.each(dynamicFields, function(row,i) {
-            if(self.state.data && self.state.data[row.value]) {
+            let selectedData = row.datakey ? self.state.data[row.datakey] : self.state.data;  
+            if(selectedData && selectedData[row.value]) {
                 var selectedOptions = row.options.find(function(d){
-                    return d.value == self.state.data[row.value];
+                    return d.value == selectedData[row.value];
                 });
                 if(selectedOptions && selectedOptions.fields) {
                     var subDynamicFields = selectedOptions.fields.filter(function(d){

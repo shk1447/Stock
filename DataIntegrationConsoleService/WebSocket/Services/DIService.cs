@@ -170,7 +170,7 @@ namespace DIWebSocket.Services
                         {
                             case "schema":
                                 {
-                                    returnString = viewLogic.Schema();
+                                    returnString = viewLogic.Schema(reqInfo["parameters"]["privilege"].ReadAs<string>());
                                     break;
                                 }
                             case "getlist":

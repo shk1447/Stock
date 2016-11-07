@@ -100,9 +100,9 @@ table.table-container tbody tr.selected {
 .ui.form .field.transparency>div>label {
     color:white;
 }
-.ui.modal>.content {
+/*.ui.modal>.content {
     overflow: auto !important;
-}
+}*/
 
 .time_picker_modal_container {
     width:100% !important;

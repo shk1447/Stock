@@ -93,7 +93,7 @@ namespace DataIntegrationService
 
             var res = new GetDataStructureRes();
 
-            var query = MariaQueryDefine.getSourceInformation;
+            var query = MariaQueryDefine.GetSourceInformation;
             var tableInfo = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
 
             var structureQuery = MariaQueryBuilder.GetDataStructure(tableInfo);

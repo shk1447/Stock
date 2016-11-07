@@ -31,16 +31,13 @@ namespace Connector
                                                 " COLLATE='utf8_general_ci'" +
                                                 " ENGINE=InnoDB;";
 
-        public const string getSourceInformation = "SELECT TABLE_NAME FROM information_schema.`TABLES` WHERE TABLE_SCHEMA = 'datasourcebase' AND TABLE_NAME like 'current_%'";
+        public const string GetSourceInformation = "SELECT TABLE_NAME FROM information_schema.`TABLES` WHERE TABLE_SCHEMA = 'datasourcebase' AND TABLE_NAME like 'current_%'";
 
-        public const string getSchema = "SET @@group_concat_max_len = 9999999999; SELECT CONCAT('{\"name\":\"',result.source,'\", \"items\":['," +
-                                                 " GROUP_CONCAT('{\"name\":\"',category,'\",\"items\":[{\"name\":\"idx\"}," +
-                                                 " {\"name\":\"unixtime\"},{\"name\":\"rawdata\",\"items\":[',result.rawdata,']}]}'),']}') as `schema`" +
-                                        " FROM (" +
-                                        " SELECT '{source}' as source, category, REPLACE(CAST(COLUMN_LIST(rawdata) as char),'`','\"') as `rawdata`" +
-                                        " FROM current_{source}" +
-                                        " GROUP BY category) as result" +
-                                        " GROUP BY result.source;";
+        public const string GetSchema = "SET @@group_concat_max_len = 9999999999; SELECT * " +
+                                        " FROM ( " +
+                                        " SELECT REPLACE(CAST(COLUMN_LIST(rawdata) as char),'`','') as column_list " +
+                                        " FROM current_{source}) as result " +
+                                        " GROUP BY result.column_list ";
 
         public const string getStructureInformation = "SELECT '{source}' as `source`, category, CAST(COLUMN_LIST(rawdata) as char) as `items` " +
                                                       "FROM current_{source} " +
