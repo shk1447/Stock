@@ -50,7 +50,8 @@ namespace DataIntegrationServiceLogic
             }
             else
             {
-                var sourceArray = new JsonArray();
+                var sourceArray_current = new JsonArray();
+                var sourceArray_past = new JsonArray();
                 var sourceQuery = MariaQueryDefine.GetSourceInformation;
                 var sources = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", sourceQuery);
                 if (sources != null)
@@ -61,6 +62,7 @@ namespace DataIntegrationServiceLogic
                         var schemaQuery = MariaQueryDefine.GetSchema.Replace("{source}", sourceName);
                         var schemas = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", schemaQuery);
                         var schemaArray = new JsonArray();
+                        var categoryArray = new JsonArray();
                         var columnList = new List<string>();
                         foreach (var schema in schemas)
                         {
@@ -74,19 +76,38 @@ namespace DataIntegrationServiceLogic
                                                                    new KeyValuePair<string, JsonValue>("value", column)));
                                 }
                             }
+                            var categories = schema["categories"].ReadAs<string>().Split(',');
+                            foreach (var category in categories)
+                            {
+                                categoryArray.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", category),
+                                                                   new KeyValuePair<string, JsonValue>("value", category)));
+                            }
                         }
                         var schemaFields = new JsonObject(new KeyValuePair<string, JsonValue>("text", "FIELDS"),
                                                           new KeyValuePair<string, JsonValue>("value", "view_fields"),
                                                           new KeyValuePair<string, JsonValue>("type", "MultiSelect"),
-                                                          new KeyValuePair<string, JsonValue>("group", 2),
+                                                          new KeyValuePair<string, JsonValue>("group", 3),
                                                           new KeyValuePair<string, JsonValue>("required", true),
                                                           new KeyValuePair<string, JsonValue>("temp", true),
                                                           new KeyValuePair<string, JsonValue>("datakey", "view_options"),
                                                           new KeyValuePair<string, JsonValue>("options", schemaArray));
 
-                        sourceArray.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
+                        var categoryFields = new JsonObject(new KeyValuePair<string, JsonValue>("text", "CATEGORY"),
+                                                          new KeyValuePair<string, JsonValue>("value", "view_category"),
+                                                          new KeyValuePair<string, JsonValue>("type", "Search"),
+                                                          new KeyValuePair<string, JsonValue>("group", 2),
+                                                          new KeyValuePair<string, JsonValue>("dynamic", true),
+                                                          new KeyValuePair<string, JsonValue>("required", true),
+                                                          new KeyValuePair<string, JsonValue>("temp", true),
+                                                          new KeyValuePair<string, JsonValue>("datakey", "view_options"),
+                                                          new KeyValuePair<string, JsonValue>("results", categoryArray));
+
+                        sourceArray_current.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
                                                        new KeyValuePair<string, JsonValue>("value", sourceName),
                                                        new KeyValuePair<string, JsonValue>("fields", new JsonArray(schemaFields))));
+                        sourceArray_past.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", sourceName),
+                                                       new KeyValuePair<string, JsonValue>("value", sourceName),
+                                                       new KeyValuePair<string, JsonValue>("fields", new JsonArray(schemaFields, categoryFields))));
                     }
                 }
 
@@ -98,7 +119,7 @@ namespace DataIntegrationServiceLogic
                                                           new KeyValuePair<string, JsonValue>("dynamic", true),
                                                           new KeyValuePair<string, JsonValue>("temp", true),
                                                           new KeyValuePair<string, JsonValue>("datakey", "view_options"),
-                                                          new KeyValuePair<string, JsonValue>("options", sourceArray)));
+                                                          new KeyValuePair<string, JsonValue>("options", sourceArray_current)));
                 var past_sourceFields = new JsonArray(new JsonObject(new KeyValuePair<string, JsonValue>("text", "SOURCE"),
                                                           new KeyValuePair<string, JsonValue>("value", "view_source"),
                                                           new KeyValuePair<string, JsonValue>("type", "Select"),
@@ -107,12 +128,12 @@ namespace DataIntegrationServiceLogic
                                                           new KeyValuePair<string, JsonValue>("dynamic", true),
                                                           new KeyValuePair<string, JsonValue>("temp", true),
                                                           new KeyValuePair<string, JsonValue>("datakey", "view_options"),
-                                                          new KeyValuePair<string, JsonValue>("options", sourceArray)));
+                                                          new KeyValuePair<string, JsonValue>("options", sourceArray_past)));
 
                 past_sourceFields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "SAMPLING"),
                                                      new KeyValuePair<string, JsonValue>("value", "view_sampling"),
                                                      new KeyValuePair<string, JsonValue>("type", "Select"),
-                                                     new KeyValuePair<string, JsonValue>("group", 3),
+                                                     new KeyValuePair<string, JsonValue>("group", 4),
                                                      new KeyValuePair<string, JsonValue>("required", true),
                                                      new KeyValuePair<string, JsonValue>("dynamic", true),
                                                      new KeyValuePair<string, JsonValue>("temp", true),
@@ -128,17 +149,17 @@ namespace DataIntegrationServiceLogic
                                                                  new KeyValuePair<string, JsonValue>("text", "AVG"),
                                                                  new KeyValuePair<string, JsonValue>("value", "avg")
                                                              ), new JsonObject(
-                                                                 new KeyValuePair<string, JsonValue>("text", "LAST"),
-                                                                 new KeyValuePair<string, JsonValue>("value", "last")
+                                                                 new KeyValuePair<string, JsonValue>("text", "SUM"),
+                                                                 new KeyValuePair<string, JsonValue>("value", "sum")
                                                              ), new JsonObject(
-                                                                 new KeyValuePair<string, JsonValue>("text", "FIRST"),
-                                                                 new KeyValuePair<string, JsonValue>("value", "first")
+                                                                 new KeyValuePair<string, JsonValue>("text", "COUNT"),
+                                                                 new KeyValuePair<string, JsonValue>("value", "count")
                                                              )))));
 
                 past_sourceFields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "SAMPLING PERIOD"),
                                                      new KeyValuePair<string, JsonValue>("value", "view_sampling_period"),
                                                      new KeyValuePair<string, JsonValue>("type", "Select"),
-                                                     new KeyValuePair<string, JsonValue>("group", 3),
+                                                     new KeyValuePair<string, JsonValue>("group", 4),
                                                      new KeyValuePair<string, JsonValue>("required", true),
                                                      new KeyValuePair<string, JsonValue>("dynamic", true),
                                                      new KeyValuePair<string, JsonValue>("temp", true),
@@ -201,6 +222,52 @@ namespace DataIntegrationServiceLogic
 
         public string Create(JsonValue jsonObj)
         {
+            var view_type = jsonObj["view_type"].ReadAs<string>();
+            if (jsonObj.ContainsKey("view_options") && view_type != "video")
+            {
+                var options = jsonObj["view_options"];
+                var view_fields = options["view_fields"];
+                var view_source = view_type + "_" + options["view_source"].ReadAs<string>();
+
+                var query = string.Empty;
+                if (view_type == "current")
+                {
+                    query = "SELECT * FROM (SELECT category,";
+                    foreach (var field in view_fields)
+                    {
+                        var value = field.Value.ReadAs<string>();
+                        query += "column_get(`rawdata`, '" + value + "' as char) as `" + value + "`,";
+                    }
+                    query += "unixtime ";
+                    query += "FROM " + view_source + ") as result";
+                }
+                else
+                {
+                    var view_category = options["view_category"].ReadAs<string>();
+                    var view_sampling = options["view_sampling"].ReadAs<string>();
+                    var view_sampling_period = options["view_sampling_period"].ReadAs<string>();
+
+                    query = "SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ";
+                    var sampling_items = string.Empty;
+                    foreach (var field in view_fields)
+                    {
+                        var value = field.Value.ReadAs<string>();
+                        query += "column_get(`rawdata`, '" + value + "' as double) as `" + value + "`,";
+                        sampling_items += view_sampling + "(" + value + ") as `"+ value+"`,";
+                    }
+                    query = query.Replace("{sampling_items}", sampling_items);
+                    query += "unixtime ";
+                    query += "FROM " + view_source + " WHERE category = '" + view_category + "') as result";
+
+                    if (view_sampling_period == "all") query += " GROUP BY unixtime ASC";
+                    else if (view_sampling_period == "day") query += " GROUP BY DATE(unixtime) ASC";
+                    else if (view_sampling_period == "week") query += " GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC";
+                    else if (view_sampling_period == "month") query += " GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC";
+                    else if (view_sampling_period == "year") query += " GROUP BY DATE_FORMAT(unixtime, '%Y') ASC";
+                }
+
+                jsonObj["view_query"] = query;
+            }
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
@@ -210,6 +277,52 @@ namespace DataIntegrationServiceLogic
 
         public string Modify(JsonValue jsonObj)
         {
+            var view_type = jsonObj["view_type"].ReadAs<string>();
+            if (jsonObj.ContainsKey("view_options") && view_type != "video")
+            {
+                var options = jsonObj["view_options"];
+                var view_fields = options["view_fields"];
+                var view_source = view_type + "_" + options["view_source"].ReadAs<string>();
+
+                var query = string.Empty;
+                if (view_type == "current")
+                {
+                    query = "SELECT * FROM (SELECT category,";
+                    foreach (var field in view_fields)
+                    {
+                        var value = field.Value.ReadAs<string>();
+                        query += "column_get(`rawdata`, '" + value + "' as char) as `" + value + "`,";
+                    }
+                    query += "unixtime ";
+                    query += "FROM " + view_source + ") as result";
+                }
+                else
+                {
+                    var view_category = options["view_category"].ReadAs<string>();
+                    var view_sampling = options["view_sampling"].ReadAs<string>();
+                    var view_sampling_period = options["view_sampling_period"].ReadAs<string>();
+
+                    query = "SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ";
+                    var sampling_items = string.Empty;
+                    foreach (var field in view_fields)
+                    {
+                        var value = field.Value.ReadAs<string>();
+                        query += "column_get(`rawdata`, '" + value + "' as double) as `" + value + "`,";
+                        sampling_items += view_sampling + "(" + value + ") as `" + value + "`,";
+                    }
+                    query = query.Replace("{sampling_items}", sampling_items);
+                    query += "unixtime ";
+                    query += "FROM " + view_source + " WHERE category = '" + view_category + "') as result";
+
+                    if (view_sampling_period == "all") query += " GROUP BY unixtime ASC";
+                    else if (view_sampling_period == "day") query += " GROUP BY DATE(unixtime) ASC";
+                    else if (view_sampling_period == "week") query += " GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC";
+                    else if (view_sampling_period == "month") query += " GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC";
+                    else if (view_sampling_period == "year") query += " GROUP BY DATE_FORMAT(unixtime, '%Y') ASC";
+                }
+
+                jsonObj["view_query"] = query;
+            }
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);

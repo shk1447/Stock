@@ -147,7 +147,23 @@ module.exports = React.createClass({
                         var test = _.cloneDeep(fieldInfo.options);
                         _.each(test, function(row,i) { delete row.fields;});
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
-                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact selection className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)}
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} onSearchChange={self.handleSearchChange.bind(self,fieldInfo,fields)}
+                                    control={Select} options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
+                        break;
+                    }
+                    case 'Search' : {
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
+                        let required= fieldInfo.required ? fieldInfo.required : false;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : defaultData[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        var test = _.cloneDeep(fieldInfo.options);
+                        _.each(test, function(row,i) { delete row.fields;});
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        if(defaultData[fieldInfo.value] != '' && !test) {
+                            test = [{text:defaultData[fieldInfo.value], value:defaultData[fieldInfo.value]}];
+                        }
+                        fieldElement = <Form.Field key={fieldInfo.value} required={required} compact search className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} onSearchChange={self.handleSearchChange.bind(self,fieldInfo,fields)}
                                     control={Select} options={test} label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]} error={error}/>;
                         break;
                     }
@@ -361,7 +377,18 @@ module.exports = React.createClass({
         }
     },
     handleSearchChange : function(field,fields,e,data) {
-        console.log(e);
+        if(field.type == 'Search') {
+            console.log(field.results.length);
+            if(e.target.value.length > 0) {
+                field.options = field.results.filter(function(d){
+                    return d.value.includes(e.target.value)
+                });
+                field.options.splice(49, field.options.length);
+            } else {
+                field.options = [];
+            }
+            this.setState(this.state);
+        }
     },
     handleAddItem : function(field,fields,value) {
         field.options.push({text:value,value:value});
@@ -371,6 +398,14 @@ module.exports = React.createClass({
         var self = this;
         switch(field.type.toLowerCase()) {
             case 'select' : {
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = data;
+                } else {
+                    this.state.data[field.value] = data;
+                }
+                break;
+            }
+            case 'search' : {
                 if(field.datakey) {
                     this.state.data[field.datakey][field.value] = data;
                 } else {

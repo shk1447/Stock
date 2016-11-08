@@ -131,6 +131,8 @@ module.exports = React.createClass({
         } else if (result.action == 'download') {
             var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView,member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
+        } else if (result.action == 'doubleclick') {
+            console.log(result.data);
         }
     },
     executeItem : function(value) {

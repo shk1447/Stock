@@ -1,6 +1,10 @@
+var fs = require('fs');
+
 module.exports = {
-    schema: function(data) {
-        return data;
+    schema: function(res, req) {
+        // var files = fs.readdirSync("/video");
+        // console.log(files);
+        return res;
     },
 	getlist: function(data){
         return data;

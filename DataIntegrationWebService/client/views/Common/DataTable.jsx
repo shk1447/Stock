@@ -75,6 +75,8 @@ module.exports = React.createClass({
     modifyItem : function(result) {
         if(this.state.updatable) {
             this.refs.UpdateControl.refs.ModalForm.setState({action:'update', active:true,data:_.cloneDeep(result),fields:_.cloneDeep(this.state.fields)});
+        } else {
+            this.props.callback({action:'doubleclick',data:result});
         }
     },
     handlePagination: function(control) {

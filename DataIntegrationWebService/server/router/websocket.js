@@ -22,7 +22,7 @@ module.exports = function (httpServer, config) {
         } else {
           msg = JSON.parse(message);
         }
-        modules[target[0]][target[1]](msg);
+        modules[target[0]][target[1]](msg,d);
         
         if(d.broadcast) {
           io.sockets.emit(d.target, msg);
