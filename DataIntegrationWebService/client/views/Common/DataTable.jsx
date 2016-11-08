@@ -92,10 +92,12 @@ module.exports = React.createClass({
     handleSearch: function(searches) {
         var filteredData = this.state.data.filter(function(data){
             let condition = '';
-             _.each(searches,function(row,i){
-                 condition = condition + row + " && ";
-             })
+            _.each(searches,function(row,i){
+                condition += row + " && ";
+            });
+            condition += "true";
+            return eval(condition);
         });
-        console.log(searches);
+        this.refs.DataArea.setState({data:_.cloneDeep(filteredData)});
     }
 });

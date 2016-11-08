@@ -4,7 +4,6 @@ var { Icon } =  require('stardust');
 module.exports = React.createClass({
     displayName: 'DataArea',
     componentDidMount : function() {
-        console.log(ReactDOM.findDOMNode(this));
     },
     componentWillUnmount : function () {
     },
