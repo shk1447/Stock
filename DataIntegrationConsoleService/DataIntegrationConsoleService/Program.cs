@@ -8,6 +8,7 @@ using System.Threading;
 using Connector;
 using DataIntegrationService;
 using Log;
+using SourceModuleManager;
 
 namespace DataIntegrationConsoleService
 {
@@ -25,6 +26,9 @@ namespace DataIntegrationConsoleService
             MariaDBConnector.Instance.Uid = ConfigurationManager.AppSettings["DatabaseUid"];
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
+            Console.WriteLine("Module Initialize Start!");
+            ModuleManager.Instance.Initialize();
+            Console.WriteLine("Module Initialize Complete!");
 
             var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]);
             if (!Directory.Exists(repository))

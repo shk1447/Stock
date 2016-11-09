@@ -36,7 +36,7 @@ module.exports = React.createClass({
         var thArr = [];
         fields.forEach(function(row,i){
             if(row.type && row.type != 'AddFields') {
-                thArr.push(<th key={i}>{row.text}</th>)
+                thArr.push(<th key={i} onClick={self.handleSortByItem.bind(self,row.text)}>{row.text}</th>)
             };
         });
         if(this.state.searchable && fields.length > 0) {
@@ -99,5 +99,17 @@ module.exports = React.createClass({
             return eval(condition);
         });
         this.refs.DataArea.setState({data:_.cloneDeep(filteredData)});
+    },
+    handleSortByItem: function(item,e) {
+        this.refs.DataArea.state.data.sort(function(a,b){
+            let compare01 = a[item];
+            let compare02 = b[item];
+            if(parseFloat(compare01)) {
+                compare01 = parseFloat(compare01);
+                compare02 = parseFloat(compare02);
+            }
+            return compare01 < compare02 ? 1 : compare01 > compare02 ? -1 : 0;
+        });
+        this.refs.DataArea.setState(this.refs.DataArea.state.data)
     }
 });

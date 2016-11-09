@@ -69,6 +69,10 @@
       <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
       <Name>Log</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ModuleManager\ModuleManager.csproj">
+      <Project>{235894f0-e407-4fe3-9c46-52c8697121b3}</Project>
+      <Name>ModuleManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
