@@ -38,6 +38,7 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             var chartControl = <Button.Group basic size='small'>
                 <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
+                <Button icon='download' onClick={this.downloadItem} />
                 <Button icon='settings' onClick={this.handleChartSetting} />
             </Button.Group>
         }
@@ -62,6 +63,9 @@ module.exports = React.createClass({
             actionName = 'repeat_off'
         }
         this.props.action({action:actionName});
+    },
+    downloadItem : function(e){
+        this.props.action({action:"download"});
     },
     applyChartSetting : function(result) {
         if(result.action != 'cancel') {
