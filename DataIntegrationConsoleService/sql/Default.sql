@@ -88,7 +88,7 @@ DELIMITER ;
 
 /*------------------------------------------------------------------------------------------------------------------*/
 
-CREATE TABLE `member` (
+CREATE TABLE IF NOT EXISTS `member` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`member_id` VARCHAR(50) NULL DEFAULT NULL,
 	`member_name` VARCHAR(50) NULL DEFAULT NULL,
@@ -104,10 +104,7 @@ CREATE TABLE `member` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-
-INSERT INTO member (member_id, member_name, password, privilege, email, phone_number) values ('admin', 'admin', 'soul1087', 'super','sukan8822@gmail.com', '01057721447');
-
-CREATE TABLE `data_view` (
+CREATE TABLE IF NOT EXISTS `data_view` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`member_id` VARCHAR(50) NULL DEFAULT NULL,
 	`name` VARCHAR(50) NULL DEFAULT NULL,
@@ -121,7 +118,7 @@ CREATE TABLE `data_view` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-CREATE TABLE `data_analysis` (
+CREATE TABLE IF NOT EXISTS `data_analysis` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL,
 	`target_source` VARCHAR(50) NULL DEFAULT NULL,
@@ -138,7 +135,7 @@ CREATE TABLE `data_analysis` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-CREATE TABLE `data_collection` (
+CREATE TABLE IF NOT EXISTS `data_collection` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) NOT NULL,
 	`module_name` VARCHAR(50) NULL DEFAULT NULL,
@@ -155,6 +152,7 @@ CREATE TABLE `data_collection` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
+INSERT INTO member (member_id, member_name, password, privilege, email, phone_number) values ('admin', 'admin', 'soul1087', 'super','sukan8822@gmail.com', '01057721447');
 
 CREATE TABLE `current_` (
 	`idx` INT(11) NOT NULL AUTO_INCREMENT,

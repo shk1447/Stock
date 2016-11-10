@@ -21,11 +21,14 @@ namespace DataIntegrationConsoleService
             var appDomain = AppDomain.CurrentDomain;
             
             appDomain.UnhandledException += appDomain_UnhandledException;
+            Console.WriteLine("Database Initialize Start!");
             MariaDBConnector.Instance.ServerIp = ConfigurationManager.AppSettings["DatabaseIP"];
             MariaDBConnector.Instance.ServerPort = ConfigurationManager.AppSettings["DatabasePort"];
             MariaDBConnector.Instance.Uid = ConfigurationManager.AppSettings["DatabaseUid"];
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
+            MariaDBConnector.Instance.Initialize();
+            Console.WriteLine("Database Initialize Complete!");
 
             Console.WriteLine("Module Initialize Start!");
             ModuleManager.Instance.Initialize();

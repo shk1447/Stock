@@ -37,6 +37,11 @@ namespace Connector
             }
         }
 
+        public void Initialize()
+        {
+            this.SetQuery("DynamicQueryExecuter", MariaQueryDefine.CreateTableQuery);
+        }
+
         #region IConnector 멤버
 
         public T GetOneQuery<T>(string query, object parameterValues = null) where T : new()
