@@ -247,12 +247,12 @@ namespace Finance
                 result.rawdata = new List<JsonDictionary>();
                 result.source = collectionName;
                 result.category = "종목코드";
-                result.collected_at = "";
+                result.collected_at = "날짜";
 
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
                 var type = stock.Value["type"].ReadAs<string>();
-                var url = "http://companyinfo.stock.naver.com/v1/company/ajax/cF1001.aspx?cmp_cd=038060&fin_typ=0&freq_typ=Y";
+                var url = "http://companyinfo.stock.naver.com/v1/company/ajax/cF1001.aspx?cmp_cd={code}&fin_typ=0&freq_typ=Y";
 
                 var reqParam = new RequestParameter()
                 {
@@ -268,29 +268,43 @@ namespace Finance
                 var titleNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,'bg txt title')]");
                 var dateNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,' bg')]");
                 var dataNodes = doc.DocumentNode.SelectNodes("//td[contains(@class,'num')]");
-
-                //var test = doc.DocumentNode.SelectNodes("//table//tbody//tr");
-                //foreach (var node in test)
-                //{
-                //    Console.WriteLine(node.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", ""));
-                //}
-
-                foreach (var node in dateNodes)
+                
+                for(int i = 1; i < dateNodes.Count; i++)
                 {
-                    Console.WriteLine(node.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", ""));
+                    var finance = new JsonDictionary();
+
+                    var dateNode = dateNodes[i];
+                    var dateText = dateNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
+                    if (string.IsNullOrWhiteSpace(dateText)) continue;
+                    var dateValue = dateText.Substring(0, 7);
+                    var date = DateTime.Parse(dateValue);
+                    var unixtime = EnvironmentHelper.GetUnixTime(date) / 1000;
+
+                    finance.Add("종목코드", code);
+                    finance.Add("종목유형", type);
+                    finance.Add("종목명", name);
+                    finance.Add("날짜", unixtime);
+
+                    for (int j = 0; j < titleNodes.Count; j++)
+                    {
+                        var titleNode = titleNodes[j];
+                        var dataNode = dataNodes[j * (dateNodes.Count - 1)];
+
+                        var key = titleNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
+                        var value = dataNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "").Replace(",", "");
+
+                        if (string.IsNullOrWhiteSpace(value)) continue;
+
+                        finance.Add(key, value);
+                    }
+                    result.rawdata.Add(finance);
                 }
 
-                foreach (var node in titleNodes)
+                Task.Factory.StartNew(() =>
                 {
-                    Console.WriteLine(node.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", ""));
-                }
-
-                foreach (var node in dataNodes)
-                {
-                    Console.WriteLine(node.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", ""));
-                }
-
-                Console.WriteLine("재무정보!!!");
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                });
             }
 
             return true;

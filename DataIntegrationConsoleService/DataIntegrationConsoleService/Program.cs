@@ -26,6 +26,7 @@ namespace DataIntegrationConsoleService
             MariaDBConnector.Instance.Uid = ConfigurationManager.AppSettings["DatabaseUid"];
             MariaDBConnector.Instance.Database = ConfigurationManager.AppSettings["Database"];
             MariaDBConnector.Instance.Pwd = ConfigurationManager.AppSettings["DatabasePwd"];
+
             Console.WriteLine("Module Initialize Start!");
             ModuleManager.Instance.Initialize();
             Console.WriteLine("Module Initialize Complete!");

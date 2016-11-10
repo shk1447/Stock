@@ -57,7 +57,6 @@ namespace SourceModuleManager
             foreach (var module in this.sourceModules)
             {
                 module.Value.Initialize();
-                module.Value.ExecuteModule("FinanceInformation", "test");
             }
         }
 
