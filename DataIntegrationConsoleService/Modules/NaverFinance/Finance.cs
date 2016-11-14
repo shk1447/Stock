@@ -288,15 +288,16 @@ namespace Finance
                     for (int j = 0; j < titleNodes.Count; j++)
                     {
                         var titleNode = titleNodes[j];
-                        var dataNode = dataNodes[j * (dateNodes.Count - 1)];
+                        var dataNode = dataNodes[j * (dateNodes.Count - 1) + (i - 1)];
 
                         var key = titleNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
                         var value = dataNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "").Replace(",", "");
 
                         if (string.IsNullOrWhiteSpace(value)) continue;
-
                         finance.Add(key, value);
                     }
+
+                    if (finance.GetDictionary().Keys.Count < 5) continue;
                     result.rawdata.Add(finance);
                 }
 

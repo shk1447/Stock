@@ -36,6 +36,7 @@
     "jquery": "^1.7.4",
     "js-yaml": "^3.6.1",
     "jsonwebtoken": "^7.1.9",
+    "lodash": "^4.16.6",
     "moment": "^2.15.1",
     "momentjs": "^1.1.17",
     "node-jsx": "^0.13.3",
