@@ -36,7 +36,7 @@ module.exports = React.createClass({
         var thArr = [];
         fields.forEach(function(row,i){
             if(row.type && row.type != 'AddFields') {
-                thArr.push(<th key={i} onClick={self.handleSortByItem.bind(self,row.text)}>{row.text}</th>)
+                thArr.push(<th key={i} onClick={self.handleSortByItem.bind(self,row)}>{row.text}</th>)
             };
         });
         if(this.state.searchable && fields.length > 0) {
@@ -100,15 +100,21 @@ module.exports = React.createClass({
         });
         this.refs.DataArea.setState({data:_.cloneDeep(filteredData)});
     },
-    handleSortByItem: function(item,e) {
+    handleSortByItem: function(field,e) {
+        let direction = "desc";
+        if(field.sort !== undefined) {
+            field.sort ? (direction = "desc", field.sort = false) : (direction = "asc", field.sort = true); 
+        } else {
+            field["sort"] = false;
+        }
         this.refs.DataArea.state.data.sort(function(a,b){
-            let compare01 = a[item];
-            let compare02 = b[item];
+            let compare01 = a[field.text];
+            let compare02 = b[field.text];
             if(parseFloat(compare01)) {
                 compare01 = parseFloat(compare01);
                 compare02 = parseFloat(compare02);
             }
-            return compare01 < compare02 ? 1 : compare01 > compare02 ? -1 : 0;
+            return compare01 < compare02 ? (direction == "desc" ? 1 : -1) : compare01 > compare02 ? (direction == "desc" ? -1 : 1) : 0;
         });
         this.refs.DataArea.setState(this.refs.DataArea.state.data)
     }
