@@ -197,7 +197,8 @@ module.exports = function () {
                     tempChart.times.push(self.renderData.chart.times[rightIndex + 1]);
                     tempChart.labels.push(self.renderData.chart.labels[rightIndex + 1]);
                     tempChart.datasets.forEach(function (d, index) {
-                        d.data.push(self.renderData.chart.datasets[index].data[rightIndex + 1])
+                        let dataset = self.renderData.chart.datasets.find(function(a){return a.id == d.id})
+                        d.data.push(dataset.data[rightIndex + 1])
                     });
                 } else {
                     continue;
@@ -217,7 +218,8 @@ module.exports = function () {
                     tempChart.times.splice(0, 0, self.renderData.chart.times[leftIndex - 1]);
                     tempChart.labels.splice(0, 0, self.renderData.chart.labels[leftIndex - 1]);
                     tempChart.datasets.forEach(function (d, index) {
-                        d.data.splice(0, 0, self.renderData.chart.datasets[index].data[leftIndex - 1])
+                        let dataset = self.renderData.chart.datasets.find(function(a){return a.id == d.id})
+                        d.data.splice(0, 0, dataset.data[leftIndex - 1])
                     });
                 } else {
                     continue;
