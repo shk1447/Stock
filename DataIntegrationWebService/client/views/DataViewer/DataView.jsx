@@ -19,7 +19,11 @@ module.exports = React.createClass({
             self.setState({viewlist:data});
         });
         self.socket.on('view.execute', function(response) {
-            self.refs.contents.setState({title:self.state.currentView, data:response.data,fields: response.fields})
+            self.refs.contents.setState({title:self.state.currentView.name, data:response.data,fields: response.fields});
+        });
+        self.socket.on('view.execute_item', function(response) {
+            self.setState({activeItem:'past'});
+            self.refs.contents.setState({title:self.state.currentView.name, data:response.data,fields: response.fields});
         });
         self.socket.on('view.download', function(response) {
             var dataView = new DataView(response);
@@ -36,7 +40,7 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:''};
+		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:{}};
 	},
     render : function () {
         console.log('render data view');
@@ -46,7 +50,7 @@ module.exports = React.createClass({
         _.each(viewlist, function(row,i){
             if(row.view_type == activeItem) {
                 let icon = row.view_type == "current" ? "table" : row.view_type == "past" ? "line chart" : "file video outline";
-                var item = <List.Item key={i} onClick={self.executeItem.bind(self,row.name)}>
+                var item = <List.Item key={i} onClick={self.executeItem.bind(self,row)}>
                                 <List.Icon name={icon} size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header as='a'>{row.name}</List.Header>
@@ -58,7 +62,7 @@ module.exports = React.createClass({
         });
         const filters = [];
         if(activeItem == 'past') {
-            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView} data={this.state.data} fields={this.state.fields} action={this.callbackDataView} />;
+            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView["name"]} data={this.state.data} fields={this.state.fields} action={this.callbackDataView} />;
         } else if(activeItem =='current') {
             var contents = <DataTable ref='contents' key={'dataview_current'} title={'DataView'} data={this.state.data}
                                         fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;
@@ -122,27 +126,28 @@ module.exports = React.createClass({
         if(result.action == 'repeat_on') {
             if(self.state.currentView != '') {
                 self.repeatInterval = setInterval(function(){
-                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView,member_id:sessionStorage.member_id}};
+                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView.name,member_id:sessionStorage.member_id}};
                     self.socket.emit('fromclient', data);
                 },1000)
             }
         } else if (result.action == 'repeat_off') {
             clearInterval(self.repeatInterval);
         } else if (result.action == 'download') {
-            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView,member_id:sessionStorage.member_id}};
+            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView.name,member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
-            console.log(result.data);
+            var data = {"broadcast":false,"target":"view.execute_item", "parameters":{"source":self.state.currentView["view_options"]["view_source"], "fields":result.data}};
+            this.socket.emit('fromclient', data);
         }
     },
     executeItem : function(value) {
         this.state.currentView = value;
         if(this.state.activeItem != 'video') {
-            var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value}};
+            var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value.name}};
             this.socket.emit('fromclient', data);
         } else {
             var viewInfo = this.state.viewlist.find(function(d){
-                return d.name == value;
+                return d.name == value.name;
             });
             var video = ReactDOM.findDOMNode(this.refs.contents);
             video.src = this.validateURL(viewInfo.view_query) ? viewInfo.view_query : "/video/" + viewInfo.view_query;
@@ -151,7 +156,7 @@ module.exports = React.createClass({
     saveFile : function (blob) {
         var link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
-        link.download = this.state.currentView + ".csv";
+        link.download = this.state.currentView.name + ".csv";
         link.click();
     },
     validateURL : function (textval) {

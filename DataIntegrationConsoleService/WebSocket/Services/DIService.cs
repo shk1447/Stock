@@ -198,6 +198,11 @@ namespace DIWebSocket.Services
                                     returnString = viewLogic.Execute(reqInfo["parameters"]);
                                     break;
                                 }
+                            case "execute_item":
+                                {
+                                    returnString = viewLogic.ExecuteItem(reqInfo["parameters"]);
+                                    break;
+                                }
                             case "download":
                                 {
                                     isFile = true;

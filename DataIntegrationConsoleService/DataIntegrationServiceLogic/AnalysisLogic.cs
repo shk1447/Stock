@@ -38,7 +38,7 @@ namespace DataIntegrationServiceLogic
                                       new KeyValuePair<string, JsonValue>("type", "Text"),
                                       new KeyValuePair<string, JsonValue>("group", 0),
                                       new KeyValuePair<string, JsonValue>("required", true)));
-
+            
             var sourceQuery = MariaQueryDefine.GetSourceInformation;
             var sources = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", sourceQuery);
             var sourceArray = new JsonArray();

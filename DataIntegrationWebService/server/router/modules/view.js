@@ -21,6 +21,9 @@ module.exports = {
     execute : function(data){
         return data;
     },
+    execute_item : function(data){
+        return data;
+    },
     download : function(data){
         return data;
     }

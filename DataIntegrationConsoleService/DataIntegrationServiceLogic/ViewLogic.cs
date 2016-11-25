@@ -308,7 +308,7 @@ namespace DataIntegrationServiceLogic
                     {
                         var value = field.Value.ReadAs<string>();
                         query += "column_get(`rawdata`, '" + value + "' as double) as `" + value + "`,";
-                        sampling_items += view_sampling + "(" + value + ") as `" + value + "`,";
+                        sampling_items += view_sampling + "(`" + value + "`) as `" + value + "`,";
                     }
                     query = query.Replace("{sampling_items}", sampling_items);
                     query += "unixtime ";
@@ -345,6 +345,31 @@ namespace DataIntegrationServiceLogic
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
+            return res.ToString();
+        }
+
+        public string ExecuteItem(JsonValue jsonObj)
+        {
+            var source = jsonObj["source"].ReadAs<string>();
+            var fields = jsonObj["fields"];
+            var category = fields["category"].ReadAs<string>();
+            var fieldQuery = "SELECT column_json(rawdata) as `types` FROM fields_" + source + " WHERE category = '" + category + "'";
+            var fieldInfo = MariaDBConnector.Instance.GetJsonObject(fieldQuery);
+            var query = "SELECT ";
+            foreach(var field in fields)
+            {
+                var item_key = field.Key;
+                if(item_key != "category" && item_key != "unixtime")
+                {
+                    var type = fieldInfo["types"][item_key].ReadAs<string>();
+                    if(type == "number")
+                    {
+                        query += "COLUMN_GET(`rawdata`,'" + item_key + "' as double) as `" + item_key + "`,";
+                    }
+                }
+            }
+            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "' GROUP BY unixtime ASC";
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
             return res.ToString();
         }
 

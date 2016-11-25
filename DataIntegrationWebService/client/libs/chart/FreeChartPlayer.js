@@ -972,6 +972,8 @@ module.exports = function () {
             var sameCount = 1;
             var metricTime = 0;
             var metricLen = metric.length;
+            var maxVal = 0;
+            var minVal = 0;
             for(var a = 0; a < metricLen; a++) {
                 var dataTime = parseInt(metric[a]['unixtime']) * 1000;
                 metricTime == dataTime ? (metricTime = dataTime + sameCount, sameCount++) : (metricTime = dataTime,sameCount = 1);
@@ -984,6 +986,8 @@ module.exports = function () {
                     var find2 = self.renderData.pie.find(function(d) { return d.id == self.options.Fields[b];});
                     var val = parseFloat(metric[a][self.options.Fields[b]]);
                     if(isNaN(val)) val = undefined;
+                    maxVal = maxVal <= val ? val : maxVal;
+                    minVal = minVal >= val ? val : minVal;
                     find2.value = find2.value + (typeof val == "undefined" ? 0 : parseInt(val));
                     find.data.push(val);
                     colorIndex++;
@@ -996,6 +1000,8 @@ module.exports = function () {
                 }
                 metricTime = dataTime;
             }
+            self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
+            self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
         }
         return;
     };

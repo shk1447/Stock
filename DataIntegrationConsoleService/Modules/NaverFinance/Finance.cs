@@ -240,7 +240,7 @@ namespace Finance
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
-
+            
             foreach (var stock in stockJson)
             {
                 var result = new SetDataSourceReq();
@@ -248,7 +248,7 @@ namespace Finance
                 result.source = collectionName;
                 result.category = "종목코드";
                 result.collected_at = "날짜";
-
+                
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
                 var type = stock.Value["type"].ReadAs<string>();

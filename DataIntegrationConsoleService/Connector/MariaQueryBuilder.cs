@@ -246,6 +246,7 @@ namespace Connector
 
         public static string InsertSource(string source, string category, List<JsonDictionary> rawData, string collectedAt, string query)
         {
+            var fieldsQuery = "INSERT INTO fields_" + source + " (category, rawdata, unixtime) VALUES ";
             var currentQuery = "INSERT INTO current_" + source + " (category, rawdata, unixtime) VALUES ";
             var pastQuery = "INSERT INTO past_" + source + " (category, rawdata, unixtime) VALUES ";
             var collectedDate = "CURTIME(3)";
@@ -257,20 +258,42 @@ namespace Connector
                 
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
-                var dynamicCategory = category;
                 if (itemDict.ContainsKey(collectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[collectedAt].ToString() + ")";
-                if (itemDict.ContainsKey(category)) dynamicCategory = itemDict[category].ToString();
+                if (itemDict.ContainsKey(category)) category = itemDict[category].ToString();
 
                 var createQuery = JsonToColumnCreate(itemDict, ref lastRawData);
 
-                pastQuery = pastQuery + "(\"" + dynamicCategory + "\"," + createQuery + ", " + collectedDate + "),";
-                currentQuery = currentQuery + "(\"" + dynamicCategory + "\"," + createQuery + ", " + collectedDate + "),";
+                pastQuery = pastQuery + "(\"" + category + "\"," + createQuery + ", " + collectedDate + "),";
+                currentQuery = currentQuery + "(\"" + category + "\"," + createQuery + ", " + collectedDate + "),";
             }
 
-            var updateQuery = JsonToColumnAdd(lastRawData, "rawdata");
+            var fieldCreate = "COLUMN_CREATE(";
+            var fieldsUpdate = "COLUMN_ADD(rawdata,";
+            var updateString = "COLUMN_ADD(rawdata,";
+            foreach (var kv in lastRawData)
+            {
+                var type = "text";
+                double doubleTemp;
+                DateTime datetimeTemp;
+                updateString = updateString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+
+                if (double.TryParse(kv.Value.ToString(), out doubleTemp))
+                    type = "number";
+                else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
+                    type = "datetime";
+                
+                fieldCreate = fieldCreate + "\"" + kv.Key + "\",\"" + type + "\",";
+                fieldsUpdate = fieldsUpdate + "\"" + kv.Key + "\",\"" + type + "\",";
+            }
+
+            var updateQuery = updateString.Substring(0, updateString.Length - 1) + ")";
+            var fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
+            var fieldUpdateQuery = fieldsUpdate.Substring(0, fieldsUpdate.Length - 1) + ")";
 
             query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
             query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + updateQuery + ",unixtime = " + collectedDate + ";";
+            query = query + fieldsQuery + "('" + category + "'," + fieldCreateQuery + ", " + collectedDate +
+                    ") ON DUPLICATE KEY UPDATE rawdata = " + fieldUpdateQuery + " ,unixtime = " + collectedDate + ";";
             return query;
         }
 
@@ -278,7 +301,10 @@ namespace Connector
         {
             var currentTable = "current_" + source;
             var pastTable = "past_" + source;
-            var query = MariaQueryDefine.createCurrentTable.Replace("{tableName}", currentTable) + MariaQueryDefine.createPastTable.Replace("{tableName}", pastTable);
+            var fieldsTable = "fields_" + source;
+            var query = MariaQueryDefine.createCurrentTable.Replace("{tableName}", fieldsTable) +
+                        MariaQueryDefine.createCurrentTable.Replace("{tableName}", currentTable) +
+                        MariaQueryDefine.createPastTable.Replace("{tableName}", pastTable);
 
             return query;
         }
