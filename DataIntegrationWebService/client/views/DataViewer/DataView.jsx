@@ -1,6 +1,6 @@
 var React = require('react');
 var io = require('socket.io-client');
-var {Menu,Icon} = require('stardust');
+var {Menu,Icon,Dropdown} = require('stardust');
 var {List} = require('semantic-ui-react');
 var DataTable = require('../Common/DataTable');
 var Chart = require('../Common/Chart');
@@ -40,12 +40,12 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:{}};
+		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:{},contextVisible:false,gridType:1};
 	},
     render : function () {
         console.log('render data view');
         var self = this;
-        const { activeItem, viewlist } = this.state;
+        const { activeItem, viewlist, gridType } = this.state;
         let viewArr = [];
         _.each(viewlist, function(row,i){
             if(row.view_type == activeItem) {
@@ -68,6 +68,46 @@ module.exports = React.createClass({
                                         fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;
         } else if(activeItem == 'video') {
             var contents = <video ref='contents' style={{height:'100%',width:'100%'}} controls/>
+        }
+        var gridArr = [];
+        var gridHeight = document.documentElement.offsetHeight - 150;
+        var gridWidth = document.documentElement.offsetWidth - 70;
+        switch(gridType) {
+            case 1 : {
+                gridArr.push(<div key={1} className='GridCell' style={{height: gridHeight + 'px',float:'left',width: gridWidth + 'px'}}>
+                    {contents}
+                </div>);
+                break;
+            }
+            case 2 : {
+                gridArr.push(<div key={1} className='GridCell' style={{top:'0px',left:'0px', height:gridHeight/2 + 'px',float:'left',width:gridWidth/2 + 'px'}}>
+                    {contents}
+                </div>);
+                gridArr.push(<div key={2} className='GridCell' style={{top:'0px',left:gridWidth/2 + 'px',height:gridHeight/2 + 'px',float:'left',width:gridWidth/2 + 'px'}}>
+                    {contents}
+                </div>);
+                gridArr.push(<div key={3} className='GridCell' style={{top:gridHeight/2+ 'px',left:'0px',height:gridHeight/2 + 'px',float:'left',width:gridWidth/2 + 'px'}}>
+                    {contents}
+                </div>);
+                gridArr.push(<div key={4} className='GridCell' style={{top:gridHeight/2+'px',left:gridWidth/2+'px',height:gridHeight/2 + 'px',float:'left',width:gridWidth/2 + 'px'}}>
+                    {contents}
+                </div>);
+            }
+            case 3 : {
+
+            }
+        }
+
+        if(this.state.contextVisible) {
+            var contextMenu = <Menu vertical>
+                                    <Dropdown as={Menu.Item} text='GRID LAYOUT'>
+                                        <Dropdown.Menu onClick={this.handleGridLayout}>
+                                            <Dropdown.Item icon='square' text='FIRST GRID' />
+                                            <Dropdown.Item icon='block layout' text='SECOND GRID' />
+                                            <Dropdown.Item icon='grid layout' text='THIRD GRID' />
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Menu>;
         }
         return (
             <div>
@@ -95,13 +135,33 @@ module.exports = React.createClass({
                         </div>
                     </div>
                 </div>
-                <div style={{position:'absolute', left:'60px'}}>
-                    <div style={{height:document.documentElement.offsetHeight - 200 + 'px',float:'left',width:document.documentElement.offsetWidth - 70 + 'px'}}>
-                        {contents}
-                    </div>
+                <div style={{position:'absolute', left:'60px'}} onContextMenu={this.handleGridContextMenu} onClick={this.handleGridClick}>
+                    {gridArr}
+                </div>
+                <div ref='contextMenu' style={{position:'absolute',zIndex:1000}}>
+                    {contextMenu}
                 </div>
             </div>
         )
+    },
+    handleGridLayout : function(e) {
+        if(e.target.innerText == 'FIRST GRID') {
+            this.setState({gridType: 1});
+        } else if(e.target.innerText == 'SECOND GRID') {
+            this.setState({gridType: 2});
+        } else if(e.target.innerText == 'THIRD GRID') {
+            this.setState({gridType: 3}); 
+        }
+        if(this.state.contextVisible) this.setState({contextVisible: false});
+    },
+    handleGridClick : function() {
+        if(this.state.contextVisible) this.setState({contextVisible: false});
+    },
+    handleGridContextMenu : function(e) {
+        e.preventDefault();
+        this.refs.contextMenu.style.left = e.pageX + "px";
+        this.refs.contextMenu.style.top = e.pageY + "px";
+        if(!this.state.contextVisible) this.setState({contextVisible: true});
     },
     handleItemClick : function (e, {name}) {
         var itemName = name;
@@ -142,7 +202,7 @@ module.exports = React.createClass({
     },
     executeItem : function(value) {
         this.state.currentView = value;
-        if(this.state.activeItem != 'video') {
+        if (this.state.activeItem != 'video') {
             var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":value.name}};
             this.socket.emit('fromclient', data);
         } else {

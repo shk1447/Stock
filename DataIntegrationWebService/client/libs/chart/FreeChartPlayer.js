@@ -711,7 +711,7 @@ module.exports = function () {
         self.$container = $(div);
         self.$container.empty();
         self.overlay = document.createElement("canvas");
-        $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
+        $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()-60).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
         self.$container.append(self.overlay);
         self.overlayCtx = self.overlay.getContext('2d');
 
@@ -1012,7 +1012,7 @@ module.exports = function () {
         self.renderData.chart.labels = self.renderData.labels[self.options.xAxisField];
 
         self.canvas = document.createElement("canvas");
-        $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "relative");
+        $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()-60).css("position", "relative");
         self.$container.append(self.canvas);
         self.chartCtx = self.canvas.getContext("2d");
         var chartType = 'Line';

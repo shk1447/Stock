@@ -9,7 +9,7 @@ module.exports = React.createClass({
     displayName: 'DataTable',
     componentDidMount : function() {
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20 + 'px';
+        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 65 + 'px';
     },
     componentWillUnmount : function () {
     },
@@ -23,7 +23,7 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20 + 'px';
+            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 65 + 'px';
         }
     },
     getInitialState: function() {
@@ -63,7 +63,7 @@ module.exports = React.createClass({
                             </tr>
                         </thead>
                     </table>
-                    <div ref='table_contents_container' style={{height:'100%',width:'auto',overflowY:'auto',overflowX:'hidden'}}>
+                    <div ref='table_contents_container' style={{width:'auto',overflowY:'auto',overflowX:'hidden'}}>
                         <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>

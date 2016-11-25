@@ -64,6 +64,26 @@ table.table-container thead tr th:last-child
     border-top-right-radius: 10px;
 }
 
+@keyframes example {
+    0%   {border: 1px dashed black;}
+    50% {border: 1px dashed #e8eef1;}
+    100% {border: 1px dashed #3cace7;}
+}
+
+.GridCell {
+    border: 1px dashed black;
+    border-radius: 5px;
+}
+
+.GridCell:hover {
+    border: 1px dashed #e8eef1;
+    -webkit-animation-name: example;
+    -webkit-animation-duration: 1000ms;
+    -webkit-transform-origin:50% 50%;
+    -webkit-animation-iteration-count: infinite; /* The magic keyword for infinite*/
+    -webkit-animation-timing-function: linear;
+}
+
 table.table-container tbody tr {
     border-bottom : 1px solid #efefef;
     height: 35px;
