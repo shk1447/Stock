@@ -84,6 +84,10 @@ table.table-container thead tr th:last-child
     -webkit-animation-timing-function: linear;
 }
 
+.GridCell.selected {
+    border: 1px solid black;
+}
+
 table.table-container tbody tr {
     border-bottom : 1px solid #efefef;
     height: 35px;
