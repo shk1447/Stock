@@ -39,6 +39,8 @@ namespace Connector
 
         public void Initialize()
         {
+            this.SetQuery(MariaQueryDefine.CreateFunction);
+            this.SetQuery(MariaQueryDefine.CreateProcedure);
             this.SetQuery("DynamicQueryExecuter", MariaQueryDefine.CreateTableQuery);
         }
 
@@ -640,7 +642,7 @@ namespace Connector
 
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};allow user variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();

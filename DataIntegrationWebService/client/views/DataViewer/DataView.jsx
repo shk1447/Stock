@@ -20,13 +20,25 @@ module.exports = React.createClass({
             self.setState({viewlist:data});
         });
         self.socket.on('view.execute', function(response) {
-            var contentId = 'contents' + self.gridId;
-            self.refs[contentId].setState({title:self.state.currentView.name, data:response.data,fields: response.fields});
+            console.log(response.cellId);
+            let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
+            let cellInfo = self.state.gridInfo[cellId];
+            if(cellInfo["view_type"] == 'past') {
+                var contents = <Chart title={cellInfo["name"]} data={response.data} fields={response.fields}
+                                      action={self.callbackDataView} />;
+            } else if(cellInfo["view_type"] =='current') {
+                var contents = <DataTable title={'DataView'} data={response.data} filters={[]}
+                                          fields={response.fields} searchable callback={self.callbackDataView}/>;
+            } else if(cellInfo["view_type"] == 'video') {
+                var contents = <video style={{height:'100%',width:'100%'}} controls/>
+            }
+            ReactDOM.render(contents, self.refs[cellId]);
         });
         self.socket.on('view.execute_item', function(response) {
-            var contentId = 'contents' + self.gridId;
-            self.setState({activeItem:'past'});
-            self.refs[contentId].setState({title:self.state.currentView.name, data:response.data,fields: response.fields});
+            let cellId = 'cell_' + self.gridId;
+            var contents = <Chart title={self.state.gridInfo[cellId]["name"]} data={response.data} fields={response.fields}
+                                      action={self.callbackDataView} />;
+            ReactDOM.render(contents, self.refs[cellId]);
         });
         self.socket.on('view.download', function(response) {
             var dataView = new DataView(response);
@@ -43,17 +55,17 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[], data:[],fields:[],currentView:{},contextVisible:false,gridType:1,contents:{}};
+		return {activeItem : '',viewlist:[], data:[],fields:[],contextVisible:false,gridType:1,gridInfo:{}};
 	},
     render : function () {
         console.log('render data view');
         var self = this;
-        const { activeItem, viewlist, gridType, contents } = this.state;
+        const { activeItem, viewlist, gridType } = this.state;
         let viewArr = [];
         _.each(viewlist, function(row,i){
             if(row.view_type == activeItem) {
                 let icon = row.view_type == "current" ? "table" : row.view_type == "past" ? "line chart" : "file video outline";
-                var item = <List.Item key={i} onClick={self.executeItem.bind(self,row)} onMouseDown={self.handleDragStart.bind(self,row)}>
+                var item = <List.Item key={i} onMouseDown={self.handleDragStart.bind(self,row)}>
                                 <List.Icon name={icon} size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header as='a'>{row.name}</List.Header>
@@ -69,10 +81,8 @@ module.exports = React.createClass({
         var gridWidth = document.documentElement.offsetWidth - 70;
         switch(gridType) {
             case 1 : {
-                gridArr.push(<div ref='cell_1' key={gridArr.length} className='GridCell' onMouseEnter={self.handleDragEnter.bind(self, 1)}
-                                  style={{position:'absolute',height: gridHeight + 'px',width: gridWidth + 'px'}}>
-                    {contents[1]}
-                </div>);
+                gridArr.push(<div ref='cell_1' key={gridArr.length} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 1)}
+                                  style={{position:'absolute',height: gridHeight + 'px',width: gridWidth + 'px'}}></div>);
                 break;
             }
             case 2 : {
@@ -80,28 +90,20 @@ module.exports = React.createClass({
                 for(var x = 0; x < 2; x++) {
                     for(var y = 0; y < 2; y++) {
                         var cellId = 'cell_' + indexKey;
-                        gridArr.push(<div ref={cellId}  key={gridArr.length} className='GridCell' onMouseEnter={self.handleDragEnter.bind(self, indexKey)}
-                                          style={{position:'absolute',top:y*gridHeight/2+'px',left:x*gridWidth/2+'px', height:gridHeight/2 + 'px',width:gridWidth/2 + 'px'}}>
-                            {contents[indexKey]}
-                        </div>);
+                        gridArr.push(<div ref={cellId}  key={gridArr.length} className='GridCell' onMouseOver={self.handleDragOver.bind(self, indexKey)}
+                                          style={{position:'absolute',top:y*gridHeight/2+'px',left:x*gridWidth/2+'px', height:gridHeight/2 + 'px',width:gridWidth/2 + 'px'}}></div>);
                         indexKey++;
                     }
                 }
                 break;
             }
             case 3 : {
-                gridArr.push(<div ref='cell_1' key={0} className='GridCell' onMouseEnter={self.handleDragEnter.bind(self, 1)}
-                                  style={{position:'absolute',top:'0px',left:'0px', height:gridHeight*2/3 + 'px',width:gridWidth + 'px'}}>
-                                {contents[1]}
-                            </div>);
-                gridArr.push(<div ref='cell_2' key={1} className='GridCell' onMouseEnter={self.handleDragEnter.bind(self, 2)}
-                                  style={{position:'absolute',top:gridHeight*2/3+'px',left:'0px', height:gridHeight/3 + 'px',width:gridWidth/2 + 'px'}}>
-                                {contents[2]}
-                            </div>);
-                gridArr.push(<div ref='cell_3' key={2} className='GridCell' onMouseEnter={self.handleDragEnter.bind(self, 3)}
-                                  style={{position:'absolute',top:gridHeight*2/3+'px',left:gridWidth/2+'px', height:gridHeight/3 + 'px',width:gridWidth/2 + 'px'}}>
-                                {contents[3]}
-                            </div>);
+                gridArr.push(<div ref='cell_1' key={0} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 1)}
+                                  style={{position:'absolute',top:'0px',left:'0px', height:gridHeight*2/3 + 'px',width:gridWidth + 'px'}}></div>);
+                gridArr.push(<div ref='cell_2' key={1} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 2)}
+                                  style={{position:'absolute',top:gridHeight*2/3+'px',left:'0px', height:gridHeight/3 + 'px',width:gridWidth/2 + 'px'}}></div>);
+                gridArr.push(<div ref='cell_3' key={2} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 3)}
+                                  style={{position:'absolute',top:gridHeight*2/3+'px',left:gridWidth/2+'px', height:gridHeight/3 + 'px',width:gridWidth/2 + 'px'}}></div>);
                 break;
             }
         }
@@ -154,14 +156,12 @@ module.exports = React.createClass({
     },
     handleDragLeave : function(e) {
         if(this.temp) {
-            this.gridId = 0;
             this.temp.style.display = 'none';
         }
     },
-    handleDragEnter : function(index,e) {
-        this.gridId = index;
+    handleDragOver : function(index,e) {
         console.log(index);
-        console.log("drag cell enter")
+        this.gridId = index;
     },
     handleDragMove : function(e){
         if(this.isDragging && this.temp) {
@@ -171,36 +171,27 @@ module.exports = React.createClass({
         }
     },
     handleDragEnd : function(e) {
-        $(this.temp).detach();
-        this.isDragging = false;
-        if(this.gridId && this.gridId != 0) {
-            this.state.currentView = this.draggingData;
-            let contentId = 'contents' + this.gridId; 
-            if(this.state.activeItem == 'past') {
-                var contents = <Chart ref={contentId} key={'dataview_past'} title={this.state.currentView["name"]} data={this.state.data} fields={this.state.fields} action={this.callbackDataView} />;
-            } else if(this.state.activeItem =='current') {
-                var contents = <DataTable ref={contentId} key={'dataview_current'} title={'DataView'} data={this.state.data}
-                                            fields={this.state.fields} searchable callback={this.callbackDataView}/>;
-            } else if(this.state.activeItem == 'video') {
-                var contents = <video ref={contentId} style={{height:'100%',width:'100%'}} controls/>
-            }
-            this.state.contents[this.gridId] = contents;
+        if(this.gridId && this.gridId != 0 && this.isDragging) {
+            var cellId = "cell_"+this.gridId;
+            if(this.state.gridInfo[cellId] && this.state.gridInfo[cellId]["repeatInterval"]) clearInterval(this.state.gridInfo[cellId]["repeatInterval"]);
+            this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
-                var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":this.draggingData.name}};
+                var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":this.state.gridInfo[cellId].name}};
                 this.socket.emit('fromclient', data);
             } else {
                 var viewInfo = this.state.viewlist.find(function(d){
-                    return d.name == this.draggingData.name;
+                    return d.name == this.state.gridInfo[cellId].name;
                 });
                 var video = ReactDOM.findDOMNode(this.refs.contents);
                 video.src = this.validateURL(viewInfo.view_query) ? viewInfo.view_query : "/video/" + viewInfo.view_query;
             }
         }
+        $(this.temp).detach();
+        this.isDragging = false;
     },
     handleDragStart : function(data,e) {
         var contents = document.getElementById('contents');
-        this.isDragging = true;
-        this.draggingData = data;
+        this.isDragging = true, this.draggingData = data;
         this.temp = document.createElement("ul");
         this.temp.innerText = data.name;
         this.temp.style.zIndex = 9999;
@@ -250,37 +241,27 @@ module.exports = React.createClass({
     },
     callbackDataView : function(result) {
         var self = this;
+        var cellId = "cell_"+ this.gridId;
         if(result.action == 'repeat_on') {
-            if(self.state.currentView != '') {
-                self.repeatInterval = setInterval(function(){
-                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.currentView.name,member_id:sessionStorage.member_id}};
-                    self.socket.emit('fromclient', data);
-                },1000)
-            }
+            self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
+                var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
+                self.socket.emit('fromclient', data);
+            },1000)
         } else if (result.action == 'repeat_off') {
-            clearInterval(self.repeatInterval);
+            clearInterval(self.state.gridInfo[cellId]["repeatInterval"]);
         } else if (result.action == 'download') {
-            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.currentView.name,member_id:sessionStorage.member_id}};
+            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
-            var data = {"broadcast":false,"target":"view.execute_item", "parameters":{"source":self.state.currentView["view_options"]["view_source"], "fields":result.data}};
+            var data = {"broadcast":false,"target":"view.execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"], "fields":result.data}};
             this.socket.emit('fromclient', data);
         }
     },
-    executeItem : function(value) {
-        if(activeItem == 'past') {
-            var contents = <Chart ref='contents' key={'dataview_past'} title={this.state.currentView["name"]} data={this.state.data} fields={this.state.fields} action={this.callbackDataView} />;
-        } else if(activeItem =='current') {
-            var contents = <DataTable ref='contents' key={'dataview_current'} title={'DataView'} data={this.state.data}
-                                        fields={this.state.fields} filters={filters} searchable callback={this.callbackDataView}/>;
-        } else if(activeItem == 'video') {
-            var contents = <video ref='contents' style={{height:'100%',width:'100%'}} controls/>
-        }
-    },
     saveFile : function (blob) {
+        var cellId = "cell_"+ this.gridId;
         var link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
-        link.download = this.state.currentView.name + ".csv";
+        link.download = this.state.gridInfo[cellId]["name"] + ".csv";
         link.click();
     },
     validateURL : function (textval) {

@@ -18,7 +18,10 @@ module.exports = {
     delete : function(data) {
         return data;
     },
-    execute : function(data){
+    execute : function(data, req){
+        if(req.cellId) {
+            data["cellId"] = req.cellId;
+        }
         return data;
     },
     execute_item : function(data){

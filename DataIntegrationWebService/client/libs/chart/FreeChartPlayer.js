@@ -301,7 +301,7 @@ module.exports = function () {
         var hratio = self.overlay.height / self.$container.height();
         var vgap = self.$container.width() - self.overlay.width;
         self.overlay.width = self.$container.width();
-        self.overlay.height = self.$container.height();
+        self.overlay.height = self.$container.height() - 65;
         for(var index in self.controlContainer) {
             if(self.controlContainer[index].type != "navi" ) {
                 if(self.controlContainer[index].keeping) {
@@ -804,7 +804,7 @@ module.exports = function () {
         };
         zoomHistory = [];
         self.overlay.width = self.$container.width();
-        self.overlay.height = self.$container.height();
+        self.overlay.height = self.$container.height() - 65;
 
         self.options.style.chart.yAxisFormat = self.options.yAxisFormat, self.options.style.chart.yMaximum = self.options.yMaximum, self.options.style.chart.yMinimum = self.options.yMinimum;
         var yMinInterval = 1;

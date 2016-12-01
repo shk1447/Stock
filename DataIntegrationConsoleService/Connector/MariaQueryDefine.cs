@@ -43,6 +43,33 @@ namespace Connector
                                                       "FROM current_{source} " +
                                                       "GROUP BY category ";
 
+        public const string CreateFunction = "CREATE FUNCTION `SPLIT_TEXT`(`x` LONGTEXT, `delim` VARCHAR(12), `pos` INT)" +
+                                            "	RETURNS longtext CHARSET utf8" +
+                                            "	LANGUAGE SQL" +
+                                            "	DETERMINISTIC" +
+                                            "	CONTAINS SQL" +
+                                            "	SQL SECURITY DEFINER" +
+                                            "	COMMENT ''" +
+                                            "RETURN REPLACE(SUBSTRING(SUBSTRING_INDEX(x, delim, pos)," +
+                                            "       CHAR_LENGTH(SUBSTRING_INDEX(x, delim, pos - 1)) + 1)," +
+                                            "       delim, '');";
+        public const string CreateProcedure = "CREATE PROCEDURE `DynamicQueryExecuter`(IN `queryText` LONGTEXT)" +
+                                            "	LANGUAGE SQL" +
+                                            "	NOT DETERMINISTIC" +
+                                            "	CONTAINS SQL" +
+                                            "	SQL SECURITY DEFINER" +
+                                            "	COMMENT ''" +
+                                            " BEGIN" +
+                                            "	SET @count = 1;" +
+                                            "	WHILE SPLIT_TEXT(queryText, ';', @count) != '' DO" +
+                                            "		SET @SQLString = SPLIT_TEXT(queryText, ';', @count);" +
+                                            "		PREPARE st FROM @SQLString;" +
+                                            "		EXECUTE st;" +
+                                            "		DEALLOCATE PREPARE st;" +
+                                            "		SET @count = @count + 1;" +
+                                            "	END WHILE;" +
+                                            " END;";
+
         public const string CreateTableQuery = "CREATE TABLE IF NOT EXISTS `member` ( " +
                                             "   `idx` INT(11) NOT NULL AUTO_INCREMENT, " +
                                             "	`member_id` VARCHAR(50) NULL DEFAULT NULL, " +

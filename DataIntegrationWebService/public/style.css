@@ -38,7 +38,7 @@ table.table-container {
     -moz-user-select: none;
 }
 .table-container thead tr {
-    height: 45px;
+    height: 40px;
     background : #205081;
     color: #f9fffa;
 }
@@ -90,7 +90,7 @@ table.table-container thead tr th:last-child
 
 table.table-container tbody tr {
     border-bottom : 1px solid #efefef;
-    height: 35px;
+    height: 30px;
 }
 
 table.table-container tbody tr:hover {

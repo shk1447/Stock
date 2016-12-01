@@ -20,6 +20,10 @@ module.exports = React.createClass({
         var self = this;        
         self.state.player = new ChartPlayer();
         this.state.player.initialize(this.refs.player);
+        this.state.player.options.title = this.state.title;
+        this.state.player.options.fake = true;
+        this.state.player.options.data = {fields:this.state.fields, data : this.state.data};
+        this.state.player.load();
     },
     componentDidUpdate: function () {
         console.log('update chart');
