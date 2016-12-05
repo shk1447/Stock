@@ -16,7 +16,7 @@ module.exports = React.createClass({
         var self = this;
         return (
             <div style={{float:'right',padding:'8px'}}>
-                <Button.Group basic size='small'>
+                <Button.Group basic size='mini'>
                     <Button icon='chevron left' onClick={function(){self.props.action('prev')}}/>
                     <Button icon='chevron right' onClick={function(){self.props.action('next')}}/>
                     <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>

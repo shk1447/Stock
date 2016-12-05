@@ -9,8 +9,8 @@ module.exports = React.createClass({
     displayName: 'DataTable',
     componentDidMount : function() {
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-        this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 50 + 'px';
-        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 15 + 'px';
+        this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 40 + 'px';
+        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 10 + 'px';
     },
     componentWillUnmount : function () {
     },
@@ -24,8 +24,8 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-            this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 50 + 'px';
-            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 15 + 'px';
+            this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 40 + 'px';
+            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 10 + 'px';
         }
     },
     getInitialState: function() {

@@ -301,7 +301,7 @@ module.exports = function () {
         var hratio = self.overlay.height / self.$container.height();
         var vgap = self.$container.width() - self.overlay.width;
         self.overlay.width = self.$container.width();
-        self.overlay.height = self.$container.height() - 65;
+        self.overlay.height = self.$container.height() - 50;
         for(var index in self.controlContainer) {
             if(self.controlContainer[index].type != "navi" ) {
                 if(self.controlContainer[index].keeping) {
@@ -711,7 +711,7 @@ module.exports = function () {
         self.$container = $(div);
         self.$container.empty();
         self.overlay = document.createElement("canvas");
-        $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()-65).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
+        $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()-50).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
         self.$container.append(self.overlay);
         self.overlayCtx = self.overlay.getContext('2d');
 
@@ -804,7 +804,7 @@ module.exports = function () {
         };
         zoomHistory = [];
         self.overlay.width = self.$container.width();
-        self.overlay.height = self.$container.height() - 65;
+        self.overlay.height = self.$container.height() - 50;
 
         self.options.style.chart.yAxisFormat = self.options.yAxisFormat, self.options.style.chart.yMaximum = self.options.yMaximum, self.options.style.chart.yMinimum = self.options.yMinimum;
         var yMinInterval = 1;
@@ -1012,7 +1012,7 @@ module.exports = function () {
         self.renderData.chart.labels = self.renderData.labels[self.options.xAxisField];
 
         self.canvas = document.createElement("canvas");
-        $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()-65).css("position", "relative");
+        $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()-50).css("position", "relative");
         self.$container.append(self.canvas);
         self.chartCtx = self.canvas.getContext("2d");
         var chartType = 'Line';
@@ -1053,7 +1053,7 @@ module.exports = function () {
         self.startDraw = new Date();
         if(self.canvas == undefined) return;
         self.canvas.width = self.$container.width();
-        self.canvas.height = self.$container.height() - 65;
+        self.canvas.height = self.$container.height() - 50;
         if(self.options.chartType.toLowerCase() == "table") {
             $('#' + self.tableId).detach();
             $(self.ChartTable).appendTo(self.$container);
@@ -1106,7 +1106,7 @@ module.exports = function () {
             }
             $(self.canvas).detach();
             self.canvas = document.createElement("canvas");
-            $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()-65).css("position", "relative");
+            $(self.canvas).attr("width", self.$container.width()).attr("height", self.$container.height()-50).css("position", "relative");
             self.$container.append(self.canvas);
             self.chartCtx = self.canvas.getContext("2d");
             self.chartObj = new Chart(self.chartCtx);

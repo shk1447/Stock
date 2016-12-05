@@ -48,7 +48,8 @@ module.exports = React.createClass({
                 <div style={{float:'left',padding:'8px'}}>
                     <Dropdown
                         key='filters'
-                        className='small'
+                        className='mini'
+                        size='mini'
                         options={filters}
                         search
                         selection
@@ -58,10 +59,10 @@ module.exports = React.createClass({
                     />
                 </div>
                 <div style={{float:'left',padding:'8px'}}>
-                    <Input className='small left icon action' icon='search' onChange={this.changeValue} placeholder='Input Value'>
-                        <Select key='target' compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
-                        <Select key='comparison' compact options={options} defaultValue='' onChange={this.changeComparison} />
-                        <Button type='submit' onClick={this.addFilter}>Add Filter</Button>
+                    <Input className='mini left icon action' size='mini' icon='search' onChange={this.changeValue} placeholder='Input Value'>
+                        <Select key='target' size='mini' compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
+                        <Select key='comparison' size='mini' compact options={options} defaultValue='' onChange={this.changeComparison} />
+                        <Button type='submit' size='mini' onClick={this.addFilter}>Add Filter</Button>
                     </Input>
                 </div>
             </div>

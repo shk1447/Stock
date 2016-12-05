@@ -20,7 +20,6 @@ module.exports = React.createClass({
             self.setState({viewlist:data});
         });
         self.socket.on('view.execute', function(response) {
-            console.log(response.cellId);
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
             let cellInfo = self.state.gridInfo[cellId];
             if(cellInfo["view_type"] == 'past') {
@@ -98,6 +97,18 @@ module.exports = React.createClass({
                 break;
             }
             case 3 : {
+                let indexKey = 1;
+                for(var x = 0; x < 3; x++) {
+                    for(var y = 0; y < 3; y++) {
+                        var cellId = 'cell_' + indexKey;
+                        gridArr.push(<div ref={cellId}  key={gridArr.length} className='GridCell' onMouseOver={self.handleDragOver.bind(self, indexKey)}
+                                          style={{position:'absolute',top:y*gridHeight/3+'px',left:x*gridWidth/3+'px', height:gridHeight/3 + 'px',width:gridWidth/3 + 'px'}}></div>);
+                        indexKey++;
+                    }
+                }
+                break;
+            }
+            case 4 : {
                 gridArr.push(<div ref='cell_1' key={0} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 1)}
                                   style={{position:'absolute',top:'0px',left:'0px', height:gridHeight*2/3 + 'px',width:gridWidth + 'px'}}></div>);
                 gridArr.push(<div ref='cell_2' key={1} className='GridCell' onMouseOver={self.handleDragOver.bind(self, 2)}
@@ -203,6 +214,13 @@ module.exports = React.createClass({
         e.preventDefault();
     },
     handleGridLayout : function(e) {
+        for(var i = 1; i < 10; i++) {
+            let cellId = 'cell_'+ i;
+            if(this.refs[cellId] && this.refs[cellId].children.length > 0) {
+                this.refs[cellId].children[0].remove();
+                if(this.state.gridInfo[cellId] && this.state.gridInfo[cellId]["repeatInterval"]) clearInterval(this.state.gridInfo[cellId]["repeatInterval"]);
+            }
+        }
         if(e.target.innerText == 'FIRST GRID') {
             this.setState({gridType: 1});
         } else if(e.target.innerText == 'SECOND GRID') {
