@@ -130,6 +130,15 @@ namespace DataIntegrationServiceLogic
                                                           new KeyValuePair<string, JsonValue>("datakey", "view_options"),
                                                           new KeyValuePair<string, JsonValue>("options", sourceArray_past)));
 
+                var video_sourceFields = new JsonArray(new JsonObject(new KeyValuePair<string, JsonValue>("text", "SOURCE"),
+                                                          new KeyValuePair<string, JsonValue>("value", "view_source"),
+                                                          new KeyValuePair<string, JsonValue>("type", "Text"),
+                                                          new KeyValuePair<string, JsonValue>("group", 1),
+                                                          new KeyValuePair<string, JsonValue>("required", true),
+                                                          new KeyValuePair<string, JsonValue>("dynamic", true),
+                                                          new KeyValuePair<string, JsonValue>("temp", true),
+                                                          new KeyValuePair<string, JsonValue>("datakey", "view_options")));
+
                 past_sourceFields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "SAMPLING"),
                                                      new KeyValuePair<string, JsonValue>("value", "view_sampling"),
                                                      new KeyValuePair<string, JsonValue>("type", "Select"),
@@ -200,7 +209,7 @@ namespace DataIntegrationServiceLogic
                                               ), new JsonObject(
                                                   new KeyValuePair<string, JsonValue>("text", "영상"),
                                                   new KeyValuePair<string, JsonValue>("value", "video"),
-                                                  new KeyValuePair<string, JsonValue>("fields", new JsonArray())
+                                                  new KeyValuePair<string, JsonValue>("fields", video_sourceFields)
                                               )))));
             }
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "UPDATED TIME"),

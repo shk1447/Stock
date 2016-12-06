@@ -28,8 +28,6 @@ module.exports = React.createClass({
             } else if(cellInfo["view_type"] =='current') {
                 var contents = <DataTable title={'DataView'} data={response.data} filters={[]}
                                           fields={response.fields} searchable callback={self.callbackDataView}/>;
-            } else if(cellInfo["view_type"] == 'video') {
-                var contents = <video style={{height:'100%',width:'100%'}} controls/>
             }
             ReactDOM.render(contents, self.refs[cellId]);
         });
@@ -180,6 +178,7 @@ module.exports = React.createClass({
         }
     },
     handleDragEnd : function(e) {
+        var self = this;
         if(this.gridId && this.gridId != 0 && this.isDragging) {
             var cellId = "cell_"+this.gridId;
             if(this.state.gridInfo[cellId] && this.state.gridInfo[cellId]["repeatInterval"]) clearInterval(this.state.gridInfo[cellId]["repeatInterval"]);
@@ -189,10 +188,12 @@ module.exports = React.createClass({
                 this.socket.emit('fromclient', data);
             } else {
                 var viewInfo = this.state.viewlist.find(function(d){
-                    return d.name == this.state.gridInfo[cellId].name;
+                    return d.name == self.state.gridInfo[cellId].name;
                 });
-                var video = ReactDOM.findDOMNode(this.refs.contents);
-                video.src = this.validateURL(viewInfo.view_query) ? viewInfo.view_query : "/video/" + viewInfo.view_query;
+                let view_source = viewInfo["view_options"]["view_source"];
+                let src = this.validateURL(view_source) ? view_source : "/video/" + view_source;
+                var contents = <video key={'video'} style={{height:'100%',width:'100%'}} src={src} controls/>
+                ReactDOM.render(contents, self.refs[cellId]);
             }
         }
         $(this.temp).detach();
