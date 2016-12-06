@@ -31,18 +31,16 @@ namespace Finance
             this.config = new Dictionary<string, JsonValue>();
             this.functionDict = new Dictionary<string, Delegate>();
             var FinanceInformationConfig = new JsonObject();
+            var EmptyInformationConfig = new JsonObject();
             var StockInformationConfig = new JsonObject();
             StockInformationConfig.Add("days", 1);
             StockInformationConfig.Add("method", "history");
             this.config.Add("StockInformation", StockInformationConfig);
             this.config.Add("FinanceInformation", FinanceInformationConfig);
+            this.config.Add("EmptyInformation", EmptyInformationConfig);
             this.functionDict.Add("StockInformation", new Func<string, bool>(StockInformation));
             this.functionDict.Add("FinanceInformation", new Func<string, bool>(FinanceInformation));
-        }
-
-        private object CurrentStock()
-        {
-            throw new NotImplementedException();
+            this.functionDict.Add("EmptyInformation", new Func<string, bool>(EmptyInformation));
         }
 
         #region ISourceModule 멤버
@@ -308,6 +306,40 @@ namespace Finance
                 });
             }
 
+            return true;
+        }
+
+        private bool EmptyInformation(string collectionName)
+        {
+            var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
+            var stockText = File.ReadAllText(file);
+            var stockJson = JsonValue.Parse(stockText);
+
+            foreach (var stock in stockJson)
+            {
+                var result = new SetDataSourceReq();
+                result.rawdata = new List<JsonDictionary>();
+                result.source = collectionName;
+                result.category = "종목코드";
+                result.collected_at = "날짜";
+
+                var finance = new JsonDictionary();
+                var code = stock.Value["code"].ReadAs<string>();
+                var name = stock.Value["name"].ReadAs<string>();
+                var type = stock.Value["type"].ReadAs<string>();
+
+                finance.Add("종목코드", code);
+                finance.Add("종목유형", type);
+                finance.Add("종목명", name);
+
+                result.rawdata.Add(finance);
+
+                Task.Factory.StartNew(() =>
+                {
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                });
+            }
             return true;
         }
     }
