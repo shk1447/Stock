@@ -2,23 +2,11 @@ require('./chart.js');
 
 module.exports = function () {
     var self = this;
-    self.ChartPlayerEventType = {
-        "preMapload": {
-            callback: {}
-        },
-        "postMapload": {
-            callback: {}
-        }
-    };
 
     function getInlineJS() {
         var js = "onmessage = function(e) { postMessage(e.data)}";
         var blob = new Blob([js], {"type": "text\/plain"});
         return URL.createObjectURL(blob);
-    }
-
-    self.fire = function (type) {
-        
     }
 
     var renderWorker = new Worker(getInlineJS());
@@ -140,7 +128,7 @@ module.exports = function () {
                     }
                 } else {
                     var tempText = this.text;
-                    this.ctx.font = this.font + "px Open Sans";
+                    this.ctx.font = this.font + "px Arial";
                     if(this.ctx.measureText(this.text).width > this.width) tempText = "....";
                     this.ctx.fillText(tempText, this.x + (this.width / 2), this.y + (this.height/2) + (this.font*1/2));
                 }
@@ -329,93 +317,30 @@ module.exports = function () {
         samplingInterval : 3600,
         xAxisField: "unixtime",
         fixedUnit:"",
-        timeFormat:"yyyy-MM-dd\r\nHH:mm:ss",
+        timeFormat:"yyyy-MM-dd HH:mm:ss",
         yAxisFormat:2,
         yMaximum:"smart",
         yMinimum:"smart",
         useControl: true,
-        usePeriodControl: true,
+        usePeriodControl: false,
         useCollaboration : false,
         style: {
             theme : "WHITE",
-            table: {
-                background: "#292829",
-                titleFontSize: "18",
-                titleFontColor: "#ffffff",
-                titleFontAlign:"left",
-                subTitleFontSize: "12",
-                subTitleFontColor: "#ffffff",
-                innerLineSize: "1",
-                innerLineColor: "#575457",
-                innerFontSize: "11",
-                innerFontColor: "#a8a0a8",
-                innerFontStyle: "normal",
-                innerChartOptions: {
-                    canvasBackgroundColor: 'none',
-                    chartLineScale: 0,
-                    scaleLineWidth: 0,
-                    scaleLineColor: "rgba(0,0,0,0)",
-                    animation : false,
-                    xAxisBottom: false,
-                    yAxisLeft: false,
-                    yAxisRight: false,
-                    legend: false,
-                    inGraphDataShow: false,
-                    detectAnnotateOnFullLine : false,
-                    dynamicDisplay : false,
-                    annotateDisplay: true,
-                    annotateLabel: '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',
-                    annotatePadding: "5px 5px 5px 5px",
-                    annotateFontFamily: "'Open Sans'",
-                    annotateFontStyle: "normal normal",
-                    annotateFontColor: "rgba(0,0,0,1)",
-                    annotateFontSize: 11,
-                    annotateBorderRadius: "3px",
-                    annotateBorder: "2px rgba(170,170,170,0.7) solid",
-                    annotateBackgroundColor: 'rgba(255,255,255,0.5)',
-                    annotateFontColor: "rgba(0,0,0,1)",
-                    annotateFunction: "mousemove",
-                    annotateRelocate: true,
-                    scaleShowLine: false,
-                    scaleShowGridLines: false,
-                    logarithmic: false,
-                    logarithmic2: false,
-                    extrapolateMissingData : true,
-                    detectMouseOnText : false,
-                    fullWidthGraph: true,
-                    canvasBorders: false,
-                    scaleShowLabelBackdrop: false,
-                    yMaximum : "smart",
-                    yMinimum : "smart",
-                    yAxisFormat : 2,
-                    pointHitDetectionRadius : 10,
-                    spaceLeft: 20,
-                    spaceRight: 20,
-                    spaceTop: 20,
-                    spaceBottom: 20,
-                    endDrawDataFunction : function(a,b,c,d,e,f,g) {
-                        var navigator = self.controlContainer.find(function(h) { return h.id == "navigator"});
-                        if(navigator) {
-                            navigator.clear();
-                        }
-                    }
-                }
-            },
             chart: {
                 canvasBackgroundColor: 'rgba(0,0,0,0)',
                 graphTitle: "",
-                graphTitleFontFamily: "'Open Sans'",
+                graphTitleFontFamily: "'Arial'",
                 graphTitleFontStyle: "normal normal",
                 graphTitleFontColor: "#ffffff",
                 graphTitleFontSize: 18,
                 graphSubTitle: "",
-                graphSubTitleFontFamily: "'Open Sans'",
+                graphSubTitleFontFamily: "'Arial'",
                 graphSubTitleFontStyle: "normal normal",
                 graphSubTitleFontColor: "#ffffff",
                 graphSubTitleFontSize: 12,
                 graphAlign : "left",
                 graphPosX : 50,
-                scaleFontFamily: "'Open Sans'",
+                scaleFontFamily: "'Arial'",
                 scaleFontStyle: "normal normal",
                 scaleFontColor: "#a8a0a8",
                 scaleFontSize: 11,
@@ -432,7 +357,7 @@ module.exports = function () {
                 scaleGridLineColor: "#575457",
                 yAxisUnit: "",
                 yAxisUnit2: "",
-                yAxisUnitFontFamily: "'Open Sans'",
+                yAxisUnitFontFamily: "'Arial'",
                 yAxisUnitFontStyle: "normal normal",
                 yAxisUnitFontColor: "#a8a0a8",
                 yAxisUnitFontSize: 11,
@@ -445,7 +370,7 @@ module.exports = function () {
                 yMinimum : "smart",
                 showXLabels: "smart",
                 rotateLabels: 0,//"smart",
-                legendFontFamily: "'Open Sans'",
+                legendFontFamily: "'Arial'",
                 legendFontStyle: "normal normal",
                 legendFontColor: "#ffffff",
                 legendFontSize: 12,
@@ -478,11 +403,13 @@ module.exports = function () {
                 },
                 endDrawDataFunction : function(a,b,c,d,e,f,g) {
                     if(g.animationValue == 1) {
+                        var navigator = self.controlContainer.find(function(h) { return h.id == "navigator"});
                         if(self.options.chartType.toLowerCase() !== 'pie') {
                             self.pointerArr = [];
                             if(isOrigin) self.originPointerArr = [];
                             standard = { top : g.startY, bottom : g.endY, left : g.startX, right : g.endX }
-                            var canvasWidth = self.canvas.width;
+                            var canvasWidth = standard.right - standard.left;
+                            var gap = (self.canvas.width - canvasWidth) / 2;
 
                             for(var i in d) {
                                 var index = 0;
@@ -499,7 +426,7 @@ module.exports = function () {
 
                                     if(isOrigin) {
                                         var ratioPointer = $.extend(true, {}, pointer);
-                                        ratioPointer.pointX = ratioPointer.pointX / canvasWidth;
+                                        ratioPointer.pointX = (ratioPointer.pointX - standard.left) / canvasWidth;
                                         ratioPointer.valueHop = ratioPointer.valueHop / canvasWidth;
                                         self.originPointerArr.push(ratioPointer);
                                     }
@@ -516,17 +443,18 @@ module.exports = function () {
                                 b.fillStyle = ds.visible ? self.options.style.chart.legendFontColor : "gray", b.textAlign = "left", b.textBaseline = "bottom";
                                 b.fillText(ds.title, ds.x, ds.y + ds.h), b.restore(), ds.hover = false;
                             }
-                            var navigator = self.controlContainer.find(function(h) { return h.id == "navigator"});
                             if(navigator) {
+                                navigator.display = true;
                                 navigator.clear();
                                 var leftPos = self.originPointerArr.find(function(h) { return h.time == tempChart.times[0] });
                                 var rightPos = self.originPointerArr.find(function(h) { return h.time == tempChart.times[tempChart.times.length - 1] });
-                                navigator.x = leftPos.pointX * canvasWidth, navigator.y = standard.bottom + 2, navigator.width = (rightPos.pointX*canvasWidth) - (leftPos.pointX*canvasWidth) + 2, navigator.time = leftPos.time, navigator.valueHop = rightPos.valueHop * canvasWidth;
+                                navigator.x = leftPos.pointX * canvasWidth + standard.left, navigator.y = standard.bottom + 2, navigator.width = (rightPos.pointX*canvasWidth) - (leftPos.pointX*canvasWidth) + 2, navigator.time = leftPos.time, navigator.valueHop = rightPos.valueHop * canvasWidth;
                                 navigator.drawShape();
                             }
                         } else {
-                            var navigator = self.controlContainer.find(function(h) { return h.id == "navigator"});
+                            
                             if(navigator) {
+                                navigator.display = false;
                                 navigator.clear();
                             }
                         }
@@ -653,19 +581,19 @@ module.exports = function () {
                 },
                 annotateFunctionIn: function(a,b,c,d,e,f,g) { },
                 annotateFunctionOut: function(a,b,c,d,e,f,g,h) { },
-                annotatePadding: "5px 5px 5px 5px", annotateFontFamily: "'Open Sans'", annotateFontStyle: "normal normal", annotateFontColor: "rgba(0,0,0,1)", annotateFontSize: 11, annotateBorderRadius: "3px", annotateBorder: "2px rgba(170,170,170,0.7) solid ",
+                annotatePadding: "5px 5px 5px 5px", annotateFontFamily: "'Arial'", annotateFontStyle: "normal normal", annotateFontColor: "rgba(0,0,0,1)", annotateFontSize: 11, annotateBorderRadius: "3px", annotateBorder: "2px rgba(170,170,170,0.7) solid ",
                 annotateBackgroundColor: 'rgba(255,255,255,0.5)', annotateFontColor: "rgba(0,0,0,1)", annotateFunction: "mousemove", annotateRelocate: true,
                 legend: true, showSingleLegend: true, maxLegendCols: 5, legendBlockSize: 15, legendFillColor: 'rgba(255,255,255,0.00)', legendColorIndicatorStrokeWidth: 1, legendPosX: -2, legendPosY: 4, legendXPadding: 0, legendYPadding: 0,
                 legendBorders: false, legendBordersWidth: 1, legendBordersStyle: "solid", legendBordersColors: "rgba(102,102,102,1)", legendBordersSpaceBefore: 5, legendBordersSpaceLeft: 5, legendBordersSpaceRight: 5, legendBordersSpaceAfter: 5,
                 legendSpaceBeforeText: 5, legendSpaceLeftText: 5, legendSpaceRightText: 5, legendSpaceAfterText: 5, legendSpaceBetweenBoxAndText: 10, legendSpaceBetweenTextHorizontal: 50, legendSpaceBetweenTextVertical: 5,
-                xAxisLabel: "", xAxisFontFamily: "'Open Sans'", xAxisFontSize: 11, xAxisFontStyle: "normal normal", xAxisFontColor: "rgba(160,160,163,1)", xAxisLabelSpaceBefore: 5, xAxisLabelSpaceAfter: 5, xAxisSpaceBefore: 5,
+                xAxisLabel: "", xAxisFontFamily: "'Arial'", xAxisFontSize: 11, xAxisFontStyle: "normal normal", xAxisFontColor: "rgba(160,160,163,1)", xAxisLabelSpaceBefore: 5, xAxisLabelSpaceAfter: 5, xAxisSpaceBefore: 5,
                 xAxisSpaceAfter: 5, xAxisLabelBorders: false, xAxisLabelBordersColor: "white", xAxisLabelBordersXSpace: 3, xAxisLabelBordersYSpace: 3, xAxisLabelBordersWidth: 1, xAxisLabelBordersStyle: "solid", xAxisLabelBackgroundColor: "none",
-                yAxisLabel: "", yAxisLabel2: "", yAxisFontFamily: "'Open Sans'", yAxisFontStyle: "normal normal", yAxisFontColor: "rgba(160,160,163,1)", yAxisFontSize: 15, yAxisLabelSpaceRight: 0, yAxisLabelSpaceLeft: 0, yAxisSpaceRight: 0,
+                yAxisLabel: "", yAxisLabel2: "", yAxisFontFamily: "'Arial'", yAxisFontStyle: "normal normal", yAxisFontColor: "rgba(160,160,163,1)", yAxisFontSize: 15, yAxisLabelSpaceRight: 0, yAxisLabelSpaceLeft: 0, yAxisSpaceRight: 0,
                 yAxisSpaceLeft: 0, yAxisLabelBorders: !1, yAxisLabelBordersColor: "black", yAxisLabelBordersXSpace: 0, yAxisLabelBordersYSpace: 0, yAxisLabelBordersWidth: 1, yAxisLabelBordersStyle: "solid", yAxisLabelBackgroundColor: "none",
                 showYAxisMin: true, xAxisBottom: true,
                 graphTitleSpaceBefore: 5, graphTitleSpaceAfter: 5, graphTitleBorders: false, graphTitleBordersXSpace: 1, graphTitleBordersYSpace: 1, graphTitleBordersWidth: 3, graphTitleBordersStyle: "solid", graphTitleBordersColor: "rgba(255,255,255,1)",
                 graphSubTitleSpaceBefore: 5, graphSubTitleSpaceAfter: 5, graphSubTitleBorders: false, graphSubTitleBordersXSpace: 1, graphSubTitleBordersYSpace: 1, graphSubTitleBordersWidth: 3, graphSubTitleBordersStyle: "solid", graphSubTitleBordersColor: "rgba(255,255,255,1)",
-                pointLabelFontFamily: "'Open Sans'", pointLabelFontStyle: "normal normal", pointLabelFontColor: "rgba(102,102,102,1)", pointLabelFontSize: 12,
+                pointLabelFontFamily: "'Arial'", pointLabelFontStyle: "normal normal", pointLabelFontColor: "rgba(102,102,102,1)", pointLabelFontSize: 12,
                 pointDotStrokeStyle: "solid", pointDotStrokeWidth: 0, pointDotRadius: 4, pointDot: true,
                 angleShowLineOut: true, angleLineStyle: "solid", angleLineWidth: 1, angleLineColor: "rgba(0,0,0,0.1)",
                 segmentShowStroke: false, segmentStrokeStyle: "solid", segmentStrokeWidth: 2, segmentStrokeColor: "rgba(255,255,255,1.00)",
@@ -816,21 +744,26 @@ module.exports = function () {
 
         if(self.options.style.theme == "WHITE") {
             var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == "WHITE";});
-            self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
+            self.options.style.chart.canvasBackgroundColor = selectedStyle.background;
             self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
             self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
-            self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
         } else {
             var selectedStyle = simpleSetting.style.theme.find(function(d){ return d.name == "BLACK";});
-            self.options.style.chart.canvasBackgroundColor = selectedStyle.background, self.options.style.table.background = selectedStyle.background;
+            self.options.style.chart.canvasBackgroundColor = selectedStyle.background;
             self.options.style.chart.graphTitleFontColor = selectedStyle.header, self.options.style.chart.graphSubTitleFontColor = selectedStyle.header, self.options.style.chart.legendFontColor = selectedStyle.footer;
             self.options.style.chart.scaleFontColor = selectedStyle.body, self.options.style.chart.yAxisUnitFontColor = selectedStyle.body, self.options.style.chart.scaleLineColor = selectedStyle.line, self.options.style.chart.scaleGridLineColor = selectedStyle.line;
-            self.options.style.table.titleFontColor = selectedStyle.header, self.options.style.table.subTitleFontColor  = selectedStyle.header, self.options.style.table.innerLineColor = selectedStyle.line, self.options.style.table.innerFontColor = selectedStyle.body;
         }
 
         if(self.options.fake) {
             if(self.options.data != null && typeof self.options.data != "undefined") {
                 deserializeData(self.options.data);
+            } else {
+                if(self.canvas) $(self.canvas).detach();
+                var navigator = self.controlContainer.find(function(h) { return h.id == "navigator"});
+                if(navigator) {
+                    navigator.display = false;
+                    navigator.clear();
+                }
             }
             self.draw();
         }
@@ -846,7 +779,7 @@ module.exports = function () {
     var AddChartControl = function () {
         var navigatorConfig = {x : undefined,y : undefined,width : undefined,height : 6,fill : "white", type: "navi", shape : "rectangle",
             stroke : "rgba(100,120,150,0.8)" ,strokewidth : 1,radius : { lt : 2, lb : 2, rt : 2, rb : 2 },text : "",textfill : "rgba(160,160,163,0)",font : 0,
-            highlight : "rgba(150,120,100,0.5)",onColor : "red",hover : false,on : false,icon : false,keeping : true,display : true};
+            highlight : "rgba(150,120,100,0.5)",onColor : "red",hover : false,on : false,icon : false,keeping : true,display : false};
         var navigatorControl = new controller(self.overlayCtx, "navigator", navigatorConfig, { hover : function(d,e){
             if(d.isPointInside(e.offsetX, e.offsetY)) {
                 if(!d.hover) {
@@ -912,9 +845,6 @@ module.exports = function () {
     }
 
     var deserializeData = function (result) {
-        // var start = convertTimestampToDate(self.options.start).format("yyyy-MM-dd");
-        // var end = convertTimestampToDate(self.options.end).format("yyyy-MM-dd");
-        // self.options.style.chart.graphSubTitle = 'Range : ' + start + " ~ " + end;
         self.options.style.chart.graphTitle = self.options.title;
 
         var _result = result.data;
@@ -1000,10 +930,12 @@ module.exports = function () {
                 }
                 metricTime = dataTime;
             }
+            self.options.style.chart.graphSubTitle = 'Range : ' + self.renderData.labels["unixtime"][0] + " ~ "
+                                                   + self.renderData.labels["unixtime"][self.renderData.labels["unixtime"].length-1];
             self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
             self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
         }
-        return;
+        return true;
     };
 
     self.draw = function() {
@@ -1044,10 +976,6 @@ module.exports = function () {
         var evalText = 'self.chartObj.'+chartType+'(tempChart, self.options.style.chart); self.chartCtx.stroke();'
         eval(evalText);
     };
-
-    self.reflow = function () {
-        self.chartObj.reflowChart(self.chartCtx.ChartNewId);
-    }
 
     self.redraw = function (data) {
         self.startDraw = new Date();

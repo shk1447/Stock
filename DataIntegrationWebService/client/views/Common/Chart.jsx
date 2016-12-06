@@ -55,7 +55,7 @@ module.exports = React.createClass({
                 <div ref='chart_control' style={{padding:'8px',textAlign:'end', marginRight:'40px'}}>
                     {chartControl}
                 </div>
-                <div style={{height:'100%',width:'100%',background:'transparent'}} ref="player">
+                <div style={{height:'100%',width:'100%',background:'transparent',userSelect:'none'}} ref="player">
                 </div>
                 <ModalForm ref='ModalForm' action={'insert'} size={'large'} title={'CHART SETTING'} active={false}
                     fields={self.chartSettingFields} data={[]} callback={this.applyChartSetting}/>

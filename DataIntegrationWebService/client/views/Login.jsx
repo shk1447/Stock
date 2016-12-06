@@ -23,6 +23,7 @@ module.exports = React.createClass({
                     sessionStorage['member_id'] = data.member_id;
                     sessionStorage['member_name'] = data.member_name;
                     sessionStorage['privilege'] = data.privilege;
+                    sessionStorage['last_view'] = '{}';
                 }
                 cookies.set('accessToken', data.token);
                 self.context.router.replace('/App/');

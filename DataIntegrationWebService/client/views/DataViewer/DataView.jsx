@@ -17,7 +17,22 @@ module.exports = React.createClass({
         
         self.socket = io.connect();
         self.socket.on('view.getlist', function(data) {
+            self.state.viewlist = data;
             self.setState({viewlist:data});
+            _.each(self.state.gridInfo, function(value, id){
+                if (value.view_type != 'video') {
+                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[id].name},"cellId":id};
+                    self.socket.emit('fromclient', data);
+                } else {
+                    var viewInfo = self.state.viewlist.find(function(d){
+                        return d.name == self.state.gridInfo[id].name;
+                    });
+                    let view_source = viewInfo["view_options"]["view_source"];
+                    let src = self.validateURL(view_source) ? view_source : "/video/" + view_source;
+                    var contents = <video key={'video'} style={{height:'100%',width:'100%'}} src={src} controls/>
+                    ReactDOM.render(contents, self.refs[id]);
+                }
+            });
         });
         self.socket.on('view.execute', function(response) {
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
@@ -50,9 +65,16 @@ module.exports = React.createClass({
         this.socket.close();
     },
     componentDidUpdate : function () {
+        sessionStorage["last_view"] = JSON.stringify(this.state);
     },
     getInitialState: function() {
-		return {activeItem : '',viewlist:[], data:[],fields:[],contextVisible:false,gridType:1,gridInfo:{}};
+        let init_state = {activeItem : '',viewlist:[], data:[],fields:[],contextVisible:false,gridType:1,gridInfo:{}};
+        if(sessionStorage["last_view"]) {
+            init_state = _.extend(init_state, JSON.parse(sessionStorage.last_view));
+        } else {
+            sessionStorage["last_view"] = JSON.stringify(init_state);
+        }
+		return init_state;
 	},
     render : function () {
         var self = this;
@@ -181,7 +203,15 @@ module.exports = React.createClass({
         var self = this;
         if(this.gridId && this.gridId != 0 && this.isDragging) {
             var cellId = "cell_"+this.gridId;
-            if(this.state.gridInfo[cellId] && this.state.gridInfo[cellId]["repeatInterval"]) clearInterval(this.state.gridInfo[cellId]["repeatInterval"]);
+            if(this.state.gridInfo[cellId]) {
+                if(this.state.gridInfo[cellId]["repeatInterval"]){
+                    clearInterval(this.state.gridInfo[cellId]["repeatInterval"]);
+                }
+                if(this.refs[cellId] && this.refs[cellId].children.length > 0) {
+                    this.refs[cellId].children[0].remove();
+                }
+            }
+            
             this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
                 var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":this.state.gridInfo[cellId].name}};
@@ -196,6 +226,7 @@ module.exports = React.createClass({
                 ReactDOM.render(contents, self.refs[cellId]);
             }
         }
+        this.setState(this.state);
         $(this.temp).detach();
         this.isDragging = false;
     },
@@ -261,6 +292,7 @@ module.exports = React.createClass({
         var cellId = "cell_"+ this.gridId;
         if(result.action == 'repeat_on') {
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
+                console.log('repeat id : ', cellId)
                 var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
             },1000)
