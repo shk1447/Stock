@@ -4,9 +4,6 @@ var {Form,TextArea} = require('stardust');
 
 module.exports = React.createClass({
     displayName: 'SQLEditor',
-    contextTypes: {
-        router: React.PropTypes.object.isRequired
-    },
     componentDidMount : function() {
         console.log('render sql editor');
         var self = this;

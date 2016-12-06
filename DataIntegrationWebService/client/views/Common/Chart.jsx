@@ -17,7 +17,9 @@ module.exports = React.createClass({
     onRemove : function () {
     },
     componentDidMount: function () {
-        var self = this;        
+        var self = this;
+        var dom = ReactDOM.findDOMNode(this.refs.chart_control);
+        this.refs.player.style.height = this.refs.player.parentElement.offsetHeight - dom.offsetHeight + 'px';
         self.state.player = new ChartPlayer();
         this.state.player.initialize(this.refs.player);
         this.state.player.options.title = this.state.title;
@@ -26,7 +28,9 @@ module.exports = React.createClass({
         this.state.player.load();
     },
     componentDidUpdate: function () {
-        console.log('update chart');
+        var dom = ReactDOM.findDOMNode(this.refs.chart_control);
+        this.refs.player.style.height = this.refs.player.parentElement.offsetHeight - dom.offsetHeight + 'px';
+
         this.state.player.options.title = this.state.title;
         this.state.player.options.fake = true;
         this.state.player.options.data = {fields:this.state.fields, data : this.state.data};
@@ -48,7 +52,7 @@ module.exports = React.createClass({
         }
         return (
             <div style={{width:'100%', height:'100%'}}>
-                <div style={{padding:'8px',textAlign:'end', marginRight:'40px'}}>
+                <div ref='chart_control' style={{padding:'8px',textAlign:'end', marginRight:'40px'}}>
                     {chartControl}
                 </div>
                 <div style={{height:'100%',width:'100%',background:'transparent'}} ref="player">

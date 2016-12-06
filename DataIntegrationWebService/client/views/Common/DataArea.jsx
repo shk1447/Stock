@@ -7,7 +7,8 @@ module.exports = React.createClass({
     },
     componentWillUnmount : function () {
     },
-    componentDidUpdate : function () {
+    componentDidUpdate : function (nextProps) {
+        console.log(nextProps);
     },
     getInitialState: function() {
 		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50};

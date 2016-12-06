@@ -57,7 +57,6 @@ module.exports = React.createClass({
 		return {activeItem : '',viewlist:[], data:[],fields:[],contextVisible:false,gridType:1,gridInfo:{}};
 	},
     render : function () {
-        console.log('render data view');
         var self = this;
         const { activeItem, viewlist, gridType } = this.state;
         let viewArr = [];
@@ -171,7 +170,6 @@ module.exports = React.createClass({
         }
     },
     handleDragOver : function(index,e) {
-        console.log(index);
         this.gridId = index;
     },
     handleDragMove : function(e){

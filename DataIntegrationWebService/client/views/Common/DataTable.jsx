@@ -8,24 +8,24 @@ var GridControl = require('./GridControl');
 module.exports = React.createClass({
     displayName: 'DataTable',
     componentDidMount : function() {
+        var dom = ReactDOM.findDOMNode(this.refs.GridControl);
         this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-        this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 40 + 'px';
-        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 10 + 'px';
+        this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - dom.offsetHeight + 'px';
+        this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20  + 'px';
     },
     componentWillUnmount : function () {
     },
     componentDidUpdate : function () {
-        if(this.state.searchable && this.state.fields.length > 0) {
-            this.refs.SearchFilter.setState({fields:this.state.fields});
-        }
+        var dom = ReactDOM.findDOMNode(this.refs.GridControl);
+        this.refs.GridControl.setState({fields:this.state.fields});
         if(this.state.updatable && this.state.fields.length > 0) {
             this.refs.UpdateControl.setState({fields:this.state.fields});
         }
         if(this.state.fields.length > 0) {
             this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
-            this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - 40 + 'px';
-            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 10 + 'px';
+            this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - dom.offsetHeight + 'px';
+            this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20  + 'px';
         }
     },
     getInitialState: function() {
@@ -41,22 +41,16 @@ module.exports = React.createClass({
                 thArr.push(<th key={i} onClick={self.handleSortByItem.bind(self,row)}>{row.text}</th>)
             };
         });
-        if(this.state.searchable && fields.length > 0) {
-            var searchControl = <SearchFilter ref='SearchFilter' fields={fields} filters={filters} action={this.handleSearch}/>;
-        }
+
         if(this.state.updatable && fields.length > 0) {
             var updateControl = <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>;
         }
-        if(fields.length > 0) {
-            var gridControl = <GridControl action={this.handlePagination}/>;
-        }
+        var gridControl = <GridControl ref='GridControl' active={false} fields={fields} action={this.handlePagination}/>;
+        
         return (
             <div style={{height:'100%', width:'100%'}}>
-                <div style={{width:'100%'}}>
-                    {searchControl}
-                    {gridControl}
-                    {updateControl}
-                </div>
+                {gridControl}
+                {updateControl}
                 <div ref='table_headers_container' style={{width:'100%',height:'100%',overflowX:'auto',overflowY:'hidden',padding:'6px'}}>
                     <table className="table-container" ref="table_headers">
                         <thead>
@@ -69,8 +63,6 @@ module.exports = React.createClass({
                         <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>
-                <div>
-                </div>
             </div>
         )
     },
@@ -81,11 +73,14 @@ module.exports = React.createClass({
             this.props.callback({action:'doubleclick',data:result});
         }
     },
-    handlePagination: function(control) {
+    handlePagination: function(control, args) {
         if(control == 'next') {
             this.refs.DataArea.state.page += 1;
         } else if(control == 'prev') {
             this.refs.DataArea.state.page -= 1;
+        } else if(control == 'search') {
+            this.handleSearch(args);
+            return;
         } else {
             this.props.callback({action:control});
         }

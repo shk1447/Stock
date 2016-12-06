@@ -4,9 +4,6 @@ var MessageBox = require('./MessageBox');
 
 module.exports = React.createClass({
     displayName: 'DynamicField',
-    contextTypes: {
-        router: React.PropTypes.object.isRequired
-    },
     componentDidMount : function() {
     },
     componentWillUnmount : function () {

@@ -44,27 +44,13 @@ module.exports = React.createClass({
             }
         }
         return (
-            <div>
-                <div style={{float:'left',padding:'8px'}}>
-                    <Dropdown
-                        key='filters'
-                        className='mini'
-                        size='mini'
-                        options={filters}
-                        search
-                        selection
-                        fluid
-                        multiple
-                        onChange={this.handleChangeMultiple}
-                    />
-                </div>
-                <div style={{float:'left',padding:'8px'}}>
-                    <Input className='mini left icon action' size='mini' icon='search' onChange={this.changeValue} placeholder='Input Value'>
-                        <Select key='target' size='mini' compact options={fieldsOptions} defaultValue=''  onChange={this.changeTarget}/>
-                        <Select key='comparison' size='mini' compact options={options} defaultValue='' onChange={this.changeComparison} />
-                        <Button type='submit' size='mini' onClick={this.addFilter}>Add Filter</Button>
-                    </Input>
-                </div>
+            <div style={{float:'left',padding:'6px'}}>
+                <Input className='mini left icon action search_filter' size='mini' icon='search' onChange={this.changeValue} placeholder='Input Value'>
+                    <Select key='target' size='mini' options={fieldsOptions} defaultValue=''  onChange={this.changeTarget} />
+                    <Select key='comparison' size='mini' options={options} defaultValue='' onChange={this.changeComparison} />
+                    <Button type='submit' size='mini' onClick={this.addFilter}>Add Filter</Button>
+                    <Dropdown key='filters' className='mini search_filter' size='mini' options={filters} search selection fluid multiple onChange={this.handleChangeMultiple} />
+                </Input>
             </div>
         )
     },

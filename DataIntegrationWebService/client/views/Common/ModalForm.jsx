@@ -11,24 +11,16 @@ var moment = require('moment');
 
 module.exports = React.createClass({
     displayName: 'ModalForm',
-    contextTypes: {
-        router: React.PropTypes.object.isRequired
-    },
     componentDidMount : function() {
-        console.log('mount');
     },
     componentWillUnmount : function () {
-        console.log('unmount');
     },
     componentDidUpdate : function () {
-        console.log('update');
     },
     getInitialState: function() {
-        console.log('initialize')
 		return {action:this.props.action, fields: this.props.fields, data:this.props.data, size:this.props.size, dimmer:this.props.dimmer,active:this.props.active,title:this.props.title};
 	},
     render : function () {
-        console.log('render modal form')
         var self = this;
 
         if(this.state.fields) {
@@ -378,7 +370,6 @@ module.exports = React.createClass({
     },
     handleSearchChange : function(field,fields,e,data) {
         if(field.type == 'Search') {
-            console.log(field.results.length);
             if(e.target.value.length > 0) {
                 field.options = field.results.filter(function(d){
                     return d.value.includes(e.target.value)
@@ -518,7 +509,6 @@ module.exports = React.createClass({
                 break;
             }
         }
-        console.log(self.state.data);
         self.setState({fields:self.state.fields});
     },
     hide : function(e) {
