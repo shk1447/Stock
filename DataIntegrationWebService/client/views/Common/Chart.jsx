@@ -27,14 +27,18 @@ module.exports = React.createClass({
         this.state.player.options.data = {fields:this.state.fields, data : this.state.data};
         this.state.player.load();
     },
-    componentDidUpdate: function (nextProps) {
+    componentDidUpdate: function () {
         var dom = ReactDOM.findDOMNode(this.refs.chart_control);
         this.refs.player.style.height = this.refs.player.parentElement.offsetHeight - dom.offsetHeight + 'px';
 
         this.state.player.options.title = this.state.title;
         this.state.player.options.fake = true;
-        this.state.player.options.data = {fields:nextProps.fields, data : nextProps.data};
+        this.state.player.options.data = {fields:this.state.fields, data : this.state.data};
         this.state.player.load();
+    },
+    componentWillReceiveProps : function(nextProps) {
+        this.state.fields = nextProps.fields;
+        this.state.data = nextProps.data;
     },
     componentWillUnmount: function () {
         if(this.state.player){
