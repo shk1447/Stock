@@ -79,23 +79,11 @@ module.exports = React.createClass({
         } else if(control == 'prev') {
             this.refs.DataArea.state.page -= 1;
         } else if(control == 'search') {
-            this.handleSearch(args);
-            return;
+            this.refs.DataArea.state.filters = args;
         } else {
             this.props.callback({action:control});
         }
         this.refs.DataArea.setState(this.refs.DataArea.state);
-    },
-    handleSearch: function(searches) {
-        var filteredData = this.state.data.filter(function(data){
-            let condition = '';
-            _.each(searches,function(row,i){
-                condition += row + " && ";
-            });
-            condition += "true";
-            return eval(condition);
-        });
-        this.refs.DataArea.setState({data:_.cloneDeep(filteredData)});
     },
     handleSortByItem: function(field,e) {
         let direction = "desc";

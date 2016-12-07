@@ -10,13 +10,22 @@ module.exports = React.createClass({
     componentDidUpdate : function (nextProps) {
     },
     getInitialState: function() {
-		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50};
+		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50,filters:[]};
 	},
     render : function () {
         var trArr = [];
         var self = this;
-        const {data,fields,page,pageCount} = this.state;
+        const {fields,page,pageCount} = this.state;
+        var {data} = this.state;
         if(data && data.length > 0) {
+            data = data.filter(function(data){
+                let condition = '';
+                _.each(self.state.filters,function(row,i){
+                    condition += row + " && ";
+                });
+                condition += "true";
+                return eval(condition);
+            });
             var currentPage = pageCount > data.length ? data.length : page*pageCount;
             for(var i = ((page-1)*pageCount); i < currentPage; i++) {
                 let row = data[i];
