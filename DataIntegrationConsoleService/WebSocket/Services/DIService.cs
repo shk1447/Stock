@@ -17,12 +17,12 @@ namespace DIWebSocket.Services
     {
         protected override void OnOpen()
         {
-            Console.WriteLine("open socket");
+            //Console.WriteLine("open socket");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            Console.WriteLine("close socket");
+            //Console.WriteLine("close socket");
         }
 
         protected override void OnMessage(MessageEventArgs e)
