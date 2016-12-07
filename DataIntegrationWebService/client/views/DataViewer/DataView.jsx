@@ -292,7 +292,6 @@ module.exports = React.createClass({
         var cellId = "cell_"+ this.gridId;
         if(result.action == 'repeat_on') {
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
-                console.log('repeat id : ', cellId)
                 var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
             },1000)

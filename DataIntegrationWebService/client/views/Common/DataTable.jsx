@@ -15,18 +15,22 @@ module.exports = React.createClass({
     },
     componentWillUnmount : function () {
     },
-    componentDidUpdate : function (nextProps) {
+    componentDidUpdate : function () {
         var dom = ReactDOM.findDOMNode(this.refs.GridControl);
-        this.refs.GridControl.setState({fields:nextProps.fields});
-        if(nextProps.updatable && nextProps.fields.length > 0) {
-            this.refs.UpdateControl.setState({fields:nextProps.fields});
+        this.refs.GridControl.setState({fields:this.state.fields});
+        if(this.state.updatable && this.state.fields.length > 0) {
+            this.refs.UpdateControl.setState({fields:this.state.fields});
         }
-        if(nextProps.fields.length > 0) {
-            this.refs.DataArea.setState({fields:nextProps.fields,data:nextProps.data});
+        if(this.state.fields.length > 0) {
+            this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
             this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - dom.offsetHeight + 'px';
             this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20  + 'px';
         }
+    },
+    componentWillReceiveProps : function(nextProps) {
+        this.state.fields = nextProps.fields;
+        this.state.data = nextProps.data;
     },
     getInitialState: function() {
 		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data,
