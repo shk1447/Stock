@@ -26,15 +26,17 @@ module.exports = React.createClass({
                 condition += "true";
                 return eval(condition);
             });
-            data = data.sort(function(a,b){
-                let compare01 = a[self.state.sort_field.text];
-                let compare02 = b[self.state.sort_field.text];
-                if(parseFloat(compare01)) {
-                    compare01 = parseFloat(compare01);
-                    compare02 = parseFloat(compare02);
-                }
-                return compare01 < compare02 ? (self.state.direction == "desc" ? 1 : -1) : compare01 > compare02 ? (self.state.direction == "desc" ? -1 : 1) : 0;
-            });
+            if(this.state.sort_field.text) {
+                data = data.sort(function(a,b){
+                    let compare01 = a[self.state.sort_field.text];
+                    let compare02 = b[self.state.sort_field.text];
+                    if(parseFloat(compare01)) {
+                        compare01 = parseFloat(compare01);
+                        compare02 = parseFloat(compare02);
+                    }
+                    return compare01 < compare02 ? (self.state.direction == "desc" ? 1 : -1) : compare01 > compare02 ? (self.state.direction == "desc" ? -1 : 1) : 0;
+                });
+            }
             var currentPage = pageCount > data.length ? data.length : page*pageCount;
             for(var i = ((page-1)*pageCount); i < currentPage; i++) {
                 let row = data[i];

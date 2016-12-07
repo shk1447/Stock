@@ -269,14 +269,15 @@ namespace Connector
 
             var fieldCreate = "COLUMN_CREATE(";
             var fieldsUpdate = "COLUMN_ADD(rawdata,";
-            var updateString = "COLUMN_ADD(rawdata,";
+            var currentUpdate = "COLUMN_ADD(rawdata,";
+            var pastUpdate = "COLUMN_ADD(rawdata,";
             foreach (var kv in lastRawData)
             {
                 var type = "text";
                 double doubleTemp;
                 DateTime datetimeTemp;
-                updateString = updateString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
-
+                currentUpdate = currentUpdate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+                pastUpdate = currentUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
                 if (double.TryParse(kv.Value.ToString(), out doubleTemp))
                     type = "number";
                 else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
@@ -286,11 +287,12 @@ namespace Connector
                 fieldsUpdate = fieldsUpdate + "\"" + kv.Key + "\",\"" + type + "\",";
             }
 
-            var updateQuery = updateString.Substring(0, updateString.Length - 1) + ")";
+            var updateQuery = currentUpdate.Substring(0, currentUpdate.Length - 1) + ")";
+            var pastUpdateQuery = pastUpdate.Substring(0, pastUpdate.Length - 1) + ")";
             var fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
             var fieldUpdateQuery = fieldsUpdate.Substring(0, fieldsUpdate.Length - 1) + ")";
 
-            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + ";";
+            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + pastUpdateQuery + ";";
             query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + updateQuery + ",unixtime = " + collectedDate + ";";
             query = query + fieldsQuery + "('" + category + "'," + fieldCreateQuery + ", " + collectedDate +
                     ") ON DUPLICATE KEY UPDATE rawdata = " + fieldUpdateQuery + " ,unixtime = " + collectedDate + ";";

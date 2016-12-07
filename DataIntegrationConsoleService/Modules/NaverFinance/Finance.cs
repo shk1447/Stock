@@ -87,11 +87,13 @@ namespace Finance
                             var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
                             var 종목유형 = k == 0 ? "코스피" : "코스닥";
                             var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
+                            var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
 
 
                             stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
                                                           new KeyValuePair<string, JsonValue>("name", 종목명),
-                                                          new KeyValuePair<string, JsonValue>("type", 종목유형)));
+                                                          new KeyValuePair<string, JsonValue>("type", 종목유형),
+                                                          new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
                         }
                     }
                 }
@@ -119,10 +121,12 @@ namespace Finance
                             var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
                             var 종목유형 = k == 0 ? "코스피" : "코스닥";
                             var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
+                            var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
 
                             stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
                                                           new KeyValuePair<string, JsonValue>("name", 종목명),
-                                                          new KeyValuePair<string, JsonValue>("type", 종목유형)));
+                                                          new KeyValuePair<string, JsonValue>("type", 종목유형),
+                                                          new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
                         }
                     }
                     Console.Write(".");
@@ -200,11 +204,11 @@ namespace Finance
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
                 var type = stock.Value["type"].ReadAs<string>();
-
+                var cnt = stock.Value["cnt"].ReadAs<string>();
+                
                 var nvParser = new nvParser(code);
                 var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ReadAs<string>()));
                 var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량" };
-
                 for (int s = siseInfo.Length - 7; s >= 0; s = s - 7)
                 {
                     var sise = new JsonDictionary();
@@ -213,6 +217,7 @@ namespace Finance
                     sise.Add("종목코드", code);
                     sise.Add("종목명", name);
                     sise.Add("종목유형", type);
+                    sise.Add("상장주식수", cnt);
                     sise.Add(columnInfo[0], siseUnix);
                     sise.Add(columnInfo[1], siseInfo[s + 1]);
                     sise.Add(columnInfo[2], siseInfo[s + 2]);
@@ -222,12 +227,11 @@ namespace Finance
                     sise.Add(columnInfo[6], siseInfo[s + 6]);
                     result.rawdata.Add(sise);
                 }
-
                 Task.Factory.StartNew(() =>
-                        {
-                            var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                        });
+                {
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                });
             }
 
             return true;
@@ -250,6 +254,7 @@ namespace Finance
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
                 var type = stock.Value["type"].ReadAs<string>();
+                var cnt = stock.Value["cnt"].ReadAs<string>();
                 var url = "http://companyinfo.stock.naver.com/v1/company/ajax/cF1001.aspx?cmp_cd={code}&fin_typ=0&freq_typ=Y";
 
                 var reqParam = new RequestParameter()
@@ -266,8 +271,9 @@ namespace Finance
                 var titleNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,'bg txt title')]");
                 var dateNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,' bg')]");
                 var dataNodes = doc.DocumentNode.SelectNodes("//td[contains(@class,'num')]");
-                
-                for(int i = 1; i < dateNodes.Count; i++)
+
+
+                for (int i = 1; i < dateNodes.Count; i++)
                 {
                     var finance = new JsonDictionary();
 
@@ -281,6 +287,7 @@ namespace Finance
                     finance.Add("종목코드", code);
                     finance.Add("종목유형", type);
                     finance.Add("종목명", name);
+                    finance.Add("상장주식수", cnt);
                     finance.Add("날짜", unixtime);
 
                     for (int j = 0; j < titleNodes.Count; j++)
@@ -298,7 +305,6 @@ namespace Finance
                     if (finance.GetDictionary().Keys.Count < 5) continue;
                     result.rawdata.Add(finance);
                 }
-
                 Task.Factory.StartNew(() =>
                 {
                     var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
@@ -327,10 +333,12 @@ namespace Finance
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
                 var type = stock.Value["type"].ReadAs<string>();
+                var cnt = stock.Value["cnt"].ReadAs<string>();
 
                 finance.Add("종목코드", code);
                 finance.Add("종목유형", type);
                 finance.Add("종목명", name);
+                finance.Add("상장주식수", cnt);
 
                 result.rawdata.Add(finance);
 
