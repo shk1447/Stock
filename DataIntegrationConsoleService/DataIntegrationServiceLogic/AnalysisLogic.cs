@@ -233,6 +233,7 @@ namespace DataIntegrationServiceLogic
                         {
                             Scheduler.ExecuteScheduler(TableName, analysisInfo["action_type"].ReadAs<string>(), whereKV, analysisInfo["schedule"], setDict, action);
                         }));
+                        if (scheduleThread.ContainsKey(name)) scheduleThread.Remove(name);
                         scheduleThread.Add(name, thread);
                         thread.Start();
                         break;

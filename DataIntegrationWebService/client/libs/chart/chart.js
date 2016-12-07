@@ -440,7 +440,8 @@ window.Chart = function(context) {
             unformatedLabelValue: a.labels[i]
         });
         if(l === "smart" && typeof xLabelWidth !== 'undefined') {
-            var smartShow = Math.floor(a.labels.length / (e.widthAtSetMeasures / (xLabelWidth+40)));
+            var test = xLabelWidth+60;
+            var smartShow = Math.floor(a.labels.length / (e.widthAtSetMeasures / test ));
             l = smartShow < 1 ? 1 : smartShow + 1;
         };
         return "number" == typeof l && (l = i >= t.firstLabelToShow - 1 && (i + t.firstLabelToShow - 1) % parseInt(l) == 0 ? !0 : !1), l

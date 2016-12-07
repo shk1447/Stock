@@ -128,7 +128,7 @@ module.exports = function () {
                     }
                 } else {
                     var tempText = this.text;
-                    this.ctx.font = this.font + "px Arial";
+                    this.ctx.font = this.font + "px Open Sans";
                     if(this.ctx.measureText(this.text).width > this.width) tempText = "....";
                     this.ctx.fillText(tempText, this.x + (this.width / 2), this.y + (this.height/2) + (this.font*1/2));
                 }
@@ -329,18 +329,18 @@ module.exports = function () {
             chart: {
                 canvasBackgroundColor: 'rgba(0,0,0,0)',
                 graphTitle: "",
-                graphTitleFontFamily: "'Arial'",
+                graphTitleFontFamily: "'Open Sans'",
                 graphTitleFontStyle: "normal normal",
                 graphTitleFontColor: "#ffffff",
                 graphTitleFontSize: 18,
                 graphSubTitle: "",
-                graphSubTitleFontFamily: "'Arial'",
+                graphSubTitleFontFamily: "'Open Sans'",
                 graphSubTitleFontStyle: "normal normal",
                 graphSubTitleFontColor: "#ffffff",
                 graphSubTitleFontSize: 12,
                 graphAlign : "left",
                 graphPosX : 50,
-                scaleFontFamily: "'Arial'",
+                scaleFontFamily: "'Open Sans'",
                 scaleFontStyle: "normal normal",
                 scaleFontColor: "#a8a0a8",
                 scaleFontSize: 11,
@@ -357,7 +357,7 @@ module.exports = function () {
                 scaleGridLineColor: "#575457",
                 yAxisUnit: "",
                 yAxisUnit2: "",
-                yAxisUnitFontFamily: "'Arial'",
+                yAxisUnitFontFamily: "'Open Sans'",
                 yAxisUnitFontStyle: "normal normal",
                 yAxisUnitFontColor: "#a8a0a8",
                 yAxisUnitFontSize: 11,
@@ -370,7 +370,7 @@ module.exports = function () {
                 yMinimum : "smart",
                 showXLabels: "smart",
                 rotateLabels: 0,//"smart",
-                legendFontFamily: "'Arial'",
+                legendFontFamily: "'Open Sans'",
                 legendFontStyle: "normal normal",
                 legendFontColor: "#ffffff",
                 legendFontSize: 12,
@@ -581,19 +581,19 @@ module.exports = function () {
                 },
                 annotateFunctionIn: function(a,b,c,d,e,f,g) { },
                 annotateFunctionOut: function(a,b,c,d,e,f,g,h) { },
-                annotatePadding: "5px 5px 5px 5px", annotateFontFamily: "'Arial'", annotateFontStyle: "normal normal", annotateFontColor: "rgba(0,0,0,1)", annotateFontSize: 11, annotateBorderRadius: "3px", annotateBorder: "2px rgba(170,170,170,0.7) solid ",
+                annotatePadding: "5px 5px 5px 5px", annotateFontFamily: "'Open Sans'", annotateFontStyle: "normal normal", annotateFontColor: "rgba(0,0,0,1)", annotateFontSize: 11, annotateBorderRadius: "3px", annotateBorder: "2px rgba(170,170,170,0.7) solid ",
                 annotateBackgroundColor: 'rgba(255,255,255,0.5)', annotateFontColor: "rgba(0,0,0,1)", annotateFunction: "mousemove", annotateRelocate: true,
                 legend: true, showSingleLegend: true, maxLegendCols: 5, legendBlockSize: 15, legendFillColor: 'rgba(255,255,255,0.00)', legendColorIndicatorStrokeWidth: 1, legendPosX: -2, legendPosY: 4, legendXPadding: 0, legendYPadding: 0,
                 legendBorders: false, legendBordersWidth: 1, legendBordersStyle: "solid", legendBordersColors: "rgba(102,102,102,1)", legendBordersSpaceBefore: 5, legendBordersSpaceLeft: 5, legendBordersSpaceRight: 5, legendBordersSpaceAfter: 5,
                 legendSpaceBeforeText: 5, legendSpaceLeftText: 5, legendSpaceRightText: 5, legendSpaceAfterText: 5, legendSpaceBetweenBoxAndText: 10, legendSpaceBetweenTextHorizontal: 50, legendSpaceBetweenTextVertical: 5,
-                xAxisLabel: "", xAxisFontFamily: "'Arial'", xAxisFontSize: 11, xAxisFontStyle: "normal normal", xAxisFontColor: "rgba(160,160,163,1)", xAxisLabelSpaceBefore: 5, xAxisLabelSpaceAfter: 5, xAxisSpaceBefore: 5,
+                xAxisLabel: "", xAxisFontFamily: "'Open Sans'", xAxisFontSize: 11, xAxisFontStyle: "normal normal", xAxisFontColor: "rgba(160,160,163,1)", xAxisLabelSpaceBefore: 5, xAxisLabelSpaceAfter: 5, xAxisSpaceBefore: 5,
                 xAxisSpaceAfter: 5, xAxisLabelBorders: false, xAxisLabelBordersColor: "white", xAxisLabelBordersXSpace: 3, xAxisLabelBordersYSpace: 3, xAxisLabelBordersWidth: 1, xAxisLabelBordersStyle: "solid", xAxisLabelBackgroundColor: "none",
-                yAxisLabel: "", yAxisLabel2: "", yAxisFontFamily: "'Arial'", yAxisFontStyle: "normal normal", yAxisFontColor: "rgba(160,160,163,1)", yAxisFontSize: 15, yAxisLabelSpaceRight: 0, yAxisLabelSpaceLeft: 0, yAxisSpaceRight: 0,
+                yAxisLabel: "", yAxisLabel2: "", yAxisFontFamily: "'Open Sans'", yAxisFontStyle: "normal normal", yAxisFontColor: "rgba(160,160,163,1)", yAxisFontSize: 15, yAxisLabelSpaceRight: 0, yAxisLabelSpaceLeft: 0, yAxisSpaceRight: 0,
                 yAxisSpaceLeft: 0, yAxisLabelBorders: !1, yAxisLabelBordersColor: "black", yAxisLabelBordersXSpace: 0, yAxisLabelBordersYSpace: 0, yAxisLabelBordersWidth: 1, yAxisLabelBordersStyle: "solid", yAxisLabelBackgroundColor: "none",
                 showYAxisMin: true, xAxisBottom: true,
                 graphTitleSpaceBefore: 5, graphTitleSpaceAfter: 5, graphTitleBorders: false, graphTitleBordersXSpace: 1, graphTitleBordersYSpace: 1, graphTitleBordersWidth: 3, graphTitleBordersStyle: "solid", graphTitleBordersColor: "rgba(255,255,255,1)",
                 graphSubTitleSpaceBefore: 5, graphSubTitleSpaceAfter: 5, graphSubTitleBorders: false, graphSubTitleBordersXSpace: 1, graphSubTitleBordersYSpace: 1, graphSubTitleBordersWidth: 3, graphSubTitleBordersStyle: "solid", graphSubTitleBordersColor: "rgba(255,255,255,1)",
-                pointLabelFontFamily: "'Arial'", pointLabelFontStyle: "normal normal", pointLabelFontColor: "rgba(102,102,102,1)", pointLabelFontSize: 12,
+                pointLabelFontFamily: "'Open Sans'", pointLabelFontStyle: "normal normal", pointLabelFontColor: "rgba(102,102,102,1)", pointLabelFontSize: 12,
                 pointDotStrokeStyle: "solid", pointDotStrokeWidth: 0, pointDotRadius: 4, pointDot: true,
                 angleShowLineOut: true, angleLineStyle: "solid", angleLineWidth: 1, angleLineColor: "rgba(0,0,0,0.1)",
                 segmentShowStroke: false, segmentStrokeStyle: "solid", segmentStrokeWidth: 2, segmentStrokeColor: "rgba(255,255,255,1.00)",

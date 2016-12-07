@@ -347,7 +347,7 @@ namespace DataIntegrationServiceLogic
                     var type = fieldInfo["types"][item_key].ReadAs<string>();
                     if(type == "number")
                     {
-                        query += "COLUMN_GET(`rawdata`,'" + item_key + "' as double) as `" + item_key + "`,";
+                        query += "AVG(COLUMN_GET(`rawdata`,'" + item_key + "' as double)) as `" + item_key + "`,";
                     }
                 }
             }
