@@ -15,14 +15,14 @@ module.exports = React.createClass({
     },
     componentWillUnmount : function () {
     },
-    componentDidUpdate : function () {
+    componentDidUpdate : function (nextProps) {
         var dom = ReactDOM.findDOMNode(this.refs.GridControl);
-        this.refs.GridControl.setState({fields:this.state.fields});
-        if(this.state.updatable && this.state.fields.length > 0) {
-            this.refs.UpdateControl.setState({fields:this.state.fields});
+        this.refs.GridControl.setState({fields:nextProps.fields});
+        if(nextProps.updatable && nextProps.fields.length > 0) {
+            this.refs.UpdateControl.setState({fields:nextProps.fields});
         }
-        if(this.state.fields.length > 0) {
-            this.refs.DataArea.setState({fields:this.state.fields,data:this.state.data});
+        if(nextProps.fields.length > 0) {
+            this.refs.DataArea.setState({fields:nextProps.fields,data:nextProps.data});
             this.refs.table_contents_container.style.width = this.refs.table_headers.offsetWidth + 'px';
             this.refs.table_headers_container.style.height = this.refs.table_headers_container.parentElement.offsetHeight - dom.offsetHeight + 'px';
             this.refs.table_contents_container.style.height = this.refs.table_headers_container.offsetHeight - this.refs.table_headers.offsetHeight - 20  + 'px';
@@ -92,15 +92,8 @@ module.exports = React.createClass({
         } else {
             field["sort"] = false;
         }
-        this.refs.DataArea.state.data.sort(function(a,b){
-            let compare01 = a[field.text];
-            let compare02 = b[field.text];
-            if(parseFloat(compare01)) {
-                compare01 = parseFloat(compare01);
-                compare02 = parseFloat(compare02);
-            }
-            return compare01 < compare02 ? (direction == "desc" ? 1 : -1) : compare01 > compare02 ? (direction == "desc" ? -1 : 1) : 0;
-        });
-        this.refs.DataArea.setState(this.refs.DataArea.state.data)
+        this.refs.DataArea.state.sort_field = field;
+        this.refs.DataArea.state.direction = direction;
+        this.refs.DataArea.setState(this.refs.DataArea.state)
     }
 });
