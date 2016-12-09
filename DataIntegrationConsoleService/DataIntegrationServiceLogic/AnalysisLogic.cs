@@ -274,7 +274,6 @@ namespace DataIntegrationServiceLogic
                     }
 
                     var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-
                     var setSource = new SetDataSourceReq()
                     {
                         rawdata = data,
@@ -282,8 +281,11 @@ namespace DataIntegrationServiceLogic
                         source = target_source,
                         collected_at = "날짜"
                     };
-                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    Task.Factory.StartNew(() =>
+                    {
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    });
                 }
             }
             else

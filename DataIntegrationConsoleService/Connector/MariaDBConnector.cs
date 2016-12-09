@@ -308,6 +308,7 @@ namespace Connector
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.Parameters.Add("@queryText", parameterValues.ToString());
                             }
+                            
                             using (var reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
@@ -668,7 +669,7 @@ namespace Connector
                         {
                             transaction.Rollback();
                             LogWriter.Error(ex.ToString());
-                            if(parameterValues != null) LogWriter.Error("[SET QUERY] " + parameterValues.ToString());
+                            //if(parameterValues != null) LogWriter.Error("[SET QUERY] " + parameterValues.ToString());
                             ret.Add("code", "400");
                             ret.Add("message", ex.Message);
                         }

@@ -14,7 +14,8 @@ namespace Connector
                                                     " `rawdata` BLOB NULL," +
                                                     " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
                                                     " PRIMARY KEY (`idx`)," +
-                                                    " UNIQUE INDEX `unique_columns` (`unixtime`,`category`)" +
+                                                    " UNIQUE INDEX `unique_columns` (`unixtime`,`category`)," +
+                                                    " INDEX `idx_columns` (`unixtime`,`category`)" +
                                                 " )" +
                                                 " COLLATE='utf8_general_ci'" +
                                                 " ENGINE=InnoDB;";
@@ -26,7 +27,7 @@ namespace Connector
                                                     " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
                                                     " PRIMARY KEY (`idx`)," +
                                                     " UNIQUE INDEX `unique_columns` (`category`)," +
-                                                    " INDEX `idx_columns` (`unixtime`)" +
+                                                    " INDEX `idx_columns` (`unixtime`,`category`)" +
                                                 " )" +
                                                 " COLLATE='utf8_general_ci'" +
                                                 " ENGINE=InnoDB;";

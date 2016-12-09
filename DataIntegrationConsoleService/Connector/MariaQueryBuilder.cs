@@ -19,32 +19,6 @@ namespace Connector
             return query;
         }
 
-        //public static string SelectQuery(string table, List<string> selectedItems, Dictionary<string, object> whereKV = null)
-        //{
-        //    var query = "SELECT ";
-
-        //    var count = 1;
-        //    foreach (var item in selectedItems)
-        //    {
-        //        var separator = count < selectedItems.Count ? ", " : "";
-        //        query = query + item + separator;
-        //        count++;
-        //    }
-        //    query = query + " FROM " + table;
-        //    if (whereKV != null)
-        //    {
-        //        query = query + " WHERE ";
-        //        count = 1;
-        //        foreach (var kv in whereKV)
-        //        {
-        //            var separator = count < whereKV.Keys.Count ? "AND " : "";
-        //            query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
-        //            count++;
-        //        }
-        //    }
-        //    return query + ";";
-        //}
-
         public static string SelectQuery(string table, List<string> selectedItems, JsonValue where = null)
         {
             var query = "SELECT ";
@@ -264,8 +238,9 @@ namespace Connector
                 var createQuery = JsonToColumnCreate(itemDict, ref lastRawData);
 
                 pastQuery = pastQuery + "(\"" + category + "\"," + createQuery + ", " + collectedDate + "),";
-                currentQuery = currentQuery + "(\"" + category + "\"," + createQuery + ", " + collectedDate + "),";
             }
+            var emptyDict = new Dictionary<string, object>();
+            currentQuery = currentQuery + "(\"" + category + "\"," + JsonToColumnCreate(lastRawData, ref emptyDict) + ", " + collectedDate + "),";
 
             var fieldCreate = "COLUMN_CREATE(";
             var fieldsUpdate = "COLUMN_ADD(rawdata,";
@@ -277,7 +252,7 @@ namespace Connector
                 double doubleTemp;
                 DateTime datetimeTemp;
                 currentUpdate = currentUpdate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
-                pastUpdate = currentUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
+                pastUpdate = pastUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
                 if (double.TryParse(kv.Value.ToString(), out doubleTemp))
                     type = "number";
                 else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
@@ -287,13 +262,13 @@ namespace Connector
                 fieldsUpdate = fieldsUpdate + "\"" + kv.Key + "\",\"" + type + "\",";
             }
 
-            var updateQuery = currentUpdate.Substring(0, currentUpdate.Length - 1) + ")";
-            var pastUpdateQuery = pastUpdate.Substring(0, pastUpdate.Length - 1) + ")";
+            var cuQuery = currentUpdate.Substring(0, currentUpdate.Length - 1) + ")";
+            var puQuery = pastUpdate.Substring(0, pastUpdate.Length - 1) + ")";
             var fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
             var fieldUpdateQuery = fieldsUpdate.Substring(0, fieldsUpdate.Length - 1) + ")";
 
-            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + pastUpdateQuery + ";";
-            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + updateQuery + ",unixtime = " + collectedDate + ";";
+            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + puQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
+            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + cuQuery + ",unixtime = " + collectedDate + ";";
             query = query + fieldsQuery + "('" + category + "'," + fieldCreateQuery + ", " + collectedDate +
                     ") ON DUPLICATE KEY UPDATE rawdata = " + fieldUpdateQuery + " ,unixtime = " + collectedDate + ";";
             return query;
@@ -313,7 +288,7 @@ namespace Connector
 
         public static string JsonToColumnCreate(Dictionary<string,object> jsonObj, ref Dictionary<string, object> lastData)
         {
-            var kvString = "COLUMN_CREATE(";
+            var kvString = "COLUMN_CREATE( ";
 
             foreach (var kv in jsonObj)
             {

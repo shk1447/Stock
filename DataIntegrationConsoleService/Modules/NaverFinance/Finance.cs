@@ -208,6 +208,7 @@ namespace Finance
                 
                 var nvParser = new nvParser(code);
                 var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ReadAs<string>()));
+                
                 var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량" };
                 for (int s = siseInfo.Length - 7; s >= 0; s = s - 7)
                 {
