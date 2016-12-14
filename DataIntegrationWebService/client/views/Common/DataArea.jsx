@@ -92,8 +92,31 @@ module.exports = React.createClass({
         this.props.executeItem(this.state.data[e.target.parentElement.parentElement.attributes.name.value]);
     },
     handleDoubleClickItem : function(e) {
-        var data = _.cloneDeep(this.state.data[e.target.parentElement.attributes.name.value]);
-        this.props.modify(data);
+        var self = this;
+        var {data} = this.state;
+        if(data && data.length > 0) {
+            data = data.filter(function(data){
+                let condition = '';
+                _.each(self.state.filters,function(row,i){
+                    condition += row + " && ";
+                });
+                condition += "true";
+                return eval(condition);
+            });
+            if(this.state.sort_field.text) {
+                data = data.sort(function(a,b){
+                    let compare01 = a[self.state.sort_field.text];
+                    let compare02 = b[self.state.sort_field.text];
+                    if(parseFloat(compare01)) {
+                        compare01 = parseFloat(compare01);
+                        compare02 = parseFloat(compare02);
+                    }
+                    return compare01 < compare02 ? (self.state.direction == "desc" ? 1 : -1) : compare01 > compare02 ? (self.state.direction == "desc" ? -1 : 1) : 0;
+                });
+            }
+        }
+        var result = _.cloneDeep(data[e.target.parentElement.attributes.name.value]);
+        this.props.modify(result);
     },
     handleClickItem : function(e) {
         if(e.ctrlKey) {
