@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Connector;
+using System.Diagnostics;
 
 namespace DataIntegrationServiceLogic
 {
@@ -347,12 +348,16 @@ namespace DataIntegrationServiceLogic
                     var type = fieldInfo["types"][item_key].ReadAs<string>();
                     if(type == "number")
                     {
-                        query += "AVG(COLUMN_GET(`rawdata`,'" + item_key + "' as double)) as `" + item_key + "`,";
+                        query += "COLUMN_GET(`rawdata`,'" + item_key + "' as double) as `" + item_key + "`,";
                     }
                 }
             }
-            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "' GROUP BY unixtime ASC";
+            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "';";
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+            sw.Stop();
+            Console.WriteLine("{0} data speed : {1} ms", res.Count, sw.ElapsedMilliseconds);
             return res.ToString();
         }
 

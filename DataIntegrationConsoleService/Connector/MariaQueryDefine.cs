@@ -15,7 +15,9 @@ namespace Connector
                                                     " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
                                                     " PRIMARY KEY (`idx`)," +
                                                     " UNIQUE INDEX `unique_columns` (`unixtime`,`category`)," +
-                                                    " INDEX `idx_columns` (`unixtime`,`category`)" +
+                                                    " INDEX `idx_columns` (`unixtime`,`category`)," +
+                                                    " INDEX `idx_category` (`category`)," +
+                                                    " INDEX `idx_unixtime` (`unixtime`)" +
                                                 " )" +
                                                 " COLLATE='utf8_general_ci'" +
                                                 " ENGINE=InnoDB;";
@@ -27,7 +29,9 @@ namespace Connector
                                                     " `unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)," +
                                                     " PRIMARY KEY (`idx`)," +
                                                     " UNIQUE INDEX `unique_columns` (`category`)," +
-                                                    " INDEX `idx_columns` (`unixtime`,`category`)" +
+                                                    " INDEX `idx_columns` (`unixtime`,`category`)," +
+                                                    " INDEX `idx_category` (`category`)," +
+                                                    " INDEX `idx_unixtime` (`unixtime`)" +
                                                 " )" +
                                                 " COLLATE='utf8_general_ci'" +
                                                 " ENGINE=InnoDB;";
@@ -82,7 +86,8 @@ namespace Connector
                                             "	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), " +
                                             "	PRIMARY KEY(`idx`), " +
                                             "	UNIQUE INDEX `unique_columns` (`member_id`), " +
-                                            "	INDEX `index_columns` (`member_name`,`unixtime`) " +
+                                            "	INDEX `index_member_name` (`member_name`), " +
+                                            "	INDEX `index_unixtime` (`unixtime`) " +
                                             ") " +
                                             "COLLATE='utf8_general_ci' " +
                                             "ENGINE=InnoDB; " +
@@ -112,7 +117,8 @@ namespace Connector
                                             "	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), " +
                                             "	PRIMARY KEY(`idx`), " +
                                             "	UNIQUE INDEX `unique_columns` (`name`), " +
-                                            "	INDEX `index_columns` (`target_source`, `unixtime`) " +
+                                            "	INDEX `index_target_source` (`target_source`), " +
+                                            "	INDEX `index_unixtime` (`unixtime`) " +
                                             ") " +
                                             "COLLATE='utf8_general_ci' " +
                                             "ENGINE=InnoDB; " +
@@ -128,7 +134,9 @@ namespace Connector
                                             "	`unixtime` TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), " +
                                             "	PRIMARY KEY(`idx`), " +
                                             "	UNIQUE INDEX `unique_columns` (`name`), " +
-                                            "	INDEX `index_columns` (`module_name`, `method_name`, `unixtime`) " +
+                                            "	INDEX `index_module_name` (`module_name`), " +
+                                            "	INDEX `index_method_name` (`method_name`), " +
+                                            "	INDEX `index_unixtime` (`unixtime`) " +
                                             ") " +
                                             "COLLATE='utf8_general_ci' " +
                                             "ENGINE=InnoDB;";
