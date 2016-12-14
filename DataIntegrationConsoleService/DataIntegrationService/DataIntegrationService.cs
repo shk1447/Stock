@@ -46,7 +46,7 @@ namespace DataIntegrationService
             SetDataSourceReq param = null;
             using (var streamReader = new StreamReader(stream))
             {
-                param = DataConverter.JsonToDictionary<SetDataSourceReq>(streamReader.ReadToEnd());
+                param = DataConverter.Deserializer<SetDataSourceReq>(streamReader.ReadToEnd());
             }
 
             var res = new SetDataSourceRes();
