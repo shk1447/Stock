@@ -51,7 +51,7 @@ namespace DataIntegrationService
 
             var res = new SetDataSourceRes();
 
-            if (param != null && !string.IsNullOrWhiteSpace(param.source) && !string.IsNullOrWhiteSpace(param.category))
+            if (param != null && param.rawdata != null && param.rawdata.Count > 0 && !string.IsNullOrWhiteSpace(param.source) && !string.IsNullOrWhiteSpace(param.category))
             {
                 var query = MariaQueryBuilder.SetDataSource(param);
                 MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", query);

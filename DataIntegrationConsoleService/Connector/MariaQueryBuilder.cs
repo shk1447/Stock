@@ -101,7 +101,6 @@ namespace Connector
             }
 
             query = query + columninfo.Substring(0, columninfo.Length - 1) + ") VALUES ";
-            var lastData = new Dictionary<string, object>();
             var updateQuery = " ON DUPLICATE KEY UPDATE ";
             var values = "(";
             foreach (var kv in row)
@@ -114,7 +113,7 @@ namespace Connector
                         if (kv.Value.GetType().Name == "JsonDictionary" || kv.Value.GetType().Name == "Object")
                         {
                             var test = kv.Value as JsonDictionary;
-                            value = JsonToColumnCreate(test.GetDictionary(), ref lastData);
+                            value = JsonToColumnCreate(test.GetDictionary());
                         }
                         else if (kv.Value.GetType().Name == "List`1")
                         {
@@ -220,57 +219,58 @@ namespace Connector
 
         public static string InsertSource(string source, string category, List<JsonDictionary> rawData, string collectedAt, string query)
         {
+            var categoryList = new List<string>();
             var fieldsQuery = "INSERT INTO fields_" + source + " (category, rawdata, unixtime) VALUES ";
             var currentQuery = "INSERT INTO current_" + source + " (category, rawdata, unixtime) VALUES ";
             var pastQuery = "INSERT INTO past_" + source + " (category, rawdata, unixtime) VALUES ";
             var collectedDate = "CURTIME(3)";
-            var lastRawData = new Dictionary<string, object>();
+            var duplicateQuery = string.Empty;
+            var fieldCreateQuery = string.Empty;
+            var dynamicCategory = string.Empty;
 
             foreach (var item in rawData)
             {
                 if (item == null) continue;
-                
+
+                var pastCreate = "COLUMN_CREATE(";
+                var fieldCreate = "COLUMN_CREATE(";
+                var duplicateUpdate = "COLUMN_ADD(rawdata,";
+
+                var last = new Dictionary<string, object>();
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
                 if (itemDict.ContainsKey(collectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[collectedAt].ToString() + ")";
-                if (itemDict.ContainsKey(category)) category = itemDict[category].ToString();
+                if (itemDict.ContainsKey(category)) dynamicCategory = itemDict[category].ToString();
+                else dynamicCategory = category;
 
-                var createQuery = JsonToColumnCreate(itemDict, ref lastRawData);
+                foreach (var kv in itemDict)
+                {
+                    var type = "text";
+                    double doubleTemp;
+                    DateTime datetimeTemp;
+                    if (double.TryParse(kv.Value.ToString(), out doubleTemp))
+                        type = "number";
+                    else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
+                        type = "datetime";
 
-                pastQuery = pastQuery + "(\"" + category + "\"," + createQuery + ", " + collectedDate + "),";
-            }
-            var emptyDict = new Dictionary<string, object>();
-            currentQuery = currentQuery + "(\"" + category + "\"," + JsonToColumnCreate(lastRawData, ref emptyDict) + ", " + collectedDate + "),";
+                    duplicateUpdate = duplicateUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
+                    fieldCreate = fieldCreate + "\"" + kv.Key + "\",\"" + type + "\",";
+                    pastCreate = pastCreate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+                }
 
-            var fieldCreate = "COLUMN_CREATE(";
-            var fieldsUpdate = "COLUMN_ADD(rawdata,";
-            var currentUpdate = "COLUMN_ADD(rawdata,";
-            var pastUpdate = "COLUMN_ADD(rawdata,";
-            foreach (var kv in lastRawData)
-            {
-                var type = "text";
-                double doubleTemp;
-                DateTime datetimeTemp;
-                currentUpdate = currentUpdate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
-                pastUpdate = pastUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
-                if (double.TryParse(kv.Value.ToString(), out doubleTemp))
-                    type = "number";
-                else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
-                    type = "datetime";
-                
-                fieldCreate = fieldCreate + "\"" + kv.Key + "\",\"" + type + "\",";
-                fieldsUpdate = fieldsUpdate + "\"" + kv.Key + "\",\"" + type + "\",";
+                duplicateQuery = duplicateUpdate.Substring(0, duplicateUpdate.Length - 1) + ")";
+                fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
+
+                pastCreate = pastCreate.Substring(0, pastCreate.Length - 1) + ")";
+                pastQuery = pastQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
+                currentQuery = currentQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
+                fieldsQuery = fieldsQuery + "(\"" + dynamicCategory + "\"," + fieldCreate + ", " + collectedDate + "),";
             }
 
-            var cuQuery = currentUpdate.Substring(0, currentUpdate.Length - 1) + ")";
-            var puQuery = pastUpdate.Substring(0, pastUpdate.Length - 1) + ")";
-            var fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
-            var fieldUpdateQuery = fieldsUpdate.Substring(0, fieldsUpdate.Length - 1) + ")";
-
-            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + puQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
-            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + cuQuery + ",unixtime = " + collectedDate + ";";
-            query = query + fieldsQuery + "('" + category + "'," + fieldCreateQuery + ", " + collectedDate +
-                    ") ON DUPLICATE KEY UPDATE rawdata = " + fieldUpdateQuery + " ,unixtime = " + collectedDate + ";";
+            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
+            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
+            query = query + fieldsQuery.Substring(0, fieldsQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
+            
             return query;
         }
 
@@ -286,22 +286,13 @@ namespace Connector
             return query;
         }
 
-        public static string JsonToColumnCreate(Dictionary<string,object> jsonObj, ref Dictionary<string, object> lastData)
+        public static string JsonToColumnCreate(Dictionary<string,object> jsonObj)
         {
             var kvString = "COLUMN_CREATE( ";
 
             foreach (var kv in jsonObj)
             {
                 kvString = kvString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
-
-                if (!lastData.ContainsKey(kv.Key))
-                {
-                    lastData.Add(kv.Key, kv.Value);
-                }
-                else
-                {
-                    lastData[kv.Key] = kv.Value;
-                }
             }
 
             kvString = kvString.Substring(0, kvString.Length - 1) + ")"; ;

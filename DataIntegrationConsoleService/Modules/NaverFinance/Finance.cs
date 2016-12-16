@@ -18,6 +18,7 @@ using Connector;
 using System.Json;
 using NaverFinance;
 using HtmlAgilityPack;
+using System.Diagnostics;
 
 namespace Finance
 {
@@ -189,6 +190,7 @@ namespace Finance
 
         private bool StockInformation(string collectionName)
         {
+            Console.WriteLine("{0} Collector Start : ",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
@@ -230,10 +232,14 @@ namespace Finance
                 }
                 Task.Factory.StartNew(() =>
                 {
-                    var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    if (result.rawdata.Count > 0)
+                    {
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
                 });
             }
+            Console.WriteLine("{0} Collector End : ", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
             return true;
         }
@@ -308,8 +314,11 @@ namespace Finance
                 }
                 Task.Factory.StartNew(() =>
                 {
-                    var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    if (result.rawdata.Count > 0)
+                    {
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
                 });
             }
 

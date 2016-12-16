@@ -10,6 +10,7 @@ using Connector;
 using Helper;
 using Model.Common;
 using Model.Request;
+using System.Diagnostics;
 
 namespace DataIntegrationServiceLogic
 {
@@ -254,6 +255,8 @@ namespace DataIntegrationServiceLogic
 
         private void ExecuteAnalysis(JsonValue analysis)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var analysis_name = analysis["name"].ReadAs<string>();
             var target_source = analysis["target_source"].ReadAs<string>();
             var analysis_query = analysis["analysis_query"].ReadAs<string>();
@@ -281,11 +284,11 @@ namespace DataIntegrationServiceLogic
                         source = target_source,
                         collected_at = "날짜"
                     };
-                    Task.Factory.StartNew(() =>
+                    if (setSource.rawdata.Count > 0)
                     {
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                    });
+                    }
                 }
             }
             else
@@ -306,9 +309,14 @@ namespace DataIntegrationServiceLogic
                     source = target_source,
                     collected_at = "날짜"
                 };
-                var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                if (setSource.rawdata.Count > 0)
+                {
+                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                }
             }
+            sw.Stop();
+            Console.WriteLine("analysis set speed : {0} ms", sw.ElapsedMilliseconds);
         }
     }
 }
