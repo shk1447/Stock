@@ -190,7 +190,7 @@ namespace Finance
 
         private bool StockInformation(string collectionName)
         {
-            Console.WriteLine("{0} Collector Start : ",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Console.WriteLine("{0} Collector Start : {1}",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
@@ -239,13 +239,14 @@ namespace Finance
                     }
                 });
             }
-            Console.WriteLine("{0} Collector End : ", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
             return true;
         }
 
         private bool FinanceInformation(string collectionName)
         {
+            Console.WriteLine("{0} Collector Start : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
@@ -321,7 +322,7 @@ namespace Finance
                     }
                 });
             }
-
+            Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             return true;
         }
 

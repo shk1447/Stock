@@ -31,25 +31,17 @@ namespace DataIntegrationServiceLogic
 
                     if (weekDays.Contains(nowWeekDay) && nowTime > start && nowTime < end)
                     {
-                        if (switchMode == "play") continue;
-                        action.BeginInvoke(switchMode, new AsyncCallback((result) =>
-                        {
-                            setDict["status"] = "spinner";
-                            statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
-                            MariaDBConnector.Instance.SetQuery(statusUpdate);
-                            switchMode = "spinner";
-                        }), null);
-                        if (switchMode != "spinner") switchMode = "play";
+                        action.DynamicInvoke(switchMode);
+                        switchMode = "play";
                     }
                     else
                     {
-                        if (switchMode == "spinner" || switchMode == "wait")
+                        if (switchMode != "wait")
                         {
                             setDict["status"] = "wait";
                             statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
                             MariaDBConnector.Instance.SetQuery(statusUpdate);
                         }
-
                         switchMode = "wait";
                     }
                     Thread.Sleep(interval);
@@ -57,12 +49,10 @@ namespace DataIntegrationServiceLogic
             }
             else
             {
-                action.BeginInvoke(switchMode, new AsyncCallback((result) =>
-                {
-                    setDict["status"] = "stop";
-                    statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
-                    MariaDBConnector.Instance.SetQuery(statusUpdate);
-                }), null);
+                action.DynamicInvoke(switchMode);
+                setDict["status"] = "stop";
+                statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
+                MariaDBConnector.Instance.SetQuery(statusUpdate);
             }
         }
     }

@@ -135,7 +135,7 @@ namespace DataIntegrationServiceLogic
 
             var status = moduleInfo["status"].ReadAs<string>().ToLower();
 
-            if (command != "stop" && (status == "play" || status == "wait" || status == "spinner"))
+            if (command != "stop" && (status == "play" || status == "wait"))
             {
                 res["code"] = 400; res["message"] = "fail";
                 return res.ToString();
@@ -146,7 +146,7 @@ namespace DataIntegrationServiceLogic
 
             var action = new Func<string, bool>((switchMode) =>
             {
-                if (switchMode == "wait" || switchMode == "spinner")
+                if (switchMode == "wait" || switchMode == "stop")
                 {
                     setDict["status"] = "play";
                     var statusUpdate = MariaQueryBuilder.UpdateQuery2(TableName, whereKV, setDict);

@@ -353,7 +353,7 @@ namespace DataIntegrationServiceLogic
                     }
                 }
             }
-            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "';";
+            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "' ORDER BY unixtime ASC;";
             Stopwatch sw = new Stopwatch();
             sw.Start();
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);

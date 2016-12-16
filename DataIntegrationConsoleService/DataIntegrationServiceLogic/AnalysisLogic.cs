@@ -213,13 +213,12 @@ namespace DataIntegrationServiceLogic
 
             var action = new Func<string, bool>((switchMode) =>
             {
-                if (switchMode == "wait" || switchMode == "spinner")
+                if (switchMode == "wait" || switchMode == "stop")
                 {
                     setDict["status"] = "play";
                     var statusUpdate = MariaQueryBuilder.UpdateQuery2(TableName, whereKV, setDict);
                     MariaDBConnector.Instance.SetQuery(statusUpdate);
                 }
-
                 this.ExecuteAnalysis(analysisInfo);
 
                 return true;
@@ -255,12 +254,11 @@ namespace DataIntegrationServiceLogic
 
         private void ExecuteAnalysis(JsonValue analysis)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             var analysis_name = analysis["name"].ReadAs<string>();
             var target_source = analysis["target_source"].ReadAs<string>();
             var analysis_query = analysis["analysis_query"].ReadAs<string>();
             var analysis_options = analysis["options"];
+            Console.WriteLine("{0} Analysis Start : {1}", analysis_name, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             if (analysis_query.Contains("{category}"))
             {
                 var categories_query = "SELECT category FROM current_" + target_source;
@@ -315,8 +313,7 @@ namespace DataIntegrationServiceLogic
                     MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                 }
             }
-            sw.Stop();
-            Console.WriteLine("analysis set speed : {0} ms", sw.ElapsedMilliseconds);
+            Console.WriteLine("{0} Analysis End : {1}", analysis_name, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }

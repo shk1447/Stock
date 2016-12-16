@@ -236,7 +236,6 @@ namespace Connector
                 var fieldCreate = "COLUMN_CREATE(";
                 var duplicateUpdate = "COLUMN_ADD(rawdata,";
 
-                var last = new Dictionary<string, object>();
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
                 if (itemDict.ContainsKey(collectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[collectedAt].ToString() + ")";
@@ -253,15 +252,15 @@ namespace Connector
                     else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
                         type = "datetime";
 
-                    duplicateUpdate = duplicateUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
                     fieldCreate = fieldCreate + "\"" + kv.Key + "\",\"" + type + "\",";
                     pastCreate = pastCreate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+                    duplicateUpdate = duplicateUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
                 }
 
                 duplicateQuery = duplicateUpdate.Substring(0, duplicateUpdate.Length - 1) + ")";
-                fieldCreateQuery = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
-
+                fieldCreate = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
                 pastCreate = pastCreate.Substring(0, pastCreate.Length - 1) + ")";
+
                 pastQuery = pastQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
                 currentQuery = currentQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
                 fieldsQuery = fieldsQuery + "(\"" + dynamicCategory + "\"," + fieldCreate + ", " + collectedDate + "),";
