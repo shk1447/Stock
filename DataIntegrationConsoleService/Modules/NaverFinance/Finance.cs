@@ -230,14 +230,14 @@ namespace Finance
                     sise.Add(columnInfo[6], siseInfo[s + 6]);
                     result.rawdata.Add(sise);
                 }
-                Task.Factory.StartNew(() =>
+                if (result.rawdata.Count > 0)
                 {
-                    if (result.rawdata.Count > 0)
+                    Task.Factory.StartNew(() =>
                     {
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                    }
-                });
+                    });
+                }
             }
             Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
@@ -313,14 +313,14 @@ namespace Finance
                     if (finance.GetDictionary().Keys.Count < 5) continue;
                     result.rawdata.Add(finance);
                 }
-                Task.Factory.StartNew(() =>
+                if (result.rawdata.Count > 0)
                 {
-                    if (result.rawdata.Count > 0)
+                    Task.Factory.StartNew(() =>
                     {
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                    }
-                });
+                    });
+                }
             }
             Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             return true;

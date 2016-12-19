@@ -330,7 +330,6 @@ namespace DataIntegrationServiceLogic
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
             return res.ToString();
-            //return "{}";
         }
 
         public string ExecuteItem(JsonValue jsonObj)

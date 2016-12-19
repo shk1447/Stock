@@ -275,17 +275,23 @@ namespace DataIntegrationServiceLogic
                     }
 
                     var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-                    var setSource = new SetDataSourceReq()
+                    if (data != null)
                     {
-                        rawdata = data,
-                        category = category,
-                        source = target_source,
-                        collected_at = "날짜"
-                    };
-                    if (setSource.rawdata.Count > 0)
-                    {
-                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        var setSource = new SetDataSourceReq()
+                        {
+                            rawdata = data,
+                            category = category,
+                            source = target_source,
+                            collected_at = "날짜"
+                        };
+                        if (setSource.rawdata.Count > 0)
+                        {
+                            Task.Factory.StartNew(() =>
+                            {
+                                var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                            });
+                        }
                     }
                 }
             }
@@ -299,18 +305,20 @@ namespace DataIntegrationServiceLogic
                 }
 
                 var data = MariaDBConnector.Instance.GetQuery("DynamicQueryExecuter", query);
-
-                var setSource = new SetDataSourceReq()
+                if (data != null)
                 {
-                    rawdata = data,
-                    category = "카테고리",
-                    source = target_source,
-                    collected_at = "날짜"
-                };
-                if (setSource.rawdata.Count > 0)
-                {
-                    var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                    MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    var setSource = new SetDataSourceReq()
+                    {
+                        rawdata = data,
+                        category = "카테고리",
+                        source = target_source,
+                        collected_at = "날짜"
+                    };
+                    if (setSource.rawdata.Count > 0)
+                    {
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
                 }
             }
             Console.WriteLine("{0} Analysis End : {1}", analysis_name, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
