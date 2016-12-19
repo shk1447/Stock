@@ -21,86 +21,89 @@ namespace Connector
 
         public static string SelectQuery(string table, List<string> selectedItems, JsonValue where = null)
         {
-            var query = "SELECT ";
+            var queryBuilder = new StringBuilder("SELECT ");
 
             var count = 1;
             foreach (var item in selectedItems)
             {
                 var separator = count < selectedItems.Count ? ", " : "";
-                query = query + item + separator;
+                queryBuilder.Append(item);
+                queryBuilder.Append(separator);
                 count++;
             }
-            query = query + " FROM " + table;
+            queryBuilder.Append(" FROM ");
+            queryBuilder.Append(table);
             if (where != null)
             {
-                query = query + " WHERE ";
+                queryBuilder.Append(" WHERE ");
                 count = 1;
                 foreach (var kv in where)
                 {
                     var separator = count < where.Count ? "AND " : "";
-                    query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() + "\" " + separator;
+                    queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value.ReadAs<string>()).Append("\" ").Append(separator);
                     count++;
                 }
             }
-            return query + ";";
+            return queryBuilder.Append(";").ToString();
         }
 
         public static string UpdateQuery(string table, Dictionary<string, object> whereKV, Dictionary<string, object> setKV)
         {
-            var query = "UPDATE " + table + " SET ";
+            var queryBuilder = new StringBuilder("UPDATE ");
+            queryBuilder.Append(table).Append(" SET ");
 
             var count = 1;
             foreach (var kv in setKV)
             {
                 var separator = count < setKV.Keys.Count ? ", " : "";
-                query = query + kv.Key + " = \"" + kv.Value + "\"" + separator;
+                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value).Append("\"").Append(separator);
                 count++;
             }
-            query = query + " WHERE ";
+            queryBuilder.Append(" WHERE ");
             count = 1;
             foreach (var kv in whereKV)
             {
                 var separator = count < whereKV.Keys.Count ? "AND " : "";
-                query = query + kv.Key + " = \"" + kv.Value + "\" " + separator;
+                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value).Append("\" ").Append(separator);
                 count++;
             }
-
-            return query;
+            return queryBuilder.Append(";").ToString();
         }
 
         public static string UpdateQuery2(string TableName, JsonValue whereKV, JsonValue setKV)
         {
-            var query = "UPDATE " + TableName + " SET ";
+            var queryBuilder = new StringBuilder("UPDATE ");
+            queryBuilder.Append(TableName).Append(" SET ");
 
             var count = 1;
             foreach (var kv in setKV)
             {
                 var separator = count < setKV.Count ? ", " : "";
-                query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() +"\"" + separator;
+                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value.ReadAs<string>()).Append("\"").Append(separator);
                 count++;
             }
-            query = query + " WHERE ";
+            queryBuilder.Append(" WHERE ");
             count = 1;
             foreach (var kv in whereKV)
             {
                 var separator = count < whereKV.Count ? "AND " : "";
-                query = query + kv.Key + " = \"" + kv.Value.ReadAs<string>() + "\" " + separator;
+                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value.ReadAs<string>()).Append("\" ").Append(separator);
                 count++;
             }
 
-            return query;
+            return queryBuilder.Append(";").ToString();
         }
 
         public static string UpsertQuery(string table, Dictionary<string, object> row, bool upsert = true)
         {
-            var query = "INSERT INTO " + table;
+            var queryBuilder = new StringBuilder("INSERT INTO ").Append(table);
             var columninfo = "(";
             foreach (var column in row)
             {
                 columninfo = columninfo + "`" + column.Key + "`,";
             }
 
-            query = query + columninfo.Substring(0, columninfo.Length - 1) + ") VALUES ";
+            queryBuilder.Append(columninfo.Substring(0, columninfo.Length - 1)).Append(") VALUES ");
             var updateQuery = " ON DUPLICATE KEY UPDATE ";
             var values = "(";
             foreach (var kv in row)
@@ -146,16 +149,17 @@ namespace Connector
                     updateQuery = updateQuery + kv.Key + " = " + value + ",";
                 }
             }
-            query = query + values.Substring(0, values.Length - 1) + ")";
+            queryBuilder.Append(values.Substring(0, values.Length - 1)).Append(")");
 
-            if(upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
+            if (upsert) queryBuilder.Append(updateQuery.Substring(0, updateQuery.Length - 1));
 
-            return query;
+            return queryBuilder.Append(";").ToString();
         }
 
         public static string UpsertQuery(string table, JsonValue row, bool upsert = true)
         {
-            var query = "INSERT INTO " + table;
+            var queryBuilder = new StringBuilder("INSERT INTO ").Append(table);
+            //var query = "INSERT INTO " + table;
             var values = "(";
             var columns = "(";
             var lastData = new Dictionary<string, object>();
@@ -170,80 +174,93 @@ namespace Connector
                 }
                 else if (kv.Value.JsonType == JsonType.Array || kv.Value.JsonType == JsonType.Object)
                 {
-                    value = CreateJsonColumn(kv.Value, string.Empty);
+                    value = CreateJsonColumn(kv.Value);
                 }
                 values = values + value + ",";
 
                 updateQuery = updateQuery + kv.Key + " = " + value + ",";
             }
 
-            query = query + columns.Substring(0, columns.Length - 1) + ") VALUES ";
-            query = query + values.Substring(0, values.Length - 1) + ")";
+            queryBuilder.Append(columns.Substring(0, columns.Length - 1)).Append(") VALUES ");
+            queryBuilder.Append(values.Substring(0, values.Length - 1)).Append(")");
 
-            if (upsert) query = query + updateQuery.Substring(0, updateQuery.Length - 1) + ";";
+            if (upsert) queryBuilder.Append(updateQuery.Substring(0, updateQuery.Length - 1));
 
-            return query;
+            return queryBuilder.Append(";").ToString();
         }
 
         public static string DeleteQuery(string table, JsonValue where)
         {
-            var query = "DELETE FROM " + table + " WHERE ";
+            var queryBuilder = new StringBuilder("DELETE FROM ").Append(table).Append(" WHERE ");
 
+            var count = 1;
             foreach (var kv in where)
             {
-                query = query + kv.Key + "='" + kv.Value.ReadAs<string>() + "' AND ";
+                var separator = count < where.Count ? "AND " : "";
+                queryBuilder.Append(kv.Key).Append("='").Append(kv.Value.ReadAs<string>()).Append("' ").Append(separator);
+                count++;
             }
 
-            query = query.Substring(0, query.Length - 4);
-
-            return query;
+            return queryBuilder.Append(";").ToString();
         }
 
-        private static string CreateJsonColumn(JsonValue json, string value)
+        private static string CreateJsonColumn(JsonValue json)
         {
-            value = "COLUMN_CREATE(";
+            var queryBuilder = new StringBuilder("COLUMN_CREATE(");
+
+            var count = 1;
             foreach (var kv in json)
             {
+                var separator = count < json.Count ? ", " : "";
                 if (kv.Value.JsonType == JsonType.String || kv.Value.JsonType == JsonType.Boolean || kv.Value.JsonType == JsonType.Number)
                 {
-                    value = value + "\"" + kv.Key + "\",\"" + kv.Value.ReadAs<string>() + "\",";
+                    queryBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(kv.Value.ReadAs<string>()).Append("\"").Append(separator);
                 }
                 else if (kv.Value.JsonType == JsonType.Array || kv.Value.JsonType == JsonType.Object)
                 {
-                    value = value + "\"" + kv.Key + "\"," + CreateJsonColumn(kv.Value, value) + ",";
+                    queryBuilder.Append("\"").Append(kv.Key).Append("\",").Append(CreateJsonColumn(kv.Value)).Append(separator);
                 }
+                count++;
             }
-            value = value.Substring(0, value.Length - 1) + ")"; ;
-            return value;
+            queryBuilder.Append(")");
+            return queryBuilder.ToString();
         }
 
         public static string InsertSource(string source, string category, List<JsonDictionary> rawData, string collectedAt, string query)
         {
             var categoryList = new List<string>();
-            var fieldsQuery = "INSERT INTO fields_" + source + " (category, rawdata, unixtime) VALUES ";
-            var currentQuery = "INSERT INTO current_" + source + " (category, rawdata, unixtime) VALUES ";
-            var pastQuery = "INSERT INTO past_" + source + " (category, rawdata, unixtime) VALUES ";
+            var resultQueryBuilder = new StringBuilder(query);
+
+            var pastQueryBuilder = new StringBuilder("INSERT INTO past_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
+            var fieldsQueryBuilder = new StringBuilder("INSERT INTO fields_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
+            var currentQueryBuilder = new StringBuilder("INSERT INTO current_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
+
             var collectedDate = "CURTIME(3)";
+
             var duplicateQuery = string.Empty;
-            var fieldCreateQuery = string.Empty;
             var dynamicCategory = string.Empty;
 
+            var row = 1;
             foreach (var item in rawData)
             {
                 if (item == null) continue;
 
-                var pastCreate = "COLUMN_CREATE(";
-                var fieldCreate = "COLUMN_CREATE(";
-                var duplicateUpdate = "COLUMN_ADD(rawdata,";
+                var rowSeparator = row < rawData.Count ? "," : "";
+
+                var dataCreateBuilder = new StringBuilder("COLUMN_CREATE(");
+                var fieldCreateBuilder = new StringBuilder("COLUMN_CREATE(");
+                var duplicateUpdateBuilder = new StringBuilder("COLUMN_ADD(rawdata,");
 
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
-                if (itemDict.ContainsKey(collectedAt)) collectedDate = "FROM_UNIXTIME(" + itemDict[collectedAt].ToString() + ")";
+                if (itemDict.ContainsKey(collectedAt)) collectedDate = new StringBuilder("FROM_UNIXTIME(").Append(itemDict[collectedAt].ToString()).Append(")").ToString();
                 if (itemDict.ContainsKey(category)) dynamicCategory = itemDict[category].ToString();
                 else dynamicCategory = category;
 
+                var cell = 1;
                 foreach (var kv in itemDict)
                 {
+                    var cellSeparator = cell < itemDict.Count ? "," : "";
                     var type = "text";
                     double doubleTemp;
                     DateTime datetimeTemp;
@@ -252,25 +269,35 @@ namespace Connector
                     else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
                         type = "datetime";
 
-                    fieldCreate = fieldCreate + "\"" + kv.Key + "\",\"" + type + "\",";
-                    pastCreate = pastCreate + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
-                    duplicateUpdate = duplicateUpdate + "\"" + kv.Key + "\",COLUMN_GET(VALUES(rawdata), \"" + kv.Key + "\" as char),";
+                    fieldCreateBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(type).Append("\"").Append(cellSeparator);
+                    dataCreateBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(kv.Value).Append("\"").Append(cellSeparator);
+                    duplicateUpdateBuilder.Append("\"").Append(kv.Key).Append("\",COLUMN_GET(VALUES(rawdata), \"").Append(kv.Key).Append("\" as char)").Append(cellSeparator);
+
+                    cell++;
                 }
 
-                duplicateQuery = duplicateUpdate.Substring(0, duplicateUpdate.Length - 1) + ")";
-                fieldCreate = fieldCreate.Substring(0, fieldCreate.Length - 1) + ")";
-                pastCreate = pastCreate.Substring(0, pastCreate.Length - 1) + ")";
+                dataCreateBuilder.Append(")");
+                fieldCreateBuilder.Append(")");
+                duplicateQuery = duplicateUpdateBuilder.Append(")").ToString();
 
-                pastQuery = pastQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
-                currentQuery = currentQuery + "(\"" + dynamicCategory + "\"," + pastCreate + ", " + collectedDate + "),";
-                fieldsQuery = fieldsQuery + "(\"" + dynamicCategory + "\"," + fieldCreate + ", " + collectedDate + "),";
+                pastQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
+                                              .Append(collectedDate).Append(")").Append(rowSeparator);
+                currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
+                                                 .Append(collectedDate).Append(")").Append(rowSeparator);
+                fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
+                                  .Append(collectedDate).Append(")").Append(rowSeparator);
+
+                row++;
             }
 
-            query = query + pastQuery.Substring(0, pastQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
-            query = query + currentQuery.Substring(0, currentQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
-            query = query + fieldsQuery.Substring(0, fieldsQuery.Length - 1) + " ON DUPLICATE KEY UPDATE rawdata = " + duplicateQuery + ",category = VALUES(category), unixtime=VALUES(unixtime);";
+            resultQueryBuilder.Append(pastQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
+                              .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
+            resultQueryBuilder.Append(currentQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
+                              .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
+            resultQueryBuilder.Append(fieldsQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
+                              .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
             
-            return query;
+            return resultQueryBuilder.ToString();
         }
 
         public static string CreateSourceTable(string source)
@@ -287,30 +314,33 @@ namespace Connector
 
         public static string JsonToColumnCreate(Dictionary<string,object> jsonObj)
         {
-            var kvString = "COLUMN_CREATE( ";
+            var queryBuilder = new StringBuilder("COLUMN_CREATE( ");
 
+            var count = 1;
             foreach (var kv in jsonObj)
             {
-                kvString = kvString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+                var separator = count < jsonObj.Count ? "," : "";
+                queryBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(kv.Value).Append("\"").Append(separator);
+                count++;
             }
+            queryBuilder.Append(")");
 
-            kvString = kvString.Substring(0, kvString.Length - 1) + ")"; ;
-
-            return kvString;
+            return queryBuilder.ToString();
         }
 
         public static string JsonToColumnAdd(Dictionary<string,object> jsonObj, string columnName)
         {
-            var kvString = "COLUMN_ADD(" + columnName + ",";
+            var queryBuilder = new StringBuilder("COLUMN_ADD(").Append(columnName).Append(",");
 
+            var count = 1;
             foreach (var kv in jsonObj)
             {
-                kvString = kvString + "\"" + kv.Key + "\",\"" + kv.Value + "\",";
+                var separator = count < jsonObj.Count ? "," : "";
+                queryBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(kv.Value).Append("\"").Append(separator);
             }
+            queryBuilder.Append(")");
 
-            kvString = kvString.Substring(0, kvString.Length - 1) + ")"; ;
-
-            return kvString;
+            return queryBuilder.ToString();
         }
 
         public static string GetDataStructure(List<JsonDictionary> listInfo)

@@ -214,16 +214,19 @@ namespace DataIntegrationServiceLogic
                 var view_source = view_type + "_" + options["view_source"].ReadAs<string>();
 
                 var query = string.Empty;
+                var queryBuilder = new StringBuilder();
                 if (view_type == "current")
                 {
-                    query = "SELECT * FROM (SELECT category,";
+                    queryBuilder.Append("SELECT * FROM (SELECT category,");
                     foreach (var field in view_fields)
                     {
                         var value = field.Value.ReadAs<string>();
-                        query += "column_get(`rawdata`, '" + value + "' as char) as `" + value + "`,";
+                        queryBuilder.Append("column_get(`rawdata`, '").Append(value).Append("' as char) as `").Append(value).Append("`,");
                     }
-                    query += "unixtime ";
-                    query += "FROM " + view_source + ") as result";
+                    queryBuilder.Append("unixtime ");
+                    queryBuilder.Append("FROM ").Append(view_source).Append(") as result");
+
+                    query = queryBuilder.ToString();
                 }
                 else
                 {
@@ -231,23 +234,24 @@ namespace DataIntegrationServiceLogic
                     var view_sampling = options["view_sampling"].ReadAs<string>();
                     var view_sampling_period = options["view_sampling_period"].ReadAs<string>();
 
-                    query = "SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ";
-                    var sampling_items = string.Empty;
+                    var sampling_items = new StringBuilder();
+                    queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
                     foreach (var field in view_fields)
                     {
                         var value = field.Value.ReadAs<string>();
-                        query += "column_get(`rawdata`, '" + value + "' as double) as `" + value + "`,";
-                        sampling_items += view_sampling + "(" + value + ") as `"+ value+"`,";
+                        queryBuilder.Append("column_get(`rawdata`, '").Append(value).Append("' as double) as `").Append(value).Append("`,");
+                        sampling_items.Append(view_sampling).Append("(`").Append(value).Append("`) as `").Append(value).Append("`,");
                     }
-                    query = query.Replace("{sampling_items}", sampling_items);
-                    query += "unixtime ";
-                    query += "FROM " + view_source + " WHERE category = '" + view_category + "') as result";
 
-                    if (view_sampling_period == "all") query += " GROUP BY unixtime ASC";
-                    else if (view_sampling_period == "day") query += " GROUP BY DATE(unixtime) ASC";
-                    else if (view_sampling_period == "week") query += " GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC";
-                    else if (view_sampling_period == "month") query += " GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC";
-                    else if (view_sampling_period == "year") query += " GROUP BY DATE_FORMAT(unixtime, '%Y') ASC";
+                    queryBuilder.Append("unixtime ").Append("FROM ").Append(view_source).Append(" WHERE category = '").Append(view_category).Append("') as result");
+
+                    if (view_sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
+                    else if (view_sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
+                    else if (view_sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
+                    else if (view_sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
+                    else if (view_sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
+
+                    query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
                 }
 
                 jsonObj["view_query"] = query;
@@ -269,16 +273,19 @@ namespace DataIntegrationServiceLogic
                 var view_source = view_type + "_" + options["view_source"].ReadAs<string>();
 
                 var query = string.Empty;
+                var queryBuilder = new StringBuilder();
                 if (view_type == "current")
                 {
-                    query = "SELECT * FROM (SELECT category,";
+                    queryBuilder.Append("SELECT * FROM (SELECT category,");
                     foreach (var field in view_fields)
                     {
                         var value = field.Value.ReadAs<string>();
-                        query += "column_get(`rawdata`, '" + value + "' as char) as `" + value + "`,";
+                        queryBuilder.Append("column_get(`rawdata`, '").Append(value).Append("' as char) as `").Append(value).Append("`,");
                     }
-                    query += "unixtime ";
-                    query += "FROM " + view_source + ") as result";
+                    queryBuilder.Append("unixtime ");
+                    queryBuilder.Append("FROM ").Append(view_source).Append(") as result");
+
+                    query = queryBuilder.ToString();
                 }
                 else
                 {
@@ -286,23 +293,23 @@ namespace DataIntegrationServiceLogic
                     var view_sampling = options["view_sampling"].ReadAs<string>();
                     var view_sampling_period = options["view_sampling_period"].ReadAs<string>();
 
-                    query = "SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ";
-                    var sampling_items = string.Empty;
+                    var sampling_items = new StringBuilder();
+                    queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
                     foreach (var field in view_fields)
                     {
                         var value = field.Value.ReadAs<string>();
-                        query += "column_get(`rawdata`, '" + value + "' as double) as `" + value + "`,";
-                        sampling_items += view_sampling + "(`" + value + "`) as `" + value + "`,";
+                        queryBuilder.Append("column_get(`rawdata`, '").Append(value).Append("' as double) as `").Append(value).Append("`,");
+                        sampling_items.Append(view_sampling).Append("(`").Append(value).Append("`) as `").Append(value).Append("`,");
                     }
-                    query = query.Replace("{sampling_items}", sampling_items);
-                    query += "unixtime ";
-                    query += "FROM " + view_source + " WHERE category = '" + view_category + "') as result";
+                    queryBuilder.Append("unixtime ").Append("FROM ").Append(view_source).Append(" WHERE category = '").Append(view_category).Append("') as result");
 
-                    if (view_sampling_period == "all") query += " GROUP BY unixtime ASC";
-                    else if (view_sampling_period == "day") query += " GROUP BY DATE(unixtime) ASC";
-                    else if (view_sampling_period == "week") query += " GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC";
-                    else if (view_sampling_period == "month") query += " GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC";
-                    else if (view_sampling_period == "year") query += " GROUP BY DATE_FORMAT(unixtime, '%Y') ASC";
+                    if (view_sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
+                    else if (view_sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
+                    else if (view_sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
+                    else if (view_sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
+                    else if (view_sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
+
+                    query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
                 }
 
                 jsonObj["view_query"] = query;
@@ -337,9 +344,9 @@ namespace DataIntegrationServiceLogic
             var source = jsonObj["source"].ReadAs<string>();
             var fields = jsonObj["fields"];
             var category = fields["category"].ReadAs<string>();
-            var fieldQuery = "SELECT column_json(rawdata) as `types` FROM fields_" + source + " WHERE category = '" + category + "'";
-            var fieldInfo = MariaDBConnector.Instance.GetJsonObject(fieldQuery);
-            var query = "SELECT ";
+            var fieldQuery = new StringBuilder("SELECT column_json(rawdata) as `types` FROM fields_").Append(source).Append(" WHERE category = '").Append(category).Append("'");
+            var fieldInfo = MariaDBConnector.Instance.GetJsonObject(fieldQuery.ToString());
+            var query = new StringBuilder("SELECT ");
             foreach(var field in fields)
             {
                 var item_key = field.Key;
@@ -348,14 +355,14 @@ namespace DataIntegrationServiceLogic
                     var type = fieldInfo["types"][item_key].ReadAs<string>();
                     if(type == "number")
                     {
-                        query += "COLUMN_GET(`rawdata`,'" + item_key + "' as double) as `" + item_key + "`,";
+                        query.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                     }
                 }
             }
-            query += "UNIX_TIMESTAMP(unixtime) as unixtime FROM past_" + source + " WHERE category = '" + category + "' ORDER BY unixtime ASC;";
+            query.Append("UNIX_TIMESTAMP(unixtime) as unixtime FROM past_").Append(source).Append(" WHERE category = '").Append(category).Append("' ORDER BY unixtime ASC;");
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query.ToString());
             sw.Stop();
             Console.WriteLine("{0} data speed : {1} ms", res.Count, sw.ElapsedMilliseconds);
             return res.ToString();

@@ -12,9 +12,9 @@ var cookies = require('browser-cookies');
 let rootElement = document.getElementById('contents');
 
 ReactDOM.render(<Router history = {browserHistory}>
-    <Route path="/" component = {App} />
+    <Route path="/" component = {App} onEnter={requireAuth} />
     <Route path="/Login" component={Login}/>
-    <Route path="/App" component = {App} >
+    <Route path="/App" component = {App} onEnter={requireAuth} >
         <Route path="DataViewer/DataView" component={DataView}></Route>
         <Route path="DataManager/Collection" component={Collection}/>
         <Route path="DataManager/Analysis" component={Analysis}/>
@@ -22,6 +22,11 @@ ReactDOM.render(<Router history = {browserHistory}>
     </Route>
 </Router>, rootElement);
 
+function requireAuth(nextState,replaceState) {
+    if(!sessionStorage['member_id']) {
+        replaceState('/login');
+    }
+}
 // $(window).unload(function() {
 //     cookies.erase('accessToken');
 // });
