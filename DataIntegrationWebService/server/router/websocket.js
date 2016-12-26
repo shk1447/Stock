@@ -8,27 +8,26 @@ module.exports = function (httpServer, config) {
   io.sockets.on('connection', function(socket){
     socket.on('fromclient', function(data){
       try {
-        var d = data; 
-        var ws = new WebSocket(config.url.wsUrl);
+        var d = data;
         var sendData = JSON.stringify(data);
+        var ws = new WebSocket(config.url.wsUrl + d.target);
         ws.binaryType = "arraybuffer";
         ws.on('open', function() {
           ws.send(sendData);
         });
         ws.on('message', function(message) {
           var msg;
-          var target = d.target.split('.');
-          if(target[1] == "download") {
+          if(d.method == "download") {
             msg = message;
           } else {
             msg = JSON.parse(message);
           }
-          modules[target[0]][target[1]](msg,d);
+          modules[d.target][d.method](msg,d);
           
           if(d.broadcast) {
-            io.sockets.emit(d.target, msg);
+            io.sockets.emit(d.target + "." + d.method, msg);
           } else {
-            socket.emit(d.target, msg);
+            socket.emit(d.target + "." + d.method, msg);
           }
           
           ws.close();

@@ -42,7 +42,7 @@ namespace DIWebSocket
 
             foreach (var service in services)
             {
-                method.MakeGenericMethod(service).Invoke(this.server, new object[] { "/" + service.Name });
+                method.MakeGenericMethod(service).Invoke(this.server, new object[] { "/" + service.Name.ToLower() });
             }
         }
 
