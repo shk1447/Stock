@@ -39,7 +39,7 @@ module.exports = React.createClass({
             }
         });
 
-        var data = {"broadcast":false,"target":"member.schema", "parameters":{}};
+        var data = {"broadcast":false,"target":"member","method":"schema", "parameters":{}};
         this.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
@@ -88,13 +88,13 @@ module.exports = React.createClass({
     },
     handleCreate: function(result) {
         if(result.action == 'insert') {
-            var data = {"broadcast":false,"target":"member.create", "parameters":result.data};
+            var data = {"broadcast":false,"target":"member", "method":"create", "parameters":result.data};
             this.socket.emit('fromclient', data);
         }
     },
     handleSubmit: function(e, serializedForm) {
         e.preventDefault();
-        var data = {"broadcast":false,"target":"member.access", "parameters":serializedForm};
+        var data = {"broadcast":false,"target":"member", "method":"access", "parameters":serializedForm};
         this.socket.emit('fromclient', data);
     },
     show : function(e,v) {

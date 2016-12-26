@@ -21,7 +21,7 @@ module.exports = React.createClass({
             self.setState({viewlist:data});
             _.each(self.state.gridInfo, function(value, id){
                 if (value.view_type != 'video') {
-                    var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[id].name},"cellId":id};
+                    var data = {"broadcast":false,"target":"view","method":"execute", "parameters":{"name":self.state.gridInfo[id].name},"cellId":id};
                     self.socket.emit('fromclient', data);
                 } else {
                     var viewInfo = self.state.viewlist.find(function(d){
@@ -57,7 +57,7 @@ module.exports = React.createClass({
             var blob = new Blob([dataView]);
             self.saveFile(blob);
         });
-        var data = {"broadcast":false,"target":"view.getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
+        var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
         self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
@@ -214,7 +214,7 @@ module.exports = React.createClass({
             
             this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
-                var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":this.state.gridInfo[cellId].name}};
+                var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}};
                 this.socket.emit('fromclient', data);
             } else {
                 var viewInfo = this.state.viewlist.find(function(d){
@@ -292,16 +292,16 @@ module.exports = React.createClass({
         var cellId = "cell_"+ this.gridId;
         if(result.action == 'repeat_on') {
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
-                var data = {"broadcast":false,"target":"view.execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
+                var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
             },1000)
         } else if (result.action == 'repeat_off') {
             clearInterval(self.state.gridInfo[cellId]["repeatInterval"]);
         } else if (result.action == 'download') {
-            var data = {"broadcast":false,"target":"view.download", "parameters":{name:self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id}};
+            var data = {"broadcast":false,"target":"view", "method":"download", "parameters":{name:self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
-            var data = {"broadcast":false,"target":"view.execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"], "fields":result.data}};
+            var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"], "fields":result.data}};
             this.socket.emit('fromclient', data);
         }
     },
