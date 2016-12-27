@@ -10,7 +10,7 @@ module.exports = function (httpServer, config) {
       try {
         var d = data;
         var sendData = JSON.stringify(data);
-        var ws = new WebSocket(config.url.wsUrl + d.target);
+        var ws = new WebSocket(config.url.wsUrl);
         ws.binaryType = "arraybuffer";
         ws.on('open', function() {
           ws.send(sendData);

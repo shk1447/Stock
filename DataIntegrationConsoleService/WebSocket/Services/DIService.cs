@@ -17,12 +17,12 @@ namespace DIWebSocket.Services
     {
         protected override void OnOpen()
         {
-            //Console.WriteLine("open socket");
+            Console.WriteLine("open socket");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            //Console.WriteLine("close socket");
+            Console.WriteLine("close socket");
         }
 
         protected override void OnMessage(MessageEventArgs e)
@@ -30,15 +30,16 @@ namespace DIWebSocket.Services
             var reqInfo = JsonValue.Parse(e.Data);
             byte[] file = null;
             var returnString = string.Empty;
-            var target = reqInfo["target"].ReadAs<string>().Split('.');
+            var target = reqInfo["target"].ReadAs<string>();
+            var method = reqInfo["method"].ReadAs<string>();
             bool isFile = false;
-            switch (target[0].ToLower())
+            switch (target.ToLower())
             {
                 #region Member
                 case "member":
                     {
                         var memberLogic = new MemberLogic();
-                        switch (target[1].ToLower())
+                        switch (method.ToLower())
                         {
                             case "schema":
                                 {
@@ -83,7 +84,7 @@ namespace DIWebSocket.Services
                 case "collection":
                     {
                         var collectionLogic = new CollectionLogic();
-                        switch (target[1].ToLower())
+                        switch (method.ToLower())
                         {
                             case "schema":
                                 {
@@ -124,7 +125,7 @@ namespace DIWebSocket.Services
                 case "analysis":
                     {
                         var analysisLogic = new AnalysisLogic();
-                        switch (target[1].ToLower())
+                        switch (method.ToLower())
                         {
                             case "schema":
                                 {
@@ -166,7 +167,7 @@ namespace DIWebSocket.Services
                 case "view":
                     {
                         var viewLogic = new ViewLogic();
-                        switch (target[1].ToLower())
+                        switch (method.ToLower())
                         {
                             case "schema":
                                 {

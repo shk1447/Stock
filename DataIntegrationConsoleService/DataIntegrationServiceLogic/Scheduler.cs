@@ -14,7 +14,7 @@ namespace DataIntegrationServiceLogic
         public static void ExecuteScheduler(string tableName, string action_type, JsonValue whereKV, JsonValue schedule, JsonValue setDict, Func<string, bool> action)
         {
             string statusUpdate = string.Empty;
-            var switchMode = "wait";
+            var switchMode = "stop";
             if (action_type == "schedule")
             {
                 var start = DateTime.Parse(schedule["start"].ReadAs<string>()).TimeOfDay;
