@@ -44,10 +44,6 @@ namespace Connector
                                         " FROM current_{source}) as result " +
                                         " GROUP BY result.column_list ";
 
-        public const string getStructureInformation = "SELECT '{source}' as `source`, category, CAST(COLUMN_LIST(rawdata) as char) as `items` " +
-                                                      "FROM current_{source} " +
-                                                      "GROUP BY category ";
-
         public const string CreateFunction = "CREATE FUNCTION `SPLIT_TEXT`(`x` LONGTEXT, `delim` VARCHAR(12), `pos` INT)" +
                                             "	RETURNS longtext CHARSET utf8" +
                                             "	LANGUAGE SQL" +

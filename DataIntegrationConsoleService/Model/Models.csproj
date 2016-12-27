@@ -46,38 +46,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\CodeMessage.cs" />
     <Compile Include="Common\DataSchema.cs" />
     <Compile Include="Common\FieldSchema.cs" />
     <Compile Include="Common\OptionsSchema.cs" />
-    <Compile Include="Request\GetCollectionModuleReq.cs" />
-    <Compile Include="Request\GetDataAnalysisReq.cs" />
-    <Compile Include="Request\GetDataSourceReq.cs" />
-    <Compile Include="Request\GetDataStructureReq.cs" />
-    <Compile Include="Request\GetDataViewReq.cs" />
     <Compile Include="Common\JsonDictionary.cs" />
-    <Compile Include="Request\SetCollectionModuleReq.cs" />
-    <Compile Include="Request\SetDataAnalysisReq.cs" />
-    <Compile Include="Response\Collection.cs" />
-    <Compile Include="Response\Collections.cs" />
-    <Compile Include="Response\ExecuteDataAnalysisRes.cs" />
-    <Compile Include="Response\GetDataAnalysisRes.cs" />
-    <Compile Include="Response\Member.cs" />
-    <Compile Include="Response\GetModuleStructureRes.cs" />
-    <Compile Include="Response\Members.cs" />
-    <Compile Include="Response\SetCollectionModuleRes.cs" />
     <Compile Include="Request\SetDataSourceReq.cs" />
-    <Compile Include="Request\SetDataViewReq.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Response\ExecuteCollectionModuleRes.cs" />
-    <Compile Include="Response\GetCollectionModuleRes.cs" />
-    <Compile Include="Response\GetDataSourceRes.cs" />
-    <Compile Include="Response\GetDataStructureRes.cs" />
-    <Compile Include="Response\GetDataViewRes.cs" />
-    <Compile Include="Response\SetDataAnalysisRes.cs" />
     <Compile Include="Response\SetDataSourceRes.cs" />
-    <Compile Include="Response\SetDataViewRes.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

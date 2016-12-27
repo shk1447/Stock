@@ -47,30 +47,7 @@ namespace Connector
             return queryBuilder.Append(";").ToString();
         }
 
-        public static string UpdateQuery(string table, Dictionary<string, object> whereKV, Dictionary<string, object> setKV)
-        {
-            var queryBuilder = new StringBuilder("UPDATE ");
-            queryBuilder.Append(table).Append(" SET ");
-
-            var count = 1;
-            foreach (var kv in setKV)
-            {
-                var separator = count < setKV.Keys.Count ? ", " : "";
-                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value).Append("\"").Append(separator);
-                count++;
-            }
-            queryBuilder.Append(" WHERE ");
-            count = 1;
-            foreach (var kv in whereKV)
-            {
-                var separator = count < whereKV.Keys.Count ? "AND " : "";
-                queryBuilder.Append(kv.Key).Append(" = \"").Append(kv.Value).Append("\" ").Append(separator);
-                count++;
-            }
-            return queryBuilder.Append(";").ToString();
-        }
-
-        public static string UpdateQuery2(string TableName, JsonValue whereKV, JsonValue setKV)
+        public static string UpdateQuery(string TableName, JsonValue whereKV, JsonValue setKV)
         {
             var queryBuilder = new StringBuilder("UPDATE ");
             queryBuilder.Append(TableName).Append(" SET ");
@@ -341,21 +318,6 @@ namespace Connector
             queryBuilder.Append(")");
 
             return queryBuilder.ToString();
-        }
-
-        public static string GetDataStructure(List<JsonDictionary> listInfo)
-        {
-            var indexing = 1;
-            var resultQuery = string.Empty;
-            foreach (JsonDictionary items in listInfo)
-            {
-                var source = items["TABLE_NAME"].ToString().Replace("current_", "");
-                resultQuery = resultQuery + MariaQueryDefine.getStructureInformation.Replace("{source}", source);
-                if (listInfo.Count != indexing)
-                    resultQuery = resultQuery + " UNION ALL ";
-                indexing++;
-            }
-            return resultQuery;
         }
     }
 }

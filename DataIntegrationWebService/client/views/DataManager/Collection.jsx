@@ -53,9 +53,6 @@ module.exports = React.createClass({
 
         var data = {"broadcast":false,"target":"collection", "method":"schema", "parameters":{}};
         self.socket.emit('fromclient', data);
-
-        var data = {"broadcast":false,"target":"collection", "method":"getlist", "parameters":{}};
-        self.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
         this.socket.disconnect();

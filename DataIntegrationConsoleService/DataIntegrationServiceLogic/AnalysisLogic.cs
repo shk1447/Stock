@@ -216,7 +216,7 @@ namespace DataIntegrationServiceLogic
                 if (switchMode == "wait" || switchMode == "stop")
                 {
                     setDict["status"] = "play";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery2(TableName, whereKV, setDict);
+                    var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
                     MariaDBConnector.Instance.SetQuery(statusUpdate);
                 }
                 this.ExecuteAnalysis(analysisInfo);
@@ -233,6 +233,7 @@ namespace DataIntegrationServiceLogic
                         {
                             Scheduler.ExecuteScheduler(TableName, analysisInfo["action_type"].ReadAs<string>(), whereKV, analysisInfo["schedule"], setDict, action);
                         }));
+
                         if (scheduleThread.ContainsKey(name)) scheduleThread.Remove(name);
                         scheduleThread.Add(name, thread);
                         thread.Start();
@@ -243,7 +244,7 @@ namespace DataIntegrationServiceLogic
                         scheduleThread[name].Abort();
                         scheduleThread.Remove(name);
                         setDict["status"] = "stop";
-                        var statusUpdate = MariaQueryBuilder.UpdateQuery2(TableName, whereKV, setDict);
+                        var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
                         MariaDBConnector.Instance.SetQuery(statusUpdate);
                         break;
                     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,8 +19,10 @@ namespace DataIntegrationConsoleService
 
         static void Main(string[] args)
         {
+            ThreadPool.SetMinThreads(64, 64);
+
             var appDomain = AppDomain.CurrentDomain;
-            
+
             appDomain.UnhandledException += appDomain_UnhandledException;
             Console.WriteLine("Database Initialize Start!");
             MariaDBConnector.Instance.ServerIp = ConfigurationManager.AppSettings["DatabaseIP"];

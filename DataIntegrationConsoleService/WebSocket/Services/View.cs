@@ -14,16 +14,17 @@ namespace DIWebSocket.Services
     {
         protected override void OnOpen()
         {
-            //Console.WriteLine("open socket");
+            Console.WriteLine("onOpen socket view");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            //Console.WriteLine("close socket");
+            Console.WriteLine("onClose socket view");
         }
 
         protected override void OnMessage(MessageEventArgs e)
         {
+            Console.WriteLine("onNessage socket view");
             var returnString = string.Empty;
             var reqInfo = JsonValue.Parse(e.Data);
             var target = reqInfo["method"].ReadAs<string>();

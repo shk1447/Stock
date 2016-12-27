@@ -39,7 +39,7 @@ namespace DataIntegrationServiceLogic
                         if (switchMode != "wait")
                         {
                             setDict["status"] = "wait";
-                            statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
+                            statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
                             MariaDBConnector.Instance.SetQuery(statusUpdate);
                         }
                         switchMode = "wait";
@@ -51,7 +51,7 @@ namespace DataIntegrationServiceLogic
             {
                 action.DynamicInvoke(switchMode);
                 setDict["status"] = "stop";
-                statusUpdate = MariaQueryBuilder.UpdateQuery2(tableName, whereKV, setDict);
+                statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
                 MariaDBConnector.Instance.SetQuery(statusUpdate);
             }
         }
