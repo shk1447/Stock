@@ -48,95 +48,102 @@ namespace Finance
 
         public void Initialize()
         {
-            string htmlCode = "";
-            var stock_json = new JsonArray();
-            Console.WriteLine("Initialize Stock List!");
-            for (int k = 0; k < 2; k++)
+            try
             {
-                var url = "http://finance.naver.com/sise/sise_market_sum.nhn?sosok={exchange}&page={pageNumber}";
-
-                var reqParam = new RequestParameter()
+                string htmlCode = "";
+                var stock_json = new JsonArray();
+                Console.WriteLine("Initialize Stock List!");
+                for (int k = 0; k < 2; k++)
                 {
-                    Url = url.Replace("{pageNumber}", "1").Replace("{exchange}", k.ToString()),
-                    ContentType = "text/html",
-                    EncodingOption = "Default",
-                    Method = "GET"
-                };
+                    var url = "http://finance.naver.com/sise/sise_market_sum.nhn?sosok={exchange}&page={pageNumber}";
 
-                htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
-
-                var lastPattern = "<td class=\"pgRR\"[^>]*>(.*?)</td>";
-                var lastMatches = Regex.Match(htmlCode, lastPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase);
-
-                var pagePattern = "page=(.*?)\"";
-                var page = Regex.Match(lastMatches.Value, pagePattern);
-                var lastNumber = int.Parse(page.Value.Replace("page=", "").Replace("\"", ""));
-
-                try
-                {
-                    MatchCollection tableMatches = Regex.Matches(WithoutComments(htmlCode), TablePattern, ExpressionOptions);
-                    string tableHtmlWithoutComments = WithoutComments(tableMatches[1].Value);
-                    MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
-                    foreach (Match rowMatch in rowMatches)
+                    var reqParam = new RequestParameter()
                     {
-                        if (!rowMatch.Value.Contains("<th"))
-                        {
-                            MatchCollection cellMatches = Regex.Matches(rowMatch.Value, CellPattern, ExpressionOptions);
+                        Url = url.Replace("{pageNumber}", "1").Replace("{exchange}", k.ToString()),
+                        ContentType = "text/html",
+                        EncodingOption = "Default",
+                        Method = "GET"
+                    };
 
-                            if (cellMatches.Count < 10) continue;
-                            
-                            var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
-                            var 종목유형 = k == 0 ? "코스피" : "코스닥";
-                            var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
-                            var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
-
-
-                            stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
-                                                          new KeyValuePair<string, JsonValue>("name", 종목명),
-                                                          new KeyValuePair<string, JsonValue>("type", 종목유형),
-                                                          new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-
-                for (int i = 2; i <= lastNumber; i++)
-                {
-                    reqParam.Url = url.Replace("{pageNumber}", i.ToString()).Replace("{exchange}", k.ToString());
                     htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
 
-                    MatchCollection tableMatches = Regex.Matches(WithoutComments(htmlCode), TablePattern, ExpressionOptions);
-                    string tableHtmlWithoutComments = WithoutComments(tableMatches[1].Value);
-                    MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
-                    foreach (Match rowMatch in rowMatches)
+                    var lastPattern = "<td class=\"pgRR\"[^>]*>(.*?)</td>";
+                    var lastMatches = Regex.Match(htmlCode, lastPattern, RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+                    var pagePattern = "page=(.*?)\"";
+                    var page = Regex.Match(lastMatches.Value, pagePattern);
+                    var lastNumber = int.Parse(page.Value.Replace("page=", "").Replace("\"", ""));
+
+                    try
                     {
-                        if (!rowMatch.Value.Contains("<th"))
+                        MatchCollection tableMatches = Regex.Matches(WithoutComments(htmlCode), TablePattern, ExpressionOptions);
+                        string tableHtmlWithoutComments = WithoutComments(tableMatches[1].Value);
+                        MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
+                        foreach (Match rowMatch in rowMatches)
                         {
-                            MatchCollection cellMatches = Regex.Matches(rowMatch.Value, CellPattern, ExpressionOptions);
+                            if (!rowMatch.Value.Contains("<th"))
+                            {
+                                MatchCollection cellMatches = Regex.Matches(rowMatch.Value, CellPattern, ExpressionOptions);
 
-                            if (cellMatches.Count < 10) continue;
+                                if (cellMatches.Count < 10) continue;
 
-                            var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
-                            var 종목유형 = k == 0 ? "코스피" : "코스닥";
-                            var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
-                            var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
+                                var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
+                                var 종목유형 = k == 0 ? "코스피" : "코스닥";
+                                var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
+                                var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
 
-                            stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
-                                                          new KeyValuePair<string, JsonValue>("name", 종목명),
-                                                          new KeyValuePair<string, JsonValue>("type", 종목유형),
-                                                          new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
+
+                                stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
+                                                              new KeyValuePair<string, JsonValue>("name", 종목명),
+                                                              new KeyValuePair<string, JsonValue>("type", 종목유형),
+                                                              new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
+                            }
                         }
                     }
-                    Console.Write(".");
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+
+                    for (int i = 2; i <= lastNumber; i++)
+                    {
+                        reqParam.Url = url.Replace("{pageNumber}", i.ToString()).Replace("{exchange}", k.ToString());
+                        htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
+
+                        MatchCollection tableMatches = Regex.Matches(WithoutComments(htmlCode), TablePattern, ExpressionOptions);
+                        string tableHtmlWithoutComments = WithoutComments(tableMatches[1].Value);
+                        MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
+                        foreach (Match rowMatch in rowMatches)
+                        {
+                            if (!rowMatch.Value.Contains("<th"))
+                            {
+                                MatchCollection cellMatches = Regex.Matches(rowMatch.Value, CellPattern, ExpressionOptions);
+
+                                if (cellMatches.Count < 10) continue;
+
+                                var 종목코드 = Regex.Match(cellMatches[1].Groups[1].ToString(), "code=(.*?)\"").Groups[1].ToString();
+                                var 종목유형 = k == 0 ? "코스피" : "코스닥";
+                                var 종목명 = Regex.Match(cellMatches[1].Groups[1].ToString(), "class=\"tltle\">(.*?)</a>").Groups[1].ToString();
+                                var 상장주식수 = cellMatches[7].Groups[1].Value.Replace(",", "") + "000";
+
+                                stock_json.Add(new JsonObject(new KeyValuePair<string, JsonValue>("code", 종목코드),
+                                                              new KeyValuePair<string, JsonValue>("name", 종목명),
+                                                              new KeyValuePair<string, JsonValue>("type", 종목유형),
+                                                              new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
+                            }
+                        }
+                        Console.Write(".");
+                    }
                 }
+                Console.WriteLine("");
+                var resultPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory);
+                System.IO.File.WriteAllText(Path.Combine(resultPath, "stocklist.json"), stock_json.ToString());
+                Console.WriteLine("Complete Stock List!");
             }
-            Console.WriteLine("");
-            var resultPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory);
-            System.IO.File.WriteAllText(Path.Combine(resultPath, "stocklist.json"), stock_json.ToString());
-            Console.WriteLine("Complete Stock List!");
+            catch
+            {
+                Console.WriteLine("Fail Stock List!");
+            }
         }
 
         public void SetConfig(string method, JsonValue config)
