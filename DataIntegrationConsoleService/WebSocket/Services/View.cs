@@ -72,7 +72,7 @@ namespace DIWebSocket.Services
                 case "download":
                     {
                         isFile = true;
-                        file = viewLogic.Download(reqInfo["parameters"]);
+                        returnString = viewLogic.Download(reqInfo["parameters"]);
                         break;
                     }
             }

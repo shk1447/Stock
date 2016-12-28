@@ -4,6 +4,7 @@ using System.IO;
 using System.Json;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DataIntegrationServiceLogic;
 using Helper;
@@ -27,12 +28,15 @@ namespace DIWebSocket.Services
 
         protected override void OnMessage(MessageEventArgs e)
         {
+            var result = new JsonObject();
             var reqInfo = JsonValue.Parse(e.Data);
-            byte[] file = null;
-            var returnString = string.Empty;
+            foreach (var item in reqInfo)
+            {
+                result.Add(new KeyValuePair<string, JsonValue>(item.Key, item.Value));
+            }
+            JsonValue returnString = string.Empty;
             var target = reqInfo["target"].ReadAs<string>();
             var method = reqInfo["method"].ReadAs<string>();
-            bool isFile = false;
             switch (target.ToLower())
             {
                 #region Member
@@ -48,26 +52,23 @@ namespace DIWebSocket.Services
                                 }
                             case "access":
                                 {
-                                    var result = memberLogic.Access(reqInfo["parameters"]);
-                                    returnString = result;
+
+                                    returnString = memberLogic.Access(reqInfo["parameters"]);
                                     break;
                                 }
                             case "getlist":
                                 {
-                                    var result = memberLogic.GetList();
-                                    returnString = result;
+                                    returnString = memberLogic.GetList();
                                     break;
                                 }
                             case "create":
                                 {
-                                    var result = memberLogic.Create(reqInfo["parameters"]);
-                                    returnString = result;
+                                    returnString = memberLogic.Create(reqInfo["parameters"]);
                                     break;
                                 }
                             case "modify":
                                 {
-                                    var result = memberLogic.Modify(reqInfo["parameters"]);
-                                    returnString = result;
+                                    returnString = memberLogic.Modify(reqInfo["parameters"]);
                                     break;
                                 }
                             case "delete":
@@ -129,8 +130,7 @@ namespace DIWebSocket.Services
                         {
                             case "schema":
                                 {
-                                    var result = analysisLogic.Schema();
-                                    returnString = result;
+                                    returnString = analysisLogic.Schema();
                                     break;
                                 }
                             case "getlist":
@@ -206,8 +206,7 @@ namespace DIWebSocket.Services
                                 }
                             case "download":
                                 {
-                                    isFile = true;
-                                    file = viewLogic.Download(reqInfo["parameters"]);
+                                    returnString = viewLogic.Download(reqInfo["parameters"]);
                                     break;
                                 }
                         }
@@ -215,14 +214,9 @@ namespace DIWebSocket.Services
                     }
                 #endregion
             }
-            if (isFile)
-            {
-                this.Send(file);
-            }
-            else
-            {
-                this.Send(returnString);
-            }
+            
+            result.Add(new KeyValuePair<string, JsonValue>("result", returnString));
+            this.Send(result.ToString());
         }
     }
 }

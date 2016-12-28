@@ -11,7 +11,6 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var self = this;
-        self.socket = io.connect();
         self.socket.on('analysis.schema',function(data){
             self.refs.AnalysisTable.setState({fields:data})
             var data = {"broadcast":false,"target":"analysis", "method":"getlist", "parameters":{}};
@@ -61,6 +60,7 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
+        this.socket = io.connect();
 		return {data:[],fields:[],filters:[]};
 	},
     render : function () {

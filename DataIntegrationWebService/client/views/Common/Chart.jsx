@@ -50,7 +50,6 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             var chartControl = <Button.Group basic size='mini'>
                 <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
-                <Button icon='download' onClick={this.downloadItem} />
                 <Button icon='settings' onClick={this.handleChartSetting} />
             </Button.Group>
         }

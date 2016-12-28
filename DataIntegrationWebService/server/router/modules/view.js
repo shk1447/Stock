@@ -27,7 +27,7 @@ module.exports = {
     execute_item : function(data){
         return data;
     },
-    download : function(data){
+    download : function(data,req){
         return data;
     }
 };

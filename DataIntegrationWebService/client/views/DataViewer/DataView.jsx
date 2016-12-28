@@ -14,8 +14,7 @@ module.exports = React.createClass({
     componentDidMount : function() {
         var self = this;
         this.$ViewList = $(ReactDOM.findDOMNode(this.refs.ViewList));
-        
-        self.socket = io.connect();
+
         self.socket.on('view.getlist', function(data) {
             self.state.viewlist = data;
             self.setState({viewlist:data});
@@ -53,7 +52,8 @@ module.exports = React.createClass({
             ReactDOM.render(contents, self.refs[cellId]);
         });
         self.socket.on('view.download', function(response) {
-            var dataView = new DataView(response);
+            var arr = new Uint8Array(response);
+            var dataView = new DataView(arr);
             var blob = new Blob([dataView]);
             self.saveFile(blob);
         });
@@ -68,6 +68,7 @@ module.exports = React.createClass({
         sessionStorage["last_view"] = JSON.stringify(this.state);
     },
     getInitialState: function() {
+        this.socket = io.connect();
         let init_state = {activeItem : '',viewlist:[], data:[],fields:[],contextVisible:false,gridType:1,gridInfo:{}};
         if(sessionStorage["last_view"]) {
             init_state = _.extend(init_state, JSON.parse(sessionStorage.last_view));
@@ -214,7 +215,7 @@ module.exports = React.createClass({
             
             this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
-                var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}};
+                var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}, "cellId":cellId};
                 this.socket.emit('fromclient', data);
             } else {
                 var viewInfo = this.state.viewlist.find(function(d){

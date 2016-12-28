@@ -11,7 +11,6 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var self = this;
-        self.socket = io.connect();
         self.socket.on('view.schema',function(data){
             self.refs.ViewTable.setState({fields:data})
             var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
@@ -57,6 +56,7 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
+        this.socket = io.connect();
 		return {data:[],fields:[],filters:[]};
 	},
     render : function () {

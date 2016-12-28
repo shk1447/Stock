@@ -171,6 +171,7 @@ namespace DataIntegrationServiceLogic
                         if (scheduleThread.ContainsKey(name)) scheduleThread.Remove(name);
                         scheduleThread.Add(name, thread);
                         thread.Start();
+                        Thread.Sleep(100);
                         break;
                     }
                 case "stop":

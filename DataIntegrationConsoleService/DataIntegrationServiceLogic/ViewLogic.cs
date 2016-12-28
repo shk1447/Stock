@@ -368,7 +368,7 @@ namespace DataIntegrationServiceLogic
             return res.ToString();
         }
 
-        public byte[] Download(JsonValue jsonValue)
+        public string Download(JsonValue jsonValue)
         {
             var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]).Replace(@"\", "/");
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
@@ -379,7 +379,7 @@ namespace DataIntegrationServiceLogic
             MariaDBConnector.Instance.SetQuery(outFileQuery);
             var result = File.ReadAllBytes(filePath);
             File.Delete(filePath);
-            return result;
+            return Encoding.UTF8.GetString(result);
         }
     }
 }
