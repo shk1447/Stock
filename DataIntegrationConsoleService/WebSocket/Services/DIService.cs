@@ -214,7 +214,7 @@ namespace DIWebSocket.Services
                     }
                 #endregion
             }
-            
+
             result.Add(new KeyValuePair<string, JsonValue>("result", returnString));
             this.Send(result.ToString());
         }

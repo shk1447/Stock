@@ -22,6 +22,8 @@ using SourceModuleManager;
 using Helper;
 using Model.Common;
 using System.ServiceModel.Channels;
+using System.Json;
+using DataIntegrationServiceLogic;
 
 
 namespace DataIntegrationService
@@ -65,6 +67,23 @@ namespace DataIntegrationService
             }
 
             return res;
+        }
+
+        public CommonResponse ViewExecute(ViewExecuteReq req)
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var result = new CommonResponse();
+
+            var jsonObj = new JsonObject(new KeyValuePair<string, JsonValue>("name", req.name), new KeyValuePair<string, JsonValue>("member_id", req.member_id));
+
+            var viewLogic = new ViewLogic();
+            result.code = "200"; result.message = viewLogic.Execute(jsonObj);
+
+            return result;
         }
 
         #endregion

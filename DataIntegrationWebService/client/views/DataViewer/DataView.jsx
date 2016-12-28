@@ -57,8 +57,11 @@ module.exports = React.createClass({
             var blob = new Blob([dataView]);
             self.saveFile(blob);
         });
-        var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-        self.socket.emit('fromclient', data);
+
+        self.socket.on('connected', function() {
+            var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
+            self.socket.emit('fromclient', data);
+        });
     },
     componentWillUnmount : function () {
         this.socket.disconnect();
@@ -293,7 +296,7 @@ module.exports = React.createClass({
         var cellId = "cell_"+ this.gridId;
         if(result.action == 'repeat_on') {
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
-                var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
+                var data = {"protocol":"http", "broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
             },10000)
         } else if (result.action == 'repeat_off') {

@@ -52,6 +52,8 @@
     <Compile Include="Common\JsonDictionary.cs" />
     <Compile Include="Request\SetDataSourceReq.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Request\ViewExecuteReq.cs" />
+    <Compile Include="Response\CommonResponse.cs" />
     <Compile Include="Response\SetDataSourceRes.cs" />
   </ItemGroup>
   <ItemGroup />

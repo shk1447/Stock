@@ -18,5 +18,9 @@ namespace DataIntegrationService
         [OperationContract]
         [WebInvoke(Method = "POST", UriTemplate = "SetDataSource", ResponseFormat = WebMessageFormat.Json)]
         SetDataSourceRes SetDataSource(Stream stream);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "View/Execute", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        CommonResponse ViewExecute(ViewExecuteReq req);
     }
 }
