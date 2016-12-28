@@ -67,7 +67,8 @@ module.exports = React.createClass({
         const {data,fields,filters} = this.state;
         return (
             <div style={{height:document.documentElement.offsetHeight - 200 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
-                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable executeItem={this.executeCollection} callback={this.callbackCollection}/>
+                <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable repeatable={false}
+                           executeItem={this.executeCollection} callback={this.callbackCollection}/>
                 <MessageBox ref='alert_messagebox' />
             </div>
         )

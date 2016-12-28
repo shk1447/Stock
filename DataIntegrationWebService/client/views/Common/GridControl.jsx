@@ -11,19 +11,22 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {repeat:false, active:this.props.active, fields:this.props.fields};
+		return {repeat:false, active:this.props.active, fields:this.props.fields, repeatable:this.props.repeatable};
 	},
     render : function () {
         var self = this;
-        const { fields, active } = this.state;
+        const { fields, active, repeatable } = this.state;
+        var repeatBtn;
+        if(repeatable) {
+            repeatBtn = <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>;
+        }
         return (
             <div style={{float:'right',padding:'8px'}}>
                 <Button.Group basic size='mini'>
                     <Button icon='search' onClick={this.show}/>
                     <Button icon='chevron left' onClick={function(){self.props.action('prev')}}/>
                     <Button icon='chevron right' onClick={function(){self.props.action('next')}}/>
-                    <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
-                    <Button icon='settings' />
+                    {repeatBtn}
                 </Button.Group>
                 <ModalForm ref='ModalForm' action={'search'} size={'large'} title={'SEARCHER'} active={active} fields={_.cloneDeep(fields)} callback={this.handleSearch}/>
             </div>

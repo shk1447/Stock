@@ -34,7 +34,7 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
 		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data,
-                searchable: this.props.searchable, updatable : this.props.updatable };
+                searchable: this.props.searchable, updatable : this.props.updatable, repeatable : this.props.repeatable };
 	},
     render : function () {
         var self = this;
@@ -49,7 +49,7 @@ module.exports = React.createClass({
         if(this.state.updatable && fields.length > 0) {
             var updateControl = <UpdateControl ref='UpdateControl' title={title} fields={fields} active={false} callback={this.props.callback}/>;
         }
-        var gridControl = <GridControl ref='GridControl' active={false} fields={fields} action={this.handlePagination}/>;
+        var gridControl = <GridControl ref='GridControl' repeatable={this.props.repeatable} active={false} fields={fields} action={this.handlePagination}/>;
         
         return (
             <div style={{height:'100%', width:'100%'}}>

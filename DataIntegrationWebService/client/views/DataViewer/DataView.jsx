@@ -40,7 +40,7 @@ module.exports = React.createClass({
                 var contents = <Chart title={cellInfo["name"]} data={response.data} fields={response.fields}
                                       action={self.callbackDataView} />;
             } else if(cellInfo["view_type"] =='current') {
-                var contents = <DataTable title={'DataView'} data={response.data} filters={[]}
+                var contents = <DataTable title={'DataView'} data={response.data} filters={[]} repeatable={true}
                                           fields={response.fields} searchable callback={self.callbackDataView}/>;
             }
             ReactDOM.render(contents, self.refs[cellId]);
@@ -295,7 +295,7 @@ module.exports = React.createClass({
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
                 var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
-            },1000)
+            },10000)
         } else if (result.action == 'repeat_off') {
             clearInterval(self.state.gridInfo[cellId]["repeatInterval"]);
         } else if (result.action == 'download') {

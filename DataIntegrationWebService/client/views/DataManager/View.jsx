@@ -63,7 +63,7 @@ module.exports = React.createClass({
         const {data,fields,filters} = this.state;
         return (
             <div style={{height:document.documentElement.offsetHeight - 200 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
-                <DataTable ref='ViewTable' key={'view'} data={data} fields={fields} filters={filters} updatable callback={this.callbackView}/>
+                <DataTable ref='ViewTable' key={'view'} data={data} fields={fields} filters={filters} updatable repeatable={false} callback={this.callbackView}/>
                 <MessageBox ref='alert_messagebox' />
             </div>
         )
