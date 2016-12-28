@@ -26,6 +26,11 @@ namespace DataIntegrationService
 
         public DataIntegrationServiceStarter(string serviceUrl)
         {
+            ServicePointManager.UseNagleAlgorithm = true;
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.CheckCertificateRevocationList = true;
+            ServicePointManager.DefaultConnectionLimit = 10000;
+
             var restHost = new WebServiceHost(typeof(DataIntegrationService), new Uri(serviceUrl));
 
             var webHttpBinding = new WebHttpBinding()
