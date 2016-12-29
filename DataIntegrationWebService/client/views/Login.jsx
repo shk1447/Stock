@@ -13,7 +13,6 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var self = this;
-        self.socket = io.connect();
         self.socket.on('member.schema',function(data){
             self.refs.ModalForm.setState({fields:data})
         });
@@ -38,9 +37,10 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE MEMBER)',message:data.message, active : true})
             }
         });
-
-        var data = {"broadcast":false,"target":"member","method":"schema", "parameters":{}};
-        this.socket.emit('fromclient', data);
+        self.socket.on('connected', function() {
+            var data = {"broadcast":false,"target":"member","method":"schema", "parameters":{}};
+            self.socket.emit('fromclient', data);
+        });
     },
     componentWillUnmount : function () {
         this.socket.disconnect();
@@ -49,6 +49,7 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
+        this.socket = io.connect();
 		return {};
 	},
     render : function () {

@@ -94,6 +94,5 @@ module.exports = React.createClass({
     executeCollection : function(item) {
         var data = {"broadcast":false,"target":"collection", "method":"execute", "parameters":{name:item.name,command:item.status == 'stop' ? 'start':'stop'}};
         this.socket.emit('fromclient', data);
-        console.log(item);
     }
 });

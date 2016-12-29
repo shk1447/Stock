@@ -230,7 +230,15 @@ namespace Finance
                     sise.Add("상장주식수", cnt);
                     sise.Add(columnInfo[0], siseUnix);
                     sise.Add(columnInfo[1], siseInfo[s + 1]);
-                    sise.Add(columnInfo[2], siseInfo[s + 2]);
+                    var sign = string.Empty;
+                    if (s + 1 + 7 < siseInfo.Length)
+                    {
+                        if(int.Parse(siseInfo[s + 1]) < int.Parse(siseInfo[s + 1 + 7]))
+                        {
+                            sign = "-";
+                        }
+                    }
+                    sise.Add(columnInfo[2], sign + siseInfo[s + 2]);
                     sise.Add(columnInfo[3], siseInfo[s + 3]);
                     sise.Add(columnInfo[4], siseInfo[s + 4]);
                     sise.Add(columnInfo[5], siseInfo[s + 5]);
