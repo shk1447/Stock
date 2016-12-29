@@ -22,8 +22,7 @@ module.exports = React.createClass({
         const { activeItem, activeView } = this.state;
         const trigger = (
                         <span>
-                            <Icon name='user' />
-                            Hello, {sessionStorage['member_name']}
+                            <Icon name='user' />{sessionStorage['member_name']}
                         </span>
                         )
         if(sessionStorage['privilege'] == "super") {
@@ -32,16 +31,16 @@ module.exports = React.createClass({
         }
         return (
             <div>
-                <Menu stackable>
+                <Menu>
                     <Menu.Item>
                         <Icon name='users' circular />
                     </Menu.Item>
                     
                     <Menu.Item name='dataview' onClick={this.handleDataViewer}>
-                        Data Viewer
+                        Viewer
                     </Menu.Item>
 
-                    <Dropdown as={Menu.Item} text='Data Manager'>
+                    <Dropdown as={Menu.Item} text='Manager'>
                         <Dropdown.Menu>
                             {collectionPage}
                             {analysisPage}

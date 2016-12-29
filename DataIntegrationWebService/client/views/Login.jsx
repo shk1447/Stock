@@ -50,6 +50,15 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
         this.socket = io.connect();
+        var filter = "win16|win32|win64|mac";
+ 
+        if(navigator.platform){
+            if(0 > filter.indexOf(navigator.platform.toLowerCase())){
+                console.log("Mobile");
+            }else{
+                console.log("PC");
+            }
+        }
 		return {};
 	},
     render : function () {

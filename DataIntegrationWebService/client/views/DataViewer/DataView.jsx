@@ -99,7 +99,7 @@ module.exports = React.createClass({
         });
         const filters = [];
         var gridArr = [];
-        var gridHeight = document.documentElement.offsetHeight - 150;
+        var gridHeight = document.documentElement.offsetHeight - 77;
         var gridWidth = document.documentElement.offsetWidth - 70;
         switch(gridType) {
             case 1 : {

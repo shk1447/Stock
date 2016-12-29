@@ -970,12 +970,6 @@ module.exports = function () {
             self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
             tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
             self.options.style.chart.yAxisUnit = self.options.fixedUnit;
-        } else if(chartTypeOption == 'stackedbar') {
-            chartType = 'StackedBar';
-            self.options.style.chart.yAxisRight = false;
-            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
-            tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
-            self.options.style.chart.yAxisUnit = self.options.fixedUnit;
         }
         self.chartObj = new Chart(self.chartCtx);
         var evalText = 'self.chartObj.'+chartType+'(tempChart, self.options.style.chart); self.chartCtx.stroke();'
