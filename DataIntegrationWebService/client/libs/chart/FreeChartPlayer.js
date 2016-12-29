@@ -2,7 +2,7 @@ require('./chart.js');
 
 module.exports = function () {
     var self = this;
-
+    
     function getInlineJS() {
         var js = "onmessage = function(e) { postMessage(e.data)}";
         var blob = new Blob([js], {"type": "text\/plain"});
@@ -642,7 +642,7 @@ module.exports = function () {
         $(self.overlay).attr("width", self.$container.width()).attr("height", self.$container.height()).css("position", "absolute").css("z-index",10).css("pointer-events", "none").css('background','rgba(0,0,0,0)')
         self.$container.append(self.overlay);
         self.overlayCtx = self.overlay.getContext('2d');
-
+        
         self.$container.bind("mousemove.setting", function(e) {
             var insideController = self.controlContainer.find(function(d) { return d.isPointInside(e.offsetX, e.offsetY) });
             if(typeof insideController != "undefined") {
@@ -968,10 +968,15 @@ module.exports = function () {
             chartType = 'Bar';
             self.options.style.chart.yAxisRight = false;
             self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
-            
             tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
             self.options.style.chart.yAxisUnit = self.options.fixedUnit;
-        };
+        } else if(chartTypeOption == 'stackedbar') {
+            chartType = 'StackedBar';
+            self.options.style.chart.yAxisRight = false;
+            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
+            tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
+            self.options.style.chart.yAxisUnit = self.options.fixedUnit;
+        }
         self.chartObj = new Chart(self.chartCtx);
         var evalText = 'self.chartObj.'+chartType+'(tempChart, self.options.style.chart); self.chartCtx.stroke();'
         eval(evalText);

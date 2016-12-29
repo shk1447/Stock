@@ -7,7 +7,8 @@ module.exports = React.createClass({
     chartSettingFields : [
         {
             value:'chartType', text:"CHART TYPE", type:'Select', group:0, options:[
-                {value:'line',text:'LINE CHART'},{value:'area',text:'AREA CHART'},{value:'bar',text:'BAR CHART'},{value:'pie',text:'PIE CHART'}
+                {value:'line',text:'LINE'},{value:'area',text:'AREA'},{value:'bar',text:'BAR'},
+                {value:'stackedbar',text:'STACKED BAR'},{value:'pie',text:'PIE'}
             ]
         }
     ],
