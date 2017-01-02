@@ -45,6 +45,7 @@ module.exports = React.createClass({
                             {collectionPage}
                             {analysisPage}
                             <Dropdown.Item onClick={this.handleDataManager}>View</Dropdown.Item>
+                            <Dropdown.Item onClick={this.handleDataManager}>Input</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
 
