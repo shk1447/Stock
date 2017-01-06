@@ -12,9 +12,18 @@ namespace Connector
 {
     public class MariaQueryBuilder
     {
+        public static List<string> SourceList = new List<string>();
+
         public static string SetDataSource(SetDataSourceReq param)
         {
-            var query = CreateSourceTable(param.source);
+            var query = string.Empty;
+            if (!SourceList.Contains(param.source)) {
+                query = CreateSourceTable(param.source);
+                lock (SourceList)
+                {
+                    SourceList.Add(param.source.ToLower());
+                }
+            }
             query = InsertSource(param.source, param.category, param.rawdata, param.collected_at, query);
             return query;
         }

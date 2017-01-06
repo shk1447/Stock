@@ -213,6 +213,24 @@ namespace DIWebSocket.Services
                         break;
                     }
                 #endregion
+                #region
+                case "cluster":
+                    {
+                        var clusterLogic = new ViewLogic();
+                        switch (method.ToLower())
+                        {
+                            case "schema":
+                                {
+                                    break;
+                                }
+                            case "getlist":
+                                {
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                #endregion
             }
 
             result.Add(new KeyValuePair<string, JsonValue>("result", returnString));
