@@ -3,6 +3,7 @@ var io = require('socket.io-client');
 var {Form} = require('stardust');
 var DataTable = require('../Common/DataTable');
 var MessageBox = require('../Common/MessageBox');
+var Loader = require('../Common/Loader');
 
 module.exports = React.createClass({
     displayName: 'Collection',
@@ -17,13 +18,15 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('collection.getlist', function(data) {
-            self.refs.CollectionTable.setState({data:data.result})
+            self.refs.CollectionTable.setState({data:data.result});
+            self.refs.loader.setState({active:false});
         });
         self.socket.on('collection.create', function(data) {
             if(data.code == "200") {
                 self.refs.CollectionTable.setState({active:false});
                 var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE COLLECTION)',message:data.message, active : true})
             }
@@ -33,6 +36,7 @@ module.exports = React.createClass({
                 self.refs.CollectionTable.setState({active:false});
                 var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY COLLECTION)',message:data.message, active : true})
             }
@@ -41,6 +45,7 @@ module.exports = React.createClass({
             if(data.code == "200") {
                 var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE COLLECTION)',message:data.message, active : true})
             }
@@ -48,6 +53,7 @@ module.exports = React.createClass({
         self.socket.on('collection.execute', function(data) {
             var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
             self.socket.emit('fromclient', data);
+            self.refs.loader.setState({active:true});
         });
 
         self.socket.on('connected', function() {
@@ -66,9 +72,10 @@ module.exports = React.createClass({
 		return {data:[],fields:[],filters:[]};
 	},
     render : function () {
-        const {data,fields,filters} = this.state;
+        const {data,fields,filters,init} = this.state;
         return (
             <div style={{height:document.documentElement.offsetHeight - 77 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
+                <Loader ref='loader' active={true}/>
                 <DataTable ref='CollectionTable' key={'collection'} data={data} fields={fields} filters={filters} updatable repeatable={false}
                            executeItem={this.executeCollection} callback={this.callbackCollection}/>
                 <MessageBox ref='alert_messagebox' />

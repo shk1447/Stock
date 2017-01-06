@@ -1,6 +1,6 @@
 var React = require('react');
 var io = require('socket.io-client');
-var {Menu,Icon,Dropdown} = require('stardust');
+var {Menu,Icon,Dropdown,Loader} = require('stardust');
 var {List} = require('semantic-ui-react');
 var DataTable = require('../Common/DataTable');
 var Chart = require('../Common/Chart');
@@ -22,6 +22,8 @@ module.exports = React.createClass({
                 if (value.view_type != 'video') {
                     var data = {"broadcast":false,"target":"view","method":"execute", "parameters":{"name":self.state.gridInfo[id].name},"cellId":id};
                     self.socket.emit('fromclient', data);
+                    var contents = <Loader active>Loading...</Loader>;
+                    ReactDOM.render(contents, self.refs[id]);
                 } else {
                     var viewInfo = self.state.viewlist.find(function(d){
                         return d.name == self.state.gridInfo[id].name;
@@ -215,11 +217,12 @@ module.exports = React.createClass({
                     this.refs[cellId].children[0].remove();
                 }
             }
-            
             this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
                 var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}, "cellId":cellId};
                 this.socket.emit('fromclient', data);
+                var contents = <Loader active>Loading...</Loader>;
+                ReactDOM.render(contents, self.refs[cellId]);
             } else {
                 var viewInfo = this.state.viewlist.find(function(d){
                     return d.name == self.state.gridInfo[cellId].name;

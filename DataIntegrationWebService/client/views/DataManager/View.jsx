@@ -3,6 +3,7 @@ var io = require('socket.io-client');
 var {Form} = require('stardust');
 var DataTable = require('../Common/DataTable');
 var MessageBox = require('../Common/MessageBox');
+var Loader = require('../Common/Loader');
 
 module.exports = React.createClass({
     displayName: 'View',
@@ -17,13 +18,15 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         });
         self.socket.on('view.getlist', function(data) {
-            self.refs.ViewTable.setState({data:data})
+            self.refs.ViewTable.setState({data:data});
+            self.refs.loader.setState({active:false});
         });
         self.socket.on('view.create', function(data) {
             if(data.code == "200") {
                 self.refs.ViewTable.setState({active:false});
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE VIEW)',message:data.message, active : true})
             }
@@ -33,6 +36,7 @@ module.exports = React.createClass({
                 self.refs.ViewTable.setState({active:false});
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY VIEW)',message:data.message, active : true})
             }
@@ -41,6 +45,7 @@ module.exports = React.createClass({
             if(data.code == "200") {
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
                 self.socket.emit('fromclient', data);
+                self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE VIEW)',message:data.message, active : true})
             }
@@ -59,12 +64,14 @@ module.exports = React.createClass({
     },
     getInitialState: function() {
         this.socket = io.connect();
-		return {data:[],fields:[],filters:[]};
+		return {data:[],fields:[],filters:[],init:false};
 	},
     render : function () {
         const {data,fields,filters} = this.state;
+        
         return (
             <div style={{height:document.documentElement.offsetHeight - 77 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
+                <Loader ref='loader' active={true}/>
                 <DataTable ref='ViewTable' key={'view'} data={data} fields={fields} filters={filters} updatable repeatable={false} callback={this.callbackView}/>
                 <MessageBox ref='alert_messagebox' />
             </div>
