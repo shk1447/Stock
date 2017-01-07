@@ -259,10 +259,14 @@ namespace Connector
 
                 pastQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
                                               .Append(collectedDate).Append(")").Append(rowSeparator);
-                currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                 .Append(collectedDate).Append(")").Append(rowSeparator);
-                fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
-                                  .Append(collectedDate).Append(")").Append(rowSeparator);
+
+                if (string.IsNullOrEmpty(rowSeparator))
+                {
+                    currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
+                                                     .Append(collectedDate).Append(")").Append(rowSeparator);
+                    fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
+                                      .Append(collectedDate).Append(")").Append(rowSeparator);
+                }
 
                 row++;
             }
