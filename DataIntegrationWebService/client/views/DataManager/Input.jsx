@@ -30,6 +30,13 @@ module.exports = React.createClass({
                 "type": "AddFields",
                 "group": 1,
                 "required": true
+            },
+            {
+                "text": "UPDATED TIME",
+                "value": "unixtime",
+                "type": "data",
+                "group": 1,
+                "required": false
             }
         ];
         var data = [];

@@ -81,7 +81,9 @@ module.exports = React.createClass({
         this.context.router.replace('/App/DataViewer/DataView');
     },
     handleDataManager : function(e,v){
-        var route = '/App/DataManager/' + e.target.innerText
-        this.context.router.replace(route);
+        var route = '/App/DataManager/' + e.target.innerText;
+        if(location.pathname != route) {
+            this.context.router.replace(route);
+        }
     }
 });

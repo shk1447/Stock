@@ -42,6 +42,11 @@ namespace Connector
             this.SetQuery(MariaQueryDefine.CreateFunction);
             this.SetQuery(MariaQueryDefine.CreateProcedure);
             this.SetQuery("DynamicQueryExecuter", MariaQueryDefine.CreateTableQuery);
+            var sourceList = this.GetQuery("DynamicQueryExecuter", MariaQueryDefine.GetSourceInformation);
+            foreach (var source in sourceList)
+            {
+                MariaQueryBuilder.SourceList.Add(source["TABLE_NAME"].ToString().Replace("current_",""));
+            }
         }
 
         #region IConnector 멤버

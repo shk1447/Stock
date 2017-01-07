@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalysisLogic.cs" />
+    <Compile Include="ClusterLogic.cs" />
     <Compile Include="CollectionLogic.cs" />
     <Compile Include="MemberLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
