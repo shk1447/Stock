@@ -4,10 +4,18 @@ var {Menu,Icon,Dropdown,Loader} = require('stardust');
 var {List} = require('semantic-ui-react');
 var DataTable = require('../Common/DataTable');
 var Chart = require('../Common/Chart');
+var ModalForm = require('../Common/ModalForm');
 
 module.exports = React.createClass({
     isDragging: false,
     displayName: 'DataView',
+    samplingSettingFields : [{ value:'title', text:"TITLE", type:'Select', required:true, group:0, options:[]},
+    { value:'sampling', text:"SAMPLING", type:'Select', required:true, group:1, options:[
+        {value:'max',text:'MAX'},{value:'min',text:'MIN'},{value:'avg',text:'AVG'},{value:'sum',text:'SUM'},{value:'count',text:'COUNT'}
+    ]},
+    {value:'sampling_period', text:"SAMPLING PERIOD", type:'Select', group:1, required:true, options:[
+        {value:'all',text:'ALL'},{value:'day',text:'DAY'},{value:'week',text:'WEEK'},{value:'month',text:'MONTH'},{value:'year',text:'YEAR'}
+    ]}],
     contextTypes: {
         router: React.PropTypes.object.isRequired
     },
@@ -39,7 +47,7 @@ module.exports = React.createClass({
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
             let cellInfo = self.state.gridInfo[cellId];
             if(cellInfo["view_type"] == 'past') {
-                var contents = <Chart title={cellInfo["name"]} data={response.data} fields={response.fields}
+                var contents = <Chart title={cellInfo["name"]} data={response.data} fields={response.fields} cellId={cellId}
                                       action={self.callbackDataView} />;
             } else if(cellInfo["view_type"] =='current') {
                 var contents = <DataTable title={'DataView'} data={response.data} filters={[]} repeatable={true}
@@ -48,8 +56,8 @@ module.exports = React.createClass({
             ReactDOM.render(contents, self.refs[cellId]);
         });
         self.socket.on('view.execute_item', function(response) {
-            let cellId = 'cell_' + self.gridId;
-            var contents = <Chart title={self.state.gridInfo[cellId]["name"]} data={response.data} fields={response.fields}
+            let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
+            var contents = <Chart title={response.category} data={response.data} fields={response.fields} cellId={cellId}
                                       action={self.callbackDataView} />;
             ReactDOM.render(contents, self.refs[cellId]);
         });
@@ -187,8 +195,25 @@ module.exports = React.createClass({
                 <div ref='contextMenu' style={{position:'absolute',zIndex:1000}}>
                     {contextMenu}
                 </div>
+                <ModalForm ref='ModalForm' action={''} size={'large'} title={'CHART SETTING'} active={false}
+                    fields={self.samplingSettingFields} data={[]} callback={this.callbackSamplingChart}/>
             </div>
         )
+    },
+    callbackSamplingChart : function(result) {
+        if(result.action != 'cancel') {
+            var self = this;
+            let cellId = result.action;
+            let title = result.data.title;
+            let sampling = result.data.sampling;
+            let sampling_period = result.data.sampling_period;
+            var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"],
+                        "fields":self.state.gridInfo[cellId]["fields"],"sampling":sampling,"sampling_period":sampling_period},
+                        "category": title == '' ? self.state.gridInfo[cellId]["category"] : title, "cellId":cellId};
+            this.socket.emit('fromclient', data);
+            var contents = <Loader active>Loading...</Loader>;
+            ReactDOM.render(contents, self.refs[cellId]);
+        }
     },
     handleDragLeave : function(e) {
         if(this.temp) {
@@ -308,8 +333,20 @@ module.exports = React.createClass({
             var data = {"broadcast":false,"target":"view", "method":"download", "parameters":{name:self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id}};
             self.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
-            var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"], "fields":result.data}};
+            let options = [];
+            _.each(result.data, function(value,key){
+                options.push({text:value,value:value});
+            });
+            this.refs.ModalForm.state.fields[0].options = options;
+            this.refs.ModalForm.state.data["title"] = result.data.category;
+            self.state.gridInfo[cellId]["category"] = result.data.category;
+            self.state.gridInfo[cellId]["fields"] = result.data;
+            this.refs.ModalForm.setState({active:true,action:cellId});
+        } else if (result.action == 'return_item') {
+            var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}, "cellId":cellId};
             this.socket.emit('fromclient', data);
+            var contents = <Loader active>Loading...</Loader>;
+            ReactDOM.render(contents, self.refs[cellId]);
         }
     },
     saveFile : function (blob) {

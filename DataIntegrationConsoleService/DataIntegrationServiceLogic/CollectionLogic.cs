@@ -47,8 +47,8 @@ namespace DataIntegrationServiceLogic
                     }
 
                     methodField.AddOptions(methodOptions);
-                    moduleOptions.AddFields(methodField);
                 }
+                moduleOptions.AddFields(methodField);
                 moduleField.AddOptions(moduleOptions);
             }
             fields.Add(moduleField);

@@ -17,7 +17,7 @@
 }
 
 .ModalForm {
-    overflow: auto;
+    overflow: none;
 }
 
 #contents {
@@ -132,6 +132,7 @@ table.table-container tbody tr.selected {
 .time_picker_modal_container {
     width:100% !important;
     text-align: center !important;
+    top:-400px !important;
 }
 
 .picker_container {

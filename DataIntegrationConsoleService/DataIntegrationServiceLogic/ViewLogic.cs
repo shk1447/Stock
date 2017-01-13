@@ -344,25 +344,40 @@ namespace DataIntegrationServiceLogic
             var source = jsonObj["source"].ReadAs<string>();
             var fields = jsonObj["fields"];
             var category = fields["category"].ReadAs<string>();
+            var sampling = jsonObj["sampling"].ReadAs<string>();
+            var sampling_period = jsonObj["sampling_period"].ReadAs<string>();
             var fieldQuery = new StringBuilder("SELECT column_json(rawdata) as `types` FROM fields_").Append(source).Append(" WHERE category = '").Append(category).Append("'");
             var fieldInfo = MariaDBConnector.Instance.GetJsonObject(fieldQuery.ToString());
-            var query = new StringBuilder("SELECT ");
-            foreach(var field in fields)
+
+            var queryBuilder = new StringBuilder();
+            var sampling_items = new StringBuilder();
+            queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
+            foreach (var field in fields)
             {
                 var item_key = field.Key;
-                if(item_key != "category" && item_key != "unixtime")
+                if (item_key != "category" && item_key != "unixtime")
                 {
                     var type = fieldInfo["types"][item_key].ReadAs<string>();
-                    if(type == "number")
+                    if (type == "number")
                     {
-                        query.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
+                        queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
+                        sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                     }
                 }
             }
-            query.Append("UNIX_TIMESTAMP(unixtime) as unixtime FROM past_").Append(source).Append(" WHERE category = '").Append(category).Append("' ORDER BY unixtime ASC;");
+            queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '").Append(category).Append("') as result");
+
+            if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
+            else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
+            else if (sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
+            else if (sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
+            else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
+
+            var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query.ToString());
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
             sw.Stop();
             Console.WriteLine("{0} data speed : {1} ms", res.Count, sw.ElapsedMilliseconds);
             return res.ToString();

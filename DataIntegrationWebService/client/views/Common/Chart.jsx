@@ -51,6 +51,7 @@ module.exports = React.createClass({
             var chartControl = <Button.Group basic size='mini'>
                 <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
                 <Button icon='settings' onClick={this.handleChartSetting} />
+                <Button icon='external' onClick={this.handleLeave}/>
             </Button.Group>
         }
         return (
@@ -83,5 +84,8 @@ module.exports = React.createClass({
             this.state.player.options.chartType = result.data.chartType;
             this.state.player.load();
         }
+    },
+    handleLeave: function() {
+        this.props.action({action:'return_item',cellId:this.props.cellId})
     }
 });
