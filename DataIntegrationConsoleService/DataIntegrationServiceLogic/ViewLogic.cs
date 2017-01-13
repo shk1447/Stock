@@ -343,7 +343,7 @@ namespace DataIntegrationServiceLogic
         {
             var source = jsonObj["source"].ReadAs<string>();
             var fields = jsonObj["fields"];
-            var category = fields["category"].ReadAs<string>();
+            var category = jsonObj["category"].ReadAs<string>();
             var sampling = jsonObj["sampling"].ReadAs<string>();
             var sampling_period = jsonObj["sampling_period"].ReadAs<string>();
             var fieldQuery = new StringBuilder("SELECT column_json(rawdata) as `types` FROM fields_").Append(source).Append(" WHERE category = '").Append(category).Append("'");
@@ -354,7 +354,7 @@ namespace DataIntegrationServiceLogic
             queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
             foreach (var field in fields)
             {
-                var item_key = field.Key;
+                var item_key = field.Value.ReadAs<string>();
                 if (item_key != "category" && item_key != "unixtime")
                 {
                     var type = fieldInfo["types"][item_key].ReadAs<string>();

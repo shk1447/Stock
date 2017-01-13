@@ -10,10 +10,11 @@ module.exports = React.createClass({
     isDragging: false,
     displayName: 'DataView',
     samplingSettingFields : [{ value:'title', text:"TITLE", type:'Select', required:true, group:0, options:[]},
-    { value:'sampling', text:"SAMPLING", type:'Select', required:true, group:1, options:[
+    { value:'fields', text:"FILEDS", type:'MultiSelect', required:true, group:1, options:[]},
+    { value:'sampling', text:"SAMPLING", type:'Select', required:true, group:2, options:[
         {value:'max',text:'MAX'},{value:'min',text:'MIN'},{value:'avg',text:'AVG'},{value:'sum',text:'SUM'},{value:'count',text:'COUNT'}
     ]},
-    {value:'sampling_period', text:"SAMPLING PERIOD", type:'Select', group:1, required:true, options:[
+    {value:'sampling_period', text:"SAMPLING PERIOD", type:'Select', group:2, required:true, options:[
         {value:'all',text:'ALL'},{value:'day',text:'DAY'},{value:'week',text:'WEEK'},{value:'month',text:'MONTH'},{value:'year',text:'YEAR'}
     ]}],
     contextTypes: {
@@ -205,11 +206,12 @@ module.exports = React.createClass({
             var self = this;
             let cellId = result.action;
             let title = result.data.title;
+            let fields = result.data.fields;
             let sampling = result.data.sampling;
             let sampling_period = result.data.sampling_period;
             var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"],
-                        "fields":self.state.gridInfo[cellId]["fields"],"sampling":sampling,"sampling_period":sampling_period},
-                        "title": title == '' ? self.state.gridInfo[cellId]["category"] : title, "cellId":cellId};
+                        "fields":fields, "category":self.state.gridInfo[cellId]["category"], "sampling":sampling,"sampling_period":sampling_period },
+                        "title": title, "cellId":cellId};
             this.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);
@@ -334,11 +336,17 @@ module.exports = React.createClass({
             self.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
             let options = [];
+            let fieldOptions = [];
+            let defaultFields = [];
             _.each(result.data, function(value,key){
                 options.push({text:value,value:value});
+                fieldOptions.push({text:key,value:key});
+                defaultFields.push(key);
             });
             this.refs.ModalForm.state.fields[0].options = options;
+            this.refs.ModalForm.state.fields[1].options = fieldOptions;
             this.refs.ModalForm.state.data["title"] = result.data.category;
+            this.refs.ModalForm.state.data["fields"]= defaultFields;
             self.state.gridInfo[cellId]["category"] = result.data.category;
             self.state.gridInfo[cellId]["fields"] = result.data;
             this.refs.ModalForm.setState({active:true,action:cellId});
