@@ -31,15 +31,16 @@ namespace Finance
         {
             this.config = new Dictionary<string, JsonValue>();
             this.functionDict = new Dictionary<string, Delegate>();
+            var AllStockInformationConfig = new JsonObject();
+            var CurrentStockInformationConfig = new JsonObject();
             var FinanceInformationConfig = new JsonObject();
             var EmptyInformationConfig = new JsonObject();
-            var StockInformationConfig = new JsonObject();
-            StockInformationConfig.Add("days", 1);
-            StockInformationConfig.Add("method", "history");
-            this.config.Add("StockInformation", StockInformationConfig);
+            this.config.Add("AllStockInformation", AllStockInformationConfig);
+            this.config.Add("CurrentStockInformation", CurrentStockInformationConfig);
             this.config.Add("FinanceInformation", FinanceInformationConfig);
             this.config.Add("EmptyInformation", EmptyInformationConfig);
-            this.functionDict.Add("StockInformation", new Func<string, bool>(StockInformation));
+            this.functionDict.Add("AllStockInformation", new Func<string, bool>(AllStockInformation));
+            this.functionDict.Add("CurrentStockInformation", new Func<string, bool>(CurrentStockInformation));
             this.functionDict.Add("FinanceInformation", new Func<string, bool>(FinanceInformation));
             this.functionDict.Add("EmptyInformation", new Func<string, bool>(EmptyInformation));
         }
@@ -195,7 +196,7 @@ namespace Finance
             return Regex.Replace(html, CommentPattern, string.Empty, ExpressionOptions);
         }
 
-        private bool StockInformation(string collectionName)
+        private bool CurrentStockInformation(string collectionName)
         {
             Console.WriteLine("{0} Collector Start : {1}",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
@@ -208,7 +209,7 @@ namespace Finance
                 result.rawdata = new List<JsonDictionary>();
                 result.source = collectionName;
                 result.category = "종목코드";
-                result.collected_at = this.config["StockInformation"]["method"].ReadAs<string>() == "history" ? "날짜" : "";
+                result.collected_at = "날짜";
 
                 var code = stock.Value["code"].ReadAs<string>();
                 var name = stock.Value["name"].ReadAs<string>();
@@ -216,35 +217,35 @@ namespace Finance
                 var cnt = stock.Value["cnt"].ReadAs<string>();
                 
                 var nvParser = new nvParser(code);
-                var siseInfo = nvParser.getSise(int.Parse(this.config["StockInformation"]["days"].ReadAs<string>()));
-                
+                var siseInfo = nvParser.getSise(2);
+
+                if (siseInfo.Length < 7) continue;
                 var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량" };
-                for (int s = siseInfo.Length - 7; s >= 0; s = s - 7)
+                
+                var sise = new JsonDictionary();
+                var siseDate = DateTime.Parse(siseInfo[0]).AddHours(16);
+                var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
+                sise.Add("종목코드", code);
+                sise.Add("종목명", name);
+                sise.Add("종목유형", type);
+                sise.Add("상장주식수", cnt);
+                sise.Add(columnInfo[0], siseUnix);
+                sise.Add(columnInfo[1], siseInfo[1]);
+                var sign = string.Empty;
+                if (1 + 7 < siseInfo.Length)
                 {
-                    var sise = new JsonDictionary();
-                    var siseDate = DateTime.Parse(siseInfo[s]).AddHours(16);
-                    var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
-                    sise.Add("종목코드", code);
-                    sise.Add("종목명", name);
-                    sise.Add("종목유형", type);
-                    sise.Add("상장주식수", cnt);
-                    sise.Add(columnInfo[0], siseUnix);
-                    sise.Add(columnInfo[1], siseInfo[s + 1]);
-                    var sign = string.Empty;
-                    if (s + 1 + 7 < siseInfo.Length)
+                    if(int.Parse(siseInfo[1]) < int.Parse(siseInfo[1 + 7]))
                     {
-                        if(int.Parse(siseInfo[s + 1]) < int.Parse(siseInfo[s + 1 + 7]))
-                        {
-                            sign = "-";
-                        }
+                        sign = "-";
                     }
-                    sise.Add(columnInfo[2], sign + siseInfo[s + 2]);
-                    sise.Add(columnInfo[3], siseInfo[s + 3]);
-                    sise.Add(columnInfo[4], siseInfo[s + 4]);
-                    sise.Add(columnInfo[5], siseInfo[s + 5]);
-                    sise.Add(columnInfo[6], siseInfo[s + 6]);
-                    result.rawdata.Add(sise);
                 }
+                sise.Add(columnInfo[2], sign + siseInfo[2]);
+                sise.Add(columnInfo[3], siseInfo[3]);
+                sise.Add(columnInfo[4], siseInfo[4]);
+                sise.Add(columnInfo[5], siseInfo[5]);
+                sise.Add(columnInfo[6], siseInfo[6]);
+                result.rawdata.Add(sise);
+                
                 if (result.rawdata.Count > 0)
                 {
                     Task.Factory.StartNew(() =>
@@ -375,6 +376,130 @@ namespace Finance
                 });
             }
             return true;
+        }
+
+        private bool AllStockInformation(string collectionName)
+        {
+            Console.WriteLine("{0} Collector Start : {1}",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
+            var stockText = File.ReadAllText(file);
+            var stockJson = JsonValue.Parse(stockText);
+
+            foreach (var stock in stockJson)
+            {
+                var code = stock.Value["code"].ReadAs<string>();
+                var name = stock.Value["name"].ReadAs<string>();
+                var type = stock.Value["type"].ReadAs<string>();
+                var cnt = stock.Value["cnt"].ReadAs<string>();
+
+                try
+                {
+                    var googleUrl = "http://www.google.com/finance/getprices?q={code}&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0".Replace("{code}", code);
+
+                    var reqParam = new RequestParameter()
+                    {
+                        Url = googleUrl,
+                        ContentType = "application/json",
+                        EncodingOption = "UTF8",
+                        Method = "GET"
+                    };
+
+                    var stockData = this.DecodeHex(HttpsRequest.Instance.GetResponseByHttps(reqParam));
+                    var histroyCsv = Regex.Split(stockData, @"\n");
+                    var columnInfo = new string[] { "날짜", "종가", "고가", "저가", "시가", "거래량", "전일비", "전일비율" };
+
+                    var result = new SetDataSourceReq();
+                    result.rawdata = new List<JsonDictionary>();
+                    result.source = collectionName;
+                    result.category = "종목코드";
+                    result.collected_at = "날짜";
+
+                    var standardTime = string.Empty;
+                    for (int i = 7; i < histroyCsv.Length - 1; i++)
+                    {
+                        var sise = new JsonDictionary();
+                        var row = histroyCsv[i].Split(',');
+
+                        sise.Add("종목코드", code);
+                        sise.Add("종목명", name);
+                        sise.Add("종목유형", type);
+                        sise.Add("상장주식수", cnt);
+                        if (row[0].Trim().Contains("a"))
+                        {
+                            standardTime = row[0].Trim().Replace("a", "");
+                            sise.Add(columnInfo[0], standardTime);
+                        }
+                        else
+                        {
+                            sise.Add(columnInfo[0], (int.Parse(standardTime) + (86400 * int.Parse(row[0]))).ToString());
+                        }
+                        sise.Add(columnInfo[1], row[1].Trim());
+                        sise.Add(columnInfo[2], row[2].Trim());
+                        sise.Add(columnInfo[3], row[3].Trim());
+                        sise.Add(columnInfo[4], row[4].Trim());
+                        sise.Add(columnInfo[5], row[5].Trim());
+                        if (result.rawdata.Count > 0)
+                        {
+                            var prevPrice = double.Parse(result.rawdata[result.rawdata.Count - 1]["종가"].ToString());
+                            if (prevPrice > 0)
+                            {
+                                var diff = double.Parse(row[1].Trim()) - prevPrice;
+                                sise.Add(columnInfo[6], diff);
+                                sise.Add(columnInfo[7], (double)diff / prevPrice * 100);
+                            }
+                        }
+
+                        result.rawdata.Add(sise);
+                    }
+                    if (result.rawdata.Count > 0)
+                    {
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            return true;
+        }
+
+        private string DecodeHex(string data)
+        {
+            data = data.Replace(@"\x22", "&quot;");
+            data = data.Replace(@"\x23", "#");
+            data = data.Replace(@"\x24", "$");
+            data = data.Replace(@"\x25", "%");
+            data = data.Replace(@"\x26", "&");
+            data = data.Replace(@"\x27", "'");
+            data = data.Replace(@"\x28", "(");
+            data = data.Replace(@"\x29", ")");
+            data = data.Replace(@"\x2A", "*");
+            data = data.Replace(@"\x2B", "+");
+            data = data.Replace(@"\x2C", ",");
+            data = data.Replace(@"\x2D", "-");
+            data = data.Replace(@"\x2E", ".");
+            data = data.Replace(@"\x2F", "/");
+            data = data.Replace(@"\x30", "0");
+            data = data.Replace(@"\x31", "1");
+            data = data.Replace(@"\x32", "2");
+            data = data.Replace(@"\x33", "3");
+            data = data.Replace(@"\x34", "4");
+            data = data.Replace(@"\x35", "5");
+            data = data.Replace(@"\x36", "6");
+            data = data.Replace(@"\x37", "7");
+            data = data.Replace(@"\x38", "8");
+            data = data.Replace(@"\x39", "9");
+            data = data.Replace(@"\x3A", ":");
+            data = data.Replace(@"\x3B", ";");
+            data = data.Replace(@"\x3C", "<");
+            data = data.Replace(@"\x3D", "=");
+            data = data.Replace(@"\x3E", ">");
+            data = data.Replace(@"\x3F", "?");
+            return data;
         }
     }
 }

@@ -92,6 +92,8 @@ module.exports = React.createClass({
             this.socket.emit('fromclient', data);
         } else if (result.action == 'delete') {
             var selectedItems = this.refs.CollectionTable.refs.DataArea.state.selectedItems;
+            var $dataArea = $(ReactDOM.findDOMNode(this.refs.CollectionTable.refs.DataArea.refs.table_contents));
+            _.forEach($dataArea.find('tbody').children('[class=selected]'),function(row,value) {console.log($(row).attr('class',''));});
             _.each(selectedItems, function(row, i){
                 var data = {"broadcast":false,"target":"collection", "method":"delete", "parameters":{name:row.name}};
                 self.socket.emit('fromclient', data);
