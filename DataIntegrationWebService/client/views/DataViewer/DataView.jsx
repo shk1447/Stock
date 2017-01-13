@@ -57,7 +57,7 @@ module.exports = React.createClass({
         });
         self.socket.on('view.execute_item', function(response) {
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
-            var contents = <Chart title={response.category} data={response.data} fields={response.fields} cellId={cellId}
+            var contents = <Chart title={response.title} data={response.data} fields={response.fields} cellId={cellId}
                                       action={self.callbackDataView} />;
             ReactDOM.render(contents, self.refs[cellId]);
         });
@@ -209,7 +209,7 @@ module.exports = React.createClass({
             let sampling_period = result.data.sampling_period;
             var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"],
                         "fields":self.state.gridInfo[cellId]["fields"],"sampling":sampling,"sampling_period":sampling_period},
-                        "category": title == '' ? self.state.gridInfo[cellId]["category"] : title, "cellId":cellId};
+                        "title": title == '' ? self.state.gridInfo[cellId]["category"] : title, "cellId":cellId};
             this.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);

@@ -27,7 +27,7 @@ module.exports = {
     execute_item : function(data, req){
         if(req.title) {
             data["cellId"] = req.cellId;
-            data["title"] = req.category;
+            data["title"] = req.title;
         }
         return data;
     },
