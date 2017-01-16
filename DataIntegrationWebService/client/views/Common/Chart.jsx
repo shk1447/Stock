@@ -50,6 +50,7 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             var chartControl = <Button.Group basic size='mini'>
                 <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
+                <Button icon='idea' onClick={this.handlePredict}/>
                 <Button icon='settings' onClick={this.handleChartSetting} />
                 <Button icon='external' onClick={this.handleLeave}/>
             </Button.Group>
@@ -64,6 +65,21 @@ module.exports = React.createClass({
                 <ModalForm ref='ModalForm' action={'insert'} size={'large'} title={'CHART SETTING'} active={false}
                     fields={self.chartSettingFields} data={[]} callback={this.applyChartSetting}/>
             </div>);
+    },
+    handlePredict: function() {
+        var self = this;
+        if(!this.state.player.options.predict) {
+            var fieldLength = this.state.player.options.data.fields.length;
+            for(var j = 0; j < fieldLength; j++){
+                var row = this.state.player.options.data.fields[j];
+                if(row.value != "unixtime") {
+                    self.state.player.options.data.fields.push({text:row.value+"_support",value:row.value+"_support",type:"Number"});
+                    self.state.player.options.data.fields.push({text:row.value+"_resistance",value:row.value+"_resistance",type:"Number"});
+                }
+            }
+            this.state.player.options.predict = true;
+        }
+        this.state.player.load();
     },
     handleChartSetting: function() {
         this.refs.ModalForm.setState({active:true});

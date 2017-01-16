@@ -306,6 +306,7 @@ module.exports = function () {
     }
 
     self.options = {
+        predict: false,
         title:"",
         chartType: "line",
         start : 0,
@@ -977,6 +978,61 @@ module.exports = function () {
     };
 
     self.redraw = function (data) {
+        console.log(data);
+        if(self.options.predict) {
+            var fieldsLength = data.datasets.length;
+            for(var i = 0; i < fieldsLength; i++){
+                var row = _.cloneDeep(data.datasets[i]);
+                if(row.id.includes("support") || row.id.includes("resistance")){
+                    continue;
+                }
+                var maxIndex = row.data.indexOf(Math.max(...row.data));
+                var minIndex = row.data.indexOf(Math.min(...row.data));
+                var nextData, nextMin, nextMax;
+                if(minIndex > maxIndex) {
+                    nextData = row.data.filter(function(d,k){ return k > minIndex});
+                    if(nextData.length > 0) {
+                        nextMax = row.data.lastIndexOf(Math.max(...nextData));
+                        nextData = row.data.filter(function(d,k) { return k > nextMax});
+                        if(nextData.length > 0) {
+                            nextMin = row.data.lastIndexOf(Math.min(...nextData));
+                        }
+                    }
+                } else {
+                    nextData = row.data.filter(function(d,k){ return k > maxIndex});
+                    if(nextData.length > 0) {
+                        nextMin = row.data.lastIndexOf(Math.min(...nextData));
+                        nextData = row.data.filter(function(d,k) { return k > nextMin});
+                        if(nextData.length > 0) {
+                            nextMax = row.data.lastIndexOf(Math.max(...nextData));
+                        }
+                    }
+                }
+                if(nextMin != undefined & nextMin != -1) {
+                    var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
+                    var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
+                    for(var j = minIndex; j < row.data.length; j++) {
+                        var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                        if(data.datasets[i]) {
+                            supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
+                        }
+                    }
+                }
+                if(nextMax != undefined & nextMax != -1) {
+                    var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
+                    var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
+                    for(var j = maxIndex; j < row.data.length; j++) {
+                        var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                        if(data.datasets[i]) {
+                            supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
+                        }
+                    }
+                }
+                console.log(row.id);
+                console.log(maxIndex, "~",nextMax);
+                console.log(minIndex, "~",nextMin);
+            }
+        }
         self.startDraw = new Date();
         if(self.canvas == undefined) return;
         self.canvas.width = self.$container.width();
