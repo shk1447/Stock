@@ -133,7 +133,7 @@ namespace Finance
                                                               new KeyValuePair<string, JsonValue>("cnt", 상장주식수)));
                             }
                         }
-                        Console.Write(".");
+                        EnvironmentHelper.ProgressBar(i, lastNumber);
                     }
                 }
                 Console.WriteLine("");
@@ -202,7 +202,7 @@ namespace Finance
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
-
+            var progress = 1;
             foreach (var stock in stockJson)
             {
                 var result = new SetDataSourceReq();
@@ -220,7 +220,7 @@ namespace Finance
                 var siseInfo = nvParser.getSise(2);
 
                 if (siseInfo.Length < 7) continue;
-                var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량" };
+                var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량", "전일비율" };
                 
                 var sise = new JsonDictionary();
                 var siseDate = DateTime.Parse(siseInfo[0]).AddHours(16);
@@ -244,6 +244,18 @@ namespace Finance
                 sise.Add(columnInfo[4], siseInfo[4]);
                 sise.Add(columnInfo[5], siseInfo[5]);
                 sise.Add(columnInfo[6], siseInfo[6]);
+
+                var diff = double.Parse(sign + siseInfo[2]);
+                var prevPrice = int.Parse(siseInfo[1 + 7]);
+                if (prevPrice > 0)
+                {
+                    sise.Add(columnInfo[7], diff / prevPrice * 100);
+                }
+                else
+                {
+                    sise.Add(columnInfo[7], 0);
+                }
+
                 result.rawdata.Add(sise);
                 
                 if (result.rawdata.Count > 0)
@@ -254,6 +266,8 @@ namespace Finance
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                     });
                 }
+                EnvironmentHelper.ProgressBar(progress, stockJson.Count);
+                progress++;
             }
             Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
@@ -385,7 +399,7 @@ namespace Finance
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
-
+            var progress = 1;
             foreach (var stock in stockJson)
             {
                 var code = stock.Value["code"].ReadAs<string>();
@@ -462,6 +476,8 @@ namespace Finance
                 {
                     Console.WriteLine(ex.ToString());
                 }
+                EnvironmentHelper.ProgressBar(progress, stockJson.Count);
+                progress++;
             }
             Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             return true;

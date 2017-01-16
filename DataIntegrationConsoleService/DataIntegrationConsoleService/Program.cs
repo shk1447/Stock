@@ -10,6 +10,7 @@ using Connector;
 using DataIntegrationService;
 using Log;
 using SourceModuleManager;
+using Common;
 
 namespace DataIntegrationConsoleService
 {
@@ -19,7 +20,7 @@ namespace DataIntegrationConsoleService
 
         static void Main(string[] args)
         {
-            ThreadPool.SetMinThreads(128, 128);
+            ThreadPool.SetMinThreads(64, 64);
 
             var appDomain = AppDomain.CurrentDomain;
 

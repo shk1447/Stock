@@ -61,6 +61,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{bd86539d-b1dc-4c82-8606-6cac641a12ee}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Connector\Connector.csproj">
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>

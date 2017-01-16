@@ -223,6 +223,7 @@ namespace Connector
 
             var collectedDate = "CURTIME(3)";
 
+            var prevCategory = string.Empty;
             var duplicateQuery = string.Empty;
             var dynamicCategory = string.Empty;
 
@@ -269,14 +270,24 @@ namespace Connector
                 pastQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
                                               .Append(collectedDate).Append(")").Append(rowSeparator);
 
-                if (string.IsNullOrEmpty(rowSeparator))
+                if (prevCategory != dynamicCategory)
                 {
                     currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                     .Append(collectedDate).Append(")").Append(rowSeparator);
+                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
                     fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
                                       .Append(collectedDate).Append(")").Append(rowSeparator);
                 }
-
+                else
+                {
+                    if (string.IsNullOrEmpty(rowSeparator))
+                    {
+                        currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
+                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
+                        fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
+                                          .Append(collectedDate).Append(")").Append(rowSeparator);
+                    }
+                }
+                prevCategory = dynamicCategory;
                 row++;
             }
 
