@@ -12,7 +12,7 @@ module.exports = React.createClass({
         }
     ],
     getInitialState: function () {
-        return { player: {}, repeat:false, title : this.props.title,data:this.props.data,fields:this.props.fields}
+        return { player: {}, predict:false, repeat:false, title : this.props.title,data:this.props.data,fields:this.props.fields}
     },
     onRemove : function () {
     },
@@ -50,7 +50,7 @@ module.exports = React.createClass({
         if(this.state.fields.length > 0) {
             var chartControl = <Button.Group basic size='mini'>
                 <Button icon='repeat' active={this.state.repeat} toggle onClick={this.handleToggle}/>
-                <Button icon='idea' onClick={this.handlePredict}/>
+                <Button icon='idea' active={this.state.predict} toggle onClick={this.handlePredict}/>
                 <Button icon='settings' onClick={this.handleChartSetting} />
                 <Button icon='external' onClick={this.handleLeave}/>
             </Button.Group>
@@ -68,8 +68,9 @@ module.exports = React.createClass({
     },
     handlePredict: function() {
         var self = this;
+        this.setState({predict:!this.state.predict});
+        var fieldLength = this.state.player.options.data.fields.length;
         if(!this.state.player.options.predict) {
-            var fieldLength = this.state.player.options.data.fields.length;
             for(var j = 0; j < fieldLength; j++){
                 var row = this.state.player.options.data.fields[j];
                 if(row.value != "unixtime") {
@@ -78,6 +79,14 @@ module.exports = React.createClass({
                 }
             }
             this.state.player.options.predict = true;
+        } else {
+            for(var j = fieldLength - 1; j >= 0; j--){
+                var row = this.state.player.options.data.fields[j];
+                if(row.value.includes('support') || row.value.includes('resistance')) {
+                    this.state.player.options.data.fields.splice(j,1);
+                }
+            }
+            this.state.player.options.predict = false;
         }
         this.state.player.load();
     },
