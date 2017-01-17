@@ -42,6 +42,7 @@ namespace Connector
             this.SetQuery(MariaQueryDefine.CreateFunction);
             this.SetQuery(MariaQueryDefine.CreateProcedure);
             this.SetQuery("DynamicQueryExecuter", MariaQueryDefine.CreateTableQuery);
+            this.SetQuery("DynamicQueryExecuter", MariaQueryBuilder.CreateSourceTable("admin"));
             var sourceList = this.GetQuery("DynamicQueryExecuter", MariaQueryDefine.GetSourceInformation);
             foreach (var source in sourceList)
             {

@@ -213,10 +213,42 @@ namespace DIWebSocket.Services
                         break;
                     }
                 #endregion
-                #region
+
+                #region Input
+                case "input":
+                    {
+                        var inputLogic = new InputLogic();
+                        switch (method.ToLower())
+                        {
+                            case "getlist":
+                                {
+                                    returnString = inputLogic.GetList(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "create":
+                                {
+                                    returnString = inputLogic.Create(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "modify":
+                                {
+                                    returnString = inputLogic.Modify(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "delete":
+                                {
+                                    returnString = inputLogic.Delete(reqInfo["parameters"]);
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                #endregion
+
+                #region Cluster
                 case "cluster":
                     {
-                        var clusterLogic = new ViewLogic();
+                        var clusterLogic = new ClusterLogic();
                         switch (method.ToLower())
                         {
                             case "schema":

@@ -72,7 +72,7 @@ module.exports = React.createClass({
 		return {data:[],fields:[],filters:[]};
 	},
     render : function () {
-        const {data,fields,filters,init} = this.state;
+        const {data,fields,filters} = this.state;
         return (
             <div style={{height:document.documentElement.offsetHeight - 77 + 'px',width:document.documentElement.offsetWidth + 'px'}}>
                 <Loader ref='loader' active={true}/>

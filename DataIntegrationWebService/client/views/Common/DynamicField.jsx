@@ -34,7 +34,7 @@ module.exports = React.createClass({
                     <Modal.Content>
                         <Form>
                             <Form.Group widths='equal'>
-                                <Form.Field label='TEXT' error={error01} required defaultValue={field.text} className='transparency' name='text' onChange={self.handleChange.bind(self,'text')} control={Input}/>
+                                <Form.Field label='TEXT' error={error01} disabled required defaultValue={field.text} className='transparency' name='text' onChange={self.handleChange.bind(self,'text')} control={Input}/>
                                 <Form.Field label='VALUE' error={error02} required defaultValue={field.value} className='transparency' name='value' onChange={self.handleChange.bind(self,'value')} control={Input}/>
                             </Form.Group>
                             <Form.Group widths='equal'>

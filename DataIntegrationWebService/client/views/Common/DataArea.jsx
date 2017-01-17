@@ -128,7 +128,9 @@ module.exports = React.createClass({
                 e.target.parentElement.className = 'selected'
             }
         } else if (e.shiftKey) {
-            //console.log(e.target.parentElement.attributes.name.value);
+            // console.log(e.target.parentElement.attributes.name.value);
+        } else {
+            // unselected
         }
     }
 });

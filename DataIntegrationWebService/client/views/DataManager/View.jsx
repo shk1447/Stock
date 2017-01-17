@@ -90,7 +90,7 @@ module.exports = React.createClass({
         } else if (result.action == 'delete') {
             var selectedItems = this.refs.ViewTable.refs.DataArea.state.selectedItems;
             var $dataArea = $(ReactDOM.findDOMNode(this.refs.ViewTable.refs.DataArea.refs.table_contents));
-            _.forEach($dataArea.find('tbody').children('[class=selected]'),function(row,value) {console.log($(row).attr('class',''));});
+            _.forEach($dataArea.find('tbody').children('[class=selected]'),function(row,value) {$(row).attr('class','');});
             _.each(selectedItems, function(row, i){
                 var data = {"broadcast":false,"target":"view", "method":"delete", "parameters":{name:row.name,member_id:sessionStorage.member_id}};
                 self.socket.emit('fromclient', data);

@@ -49,14 +49,17 @@ module.exports = React.createClass({
                 groups[groupIndex].push(field);
             }
             if(field.type == 'AddFields' && self.state.data[field.value]) {
+                var count = 0;
                 _.each(self.state.data[field.value], function(value,key){
                     if(!self.state.fields.find(function(d){return d.value == key})) {
+                        if(count == 2) count = 0, groupIndex++;
                         let addedField = {text:key,value:key,type:'Text',required:field.required,datakey:field.value};
                         if(!groups[groupIndex + 1]){
                             groups[groupIndex + 1] = [addedField]
                         } else {
                             groups[groupIndex + 1].push(addedField);
                         }
+                        count++
                     }
                 });
             }
@@ -364,7 +367,9 @@ module.exports = React.createClass({
     },
     addField : function(field) {
         if(field !== 'cancel') {
-            this.state.fields.push(field);
+            if(!this.state.data[field.datakey][field.value]) {
+                this.state.data[field.datakey][field.value] = "";
+            }
             this.setState(this.state);
         }
     },
@@ -505,7 +510,7 @@ module.exports = React.createClass({
                 break;
             }
             case 'addfields' : {
-                this.refs.DynamicField.setState({active:true,field:{required : field.required, group:field.group+1, datakey:field.value, type:'Text'}});
+                this.refs.DynamicField.setState({active:true,field:{text:"Default", required : field.required, group:field.group, datakey:field.value, type:'Text'}});
                 break;
             }
         }
