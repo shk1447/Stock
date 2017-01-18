@@ -266,7 +266,6 @@ namespace DataIntegrationServiceLogic
             {
                 var categories_query = "SELECT category FROM current_" + target_source;
                 var categories = MariaDBConnector.Instance.GetJsonArray(categories_query);
-                var progress = 1;
                 foreach (var row in categories)
                 {
                     var category = row["category"].ReadAs<string>();
@@ -289,12 +288,13 @@ namespace DataIntegrationServiceLogic
                         };
                         if (setSource.rawdata.Count > 0)
                         {
-                            var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
-                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                            ThreadPool.QueueUserWorkItem((a) =>
+                            {
+                                var setSourceQuery = MariaQueryBuilder.SetDataSource(setSource);
+                                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                            });
                         }
                     }
-                    EnvironmentHelper.ProgressBar(progress, categories.Count);
-                    progress++;
                 }
             }
             else

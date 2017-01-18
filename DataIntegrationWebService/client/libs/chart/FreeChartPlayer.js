@@ -1008,29 +1008,66 @@ module.exports = function () {
                         }
                     }
                 }
-                if(nextMin != undefined & nextMin != -1) {
-                    var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
-                    var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
-                    for(var j = minIndex; j < row.data.length; j++) {
-                        var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
-                        if(data.datasets[i]) {
-                            supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
+                if(nextMin == undefined && nextMax == undefined) {
+                    if(minIndex > maxIndex) {
+                        var timeMaxGap = (data.times[minIndex] - data.times[maxIndex]) / (minIndex - maxIndex);
+                        var maxGap = (row.data[minIndex] - row.data[maxIndex]) / (minIndex - maxIndex);
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
+                            }
+                        }
+                    } else {
+                        var timeMinGap = (data.times[maxIndex] - data.times[minIndex]) / (maxIndex - minIndex);
+                        var minGap = (row.data[maxIndex] - row.data[minIndex]) / (maxIndex - minIndex);
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
+                            }
+                        }
+                    }
+                } else {
+                    if(nextMin != undefined) {
+                        var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
+                        var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
+                            }
+                        }
+                    } else if(nextMax != undefined) {
+                        var timeMinGap = (data.times[nextMax] - data.times[minIndex]) / (nextMax - minIndex);
+                        var minGap = (row.data[nextMax] - row.data[minIndex]) / (nextMax - minIndex);
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
+                            }
+                        }
+                    }
+                    if(nextMax != undefined) {
+                        var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
+                        var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
+                            }
+                        }
+                    } else if (nextMin != undefined) {
+                        var timeMaxGap = (data.times[nextMin] - data.times[maxIndex]) / (nextMin - maxIndex);
+                        var maxGap = (row.data[nextMin] - row.data[maxIndex]) / (nextMin - maxIndex);
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                            if(data.datasets[i]) {
+                                supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
+                            }
                         }
                     }
                 }
-                if(nextMax != undefined & nextMax != -1) {
-                    var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
-                    var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
-                    for(var j = maxIndex; j < row.data.length; j++) {
-                        var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
-                        if(data.datasets[i]) {
-                            supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
-                        }
-                    }
-                }
-                console.log(row.id);
-                console.log(maxIndex, "~",nextMax);
-                console.log(minIndex, "~",nextMin);
             }
         }
         self.startDraw = new Date();

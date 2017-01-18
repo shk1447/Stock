@@ -260,7 +260,7 @@ namespace Finance
                 
                 if (result.rawdata.Count > 0)
                 {
-                    Task.Factory.StartNew(() =>
+                    ThreadPool.QueueUserWorkItem((a) =>
                     {
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
@@ -345,7 +345,7 @@ namespace Finance
                 }
                 if (result.rawdata.Count > 0)
                 {
-                    Task.Factory.StartNew(() =>
+                    ThreadPool.QueueUserWorkItem((a) =>
                     {
                         var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                         MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
@@ -383,7 +383,7 @@ namespace Finance
 
                 result.rawdata.Add(finance);
 
-                Task.Factory.StartNew(() =>
+                ThreadPool.QueueUserWorkItem((a) =>
                 {
                     var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                     MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
@@ -468,8 +468,11 @@ namespace Finance
                     }
                     if (result.rawdata.Count > 0)
                     {
-                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        ThreadPool.QueueUserWorkItem((a) =>
+                            {
+                                var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                            });
                     }
                 }
                 catch (Exception ex)

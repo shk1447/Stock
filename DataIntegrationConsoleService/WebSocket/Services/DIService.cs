@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Json;
@@ -16,6 +17,11 @@ namespace DIWebSocket.Services
 {
     public class DIService : WebSocketBehavior
     {
+        /// <summary>
+        /// 서버 자체에서 연결되어진 클라이언트에게 이벤트를 발생시키기 위한 큐
+        /// </summary>
+        public ConcurrentQueue<JsonObject> sendQueue = new ConcurrentQueue<JsonObject>();
+
         protected override void OnOpen()
         {
             //Console.WriteLine("open socket");
