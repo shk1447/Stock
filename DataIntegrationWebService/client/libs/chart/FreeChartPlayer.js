@@ -378,7 +378,7 @@ module.exports = function () {
                 seriesColor : ["#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
                     "#55BF3B", "#8d4654", "#7798BF", "#aaeeee","#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
                 annotateDisplay: true,
-                annotateLabel: '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',
+                annotateLabel: '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',
                 xAxisSpaceBetweenLabels: 100,
                 detectAnnotateOnFullLine : false,
                 spaceLeft: 20,
@@ -957,7 +957,7 @@ module.exports = function () {
             tempChart.datasets.forEach(function(d) {d.datasetFill = chartTypeOption == 'area' ? true : false; d.axis = 1;});
             self.options.style.chart.yAxisRight = false;
             self.options.style.chart.yAxisUnit = self.options.fixedUnit;
-            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
+            self.options.style.chart.annotateLabel = '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
         } else if( chartTypeOption == 'pie') {
             tempChart = $.extend(true, [], self.renderData.pie);
             var pieIndex = tempChart.findIndex(function(d) {return d.id == self.options.xAxisField} );
@@ -968,7 +968,7 @@ module.exports = function () {
         } else if (chartTypeOption == 'bar') {
             chartType = 'Bar';
             self.options.style.chart.yAxisRight = false;
-            self.options.style.chart.annotateLabel = '<%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
+            self.options.style.chart.annotateLabel = '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>';
             tempChart.datasets.forEach(function(d) {d.datasetFill = true; d.axis = 1;});
             self.options.style.chart.yAxisUnit = self.options.fixedUnit;
         }
@@ -978,7 +978,6 @@ module.exports = function () {
     };
 
     self.redraw = function (data) {
-        console.log(data);
         if(self.options.predict) {
             var fieldsLength = data.datasets.length;
             for(var i = 0; i < fieldsLength; i++){
@@ -986,6 +985,7 @@ module.exports = function () {
                 if(row.id.includes("support") || row.id.includes("resistance")){
                     continue;
                 }
+                // undefined에 대한 처리 필요 - 임시로 DAY단위로 샘플링하여 오류없이 사용해야함.
                 var maxIndex = row.data.indexOf(Math.max(...row.data));
                 var minIndex = row.data.indexOf(Math.min(...row.data));
                 var nextData, nextMin, nextMax;
@@ -1012,7 +1012,7 @@ module.exports = function () {
                     if(minIndex > maxIndex) {
                         var timeMaxGap = (data.times[minIndex] - data.times[maxIndex]) / (minIndex - maxIndex);
                         var maxGap = (row.data[minIndex] - row.data[maxIndex]) / (minIndex - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
@@ -1021,7 +1021,7 @@ module.exports = function () {
                     } else {
                         var timeMinGap = (data.times[maxIndex] - data.times[minIndex]) / (maxIndex - minIndex);
                         var minGap = (row.data[maxIndex] - row.data[minIndex]) / (maxIndex - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1032,7 +1032,7 @@ module.exports = function () {
                     if(nextMin != undefined) {
                         var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
                         var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1041,7 +1041,7 @@ module.exports = function () {
                     } else if(nextMax != undefined) {
                         var timeMinGap = (data.times[nextMax] - data.times[minIndex]) / (nextMax - minIndex);
                         var minGap = (row.data[nextMax] - row.data[minIndex]) / (nextMax - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1051,7 +1051,7 @@ module.exports = function () {
                     if(nextMax != undefined) {
                         var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
                         var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
@@ -1060,7 +1060,7 @@ module.exports = function () {
                     } else if (nextMin != undefined) {
                         var timeMaxGap = (data.times[nextMin] - data.times[maxIndex]) / (nextMin - maxIndex);
                         var maxGap = (row.data[nextMin] - row.data[maxIndex]) / (nextMin - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
