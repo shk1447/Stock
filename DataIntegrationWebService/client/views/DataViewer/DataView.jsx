@@ -328,7 +328,7 @@ module.exports = React.createClass({
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
                 var data = {"protocol":"http", "broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
                 self.socket.emit('fromclient', data);
-            },10000)
+            },3000)
         } else if (result.action == 'repeat_off') {
             clearInterval(self.state.gridInfo[cellId]["repeatInterval"]);
         } else if (result.action == 'download') {
