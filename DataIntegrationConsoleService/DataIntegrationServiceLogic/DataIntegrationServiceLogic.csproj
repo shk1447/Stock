@@ -62,6 +62,10 @@
       <Project>{3635f0d0-3bd7-4ca9-bc70-c15b945611dd}</Project>
       <Name>Connector</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Log\Log.csproj">
+      <Project>{99ffb3ba-e485-4f3c-8118-715e2228346d}</Project>
+      <Name>Log</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Model\Models.csproj">
       <Project>{1c38a2ba-2449-4b5a-8b98-5729cdb9b10f}</Project>
       <Name>Models</Name>

@@ -12,6 +12,7 @@ using Model.Common;
 using Model.Request;
 using System.Diagnostics;
 using Common;
+using Log;
 
 namespace DataIntegrationServiceLogic
 {
@@ -214,13 +215,20 @@ namespace DataIntegrationServiceLogic
 
             var action = new Func<string, bool>((switchMode) =>
             {
-                if (switchMode == "wait" || switchMode == "stop")
+                try
                 {
-                    setDict["status"] = "play";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                    MariaDBConnector.Instance.SetQuery(statusUpdate);
+                    if (switchMode == "wait" || switchMode == "stop")
+                    {
+                        setDict["status"] = "play";
+                        var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
+                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                    }
+                    this.ExecuteAnalysis(analysisInfo);
                 }
-                this.ExecuteAnalysis(analysisInfo);
+                catch (Exception ex)
+                {
+                    LogWriter.Error(ex.ToString());
+                }
 
                 return true;
             });

@@ -205,66 +205,73 @@ namespace Finance
             var progress = 1;
             foreach (var stock in stockJson)
             {
-                var result = new SetDataSourceReq();
-                result.rawdata = new List<JsonDictionary>();
-                result.source = collectionName;
-                result.category = "종목코드";
-                result.collected_at = "날짜";
-
-                var code = stock.Value["code"].ReadAs<string>();
-                var name = stock.Value["name"].ReadAs<string>();
-                var type = stock.Value["type"].ReadAs<string>();
-                var cnt = stock.Value["cnt"].ReadAs<string>();
-                
-                var nvParser = new nvParser(code);
-                var siseInfo = nvParser.getSise(2);
-
-                if (siseInfo.Length < 7) continue;
-                var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량", "전일비율" };
-                
-                var sise = new JsonDictionary();
-                var siseDate = DateTime.Parse(siseInfo[0]).AddHours(16);
-                var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
-                sise.Add("종목코드", code);
-                sise.Add("종목명", name);
-                sise.Add("종목유형", type);
-                sise.Add("상장주식수", cnt);
-                sise.Add(columnInfo[0], siseUnix);
-                sise.Add(columnInfo[1], siseInfo[1]);
-                var sign = string.Empty;
-                if (1 + 7 < siseInfo.Length)
+                try
                 {
-                    if(int.Parse(siseInfo[1]) < int.Parse(siseInfo[1 + 7]))
+                    var result = new SetDataSourceReq();
+                    result.rawdata = new List<JsonDictionary>();
+                    result.source = collectionName;
+                    result.category = "종목코드";
+                    result.collected_at = "날짜";
+
+                    var code = stock.Value["code"].ReadAs<string>();
+                    var name = stock.Value["name"].ReadAs<string>();
+                    var type = stock.Value["type"].ReadAs<string>();
+                    var cnt = stock.Value["cnt"].ReadAs<string>();
+
+                    var nvParser = new nvParser(code);
+                    var siseInfo = nvParser.getSise(2);
+
+                    if (siseInfo.Length < 7) continue;
+                    var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량", "전일비율" };
+
+                    var sise = new JsonDictionary();
+                    var siseDate = DateTime.Parse(siseInfo[0]).AddHours(16);
+                    var siseUnix = EnvironmentHelper.GetUnixTime(siseDate) / 1000;
+                    sise.Add("종목코드", code);
+                    sise.Add("종목명", name);
+                    sise.Add("종목유형", type);
+                    sise.Add("상장주식수", cnt);
+                    sise.Add(columnInfo[0], siseUnix);
+                    sise.Add(columnInfo[1], siseInfo[1]);
+                    var sign = string.Empty;
+                    if (1 + 7 < siseInfo.Length)
                     {
-                        sign = "-";
+                        if (int.Parse(siseInfo[1]) < int.Parse(siseInfo[1 + 7]))
+                        {
+                            sign = "-";
+                        }
+                    }
+                    sise.Add(columnInfo[2], sign + siseInfo[2]);
+                    sise.Add(columnInfo[3], siseInfo[3]);
+                    sise.Add(columnInfo[4], siseInfo[4]);
+                    sise.Add(columnInfo[5], siseInfo[5]);
+                    sise.Add(columnInfo[6], siseInfo[6]);
+
+                    var diff = double.Parse(sign + siseInfo[2]);
+                    var prevPrice = int.Parse(siseInfo[1 + 7]);
+                    if (prevPrice > 0)
+                    {
+                        sise.Add(columnInfo[7], diff / prevPrice * 100);
+                    }
+                    else
+                    {
+                        sise.Add(columnInfo[7], 0);
+                    }
+
+                    result.rawdata.Add(sise);
+
+                    if (result.rawdata.Count > 0)
+                    {
+                        ThreadPool.QueueUserWorkItem((a) =>
+                        {
+                            var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        });
                     }
                 }
-                sise.Add(columnInfo[2], sign + siseInfo[2]);
-                sise.Add(columnInfo[3], siseInfo[3]);
-                sise.Add(columnInfo[4], siseInfo[4]);
-                sise.Add(columnInfo[5], siseInfo[5]);
-                sise.Add(columnInfo[6], siseInfo[6]);
-
-                var diff = double.Parse(sign + siseInfo[2]);
-                var prevPrice = int.Parse(siseInfo[1 + 7]);
-                if (prevPrice > 0)
+                catch (Exception ex)
                 {
-                    sise.Add(columnInfo[7], diff / prevPrice * 100);
-                }
-                else
-                {
-                    sise.Add(columnInfo[7], 0);
-                }
-
-                result.rawdata.Add(sise);
-                
-                if (result.rawdata.Count > 0)
-                {
-                    ThreadPool.QueueUserWorkItem((a) =>
-                    {
-                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                    });
+                    Console.WriteLine("Current Stock Collector Error");
                 }
                 EnvironmentHelper.ProgressBar(progress, stockJson.Count);
                 progress++;
@@ -283,73 +290,80 @@ namespace Finance
             
             foreach (var stock in stockJson)
             {
-                var result = new SetDataSourceReq();
-                result.rawdata = new List<JsonDictionary>();
-                result.source = collectionName;
-                result.category = "종목코드";
-                result.collected_at = "날짜";
-                
-                var code = stock.Value["code"].ReadAs<string>();
-                var name = stock.Value["name"].ReadAs<string>();
-                var type = stock.Value["type"].ReadAs<string>();
-                var cnt = stock.Value["cnt"].ReadAs<string>();
-                var url = "http://companyinfo.stock.naver.com/v1/company/ajax/cF1001.aspx?cmp_cd={code}&fin_typ=0&freq_typ=Y";
-
-                var reqParam = new RequestParameter()
+                try
                 {
-                    Url = url.Replace("{code}", code),
-                    ContentType = "text/html",
-                    EncodingOption = "UTF8",
-                    Method = "GET"
-                };
+                    var result = new SetDataSourceReq();
+                    result.rawdata = new List<JsonDictionary>();
+                    result.source = collectionName;
+                    result.category = "종목코드";
+                    result.collected_at = "날짜";
 
-                var htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
-                HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(htmlCode);
-                var titleNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,'bg txt title')]");
-                var dateNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,' bg')]");
-                var dataNodes = doc.DocumentNode.SelectNodes("//td[contains(@class,'num')]");
+                    var code = stock.Value["code"].ReadAs<string>();
+                    var name = stock.Value["name"].ReadAs<string>();
+                    var type = stock.Value["type"].ReadAs<string>();
+                    var cnt = stock.Value["cnt"].ReadAs<string>();
+                    var url = "http://companyinfo.stock.naver.com/v1/company/ajax/cF1001.aspx?cmp_cd={code}&fin_typ=0&freq_typ=Y";
 
-
-                for (int i = 1; i < dateNodes.Count; i++)
-                {
-                    var finance = new JsonDictionary();
-
-                    var dateNode = dateNodes[i];
-                    var dateText = dateNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
-                    if (string.IsNullOrWhiteSpace(dateText)) continue;
-                    var dateValue = dateText.Substring(0, 7);
-                    var date = DateTime.Parse(dateValue);
-                    var unixtime = EnvironmentHelper.GetUnixTime(date) / 1000;
-
-                    finance.Add("종목코드", code);
-                    finance.Add("종목유형", type);
-                    finance.Add("종목명", name);
-                    finance.Add("상장주식수", cnt);
-                    finance.Add("날짜", unixtime);
-
-                    for (int j = 0; j < titleNodes.Count; j++)
+                    var reqParam = new RequestParameter()
                     {
-                        var titleNode = titleNodes[j];
-                        var dataNode = dataNodes[j * (dateNodes.Count - 1) + (i - 1)];
+                        Url = url.Replace("{code}", code),
+                        ContentType = "text/html",
+                        EncodingOption = "UTF8",
+                        Method = "GET"
+                    };
 
-                        var key = titleNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
-                        var value = dataNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "").Replace(",", "");
+                    var htmlCode = HttpsRequest.Instance.GetResponseByHttps(reqParam);
+                    HtmlDocument doc = new HtmlDocument();
+                    doc.LoadHtml(htmlCode);
+                    var titleNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,'bg txt title')]");
+                    var dateNodes = doc.DocumentNode.SelectNodes("//th[contains(@class,' bg')]");
+                    var dataNodes = doc.DocumentNode.SelectNodes("//td[contains(@class,'num')]");
 
-                        if (string.IsNullOrWhiteSpace(value)) continue;
-                        finance.Add(key, value);
+
+                    for (int i = 1; i < dateNodes.Count; i++)
+                    {
+                        var finance = new JsonDictionary();
+
+                        var dateNode = dateNodes[i];
+                        var dateText = dateNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
+                        if (string.IsNullOrWhiteSpace(dateText)) continue;
+                        var dateValue = dateText.Substring(0, 7);
+                        var date = DateTime.Parse(dateValue);
+                        var unixtime = EnvironmentHelper.GetUnixTime(date) / 1000;
+
+                        finance.Add("종목코드", code);
+                        finance.Add("종목유형", type);
+                        finance.Add("종목명", name);
+                        finance.Add("상장주식수", cnt);
+                        finance.Add("날짜", unixtime);
+
+                        for (int j = 0; j < titleNodes.Count; j++)
+                        {
+                            var titleNode = titleNodes[j];
+                            var dataNode = dataNodes[j * (dateNodes.Count - 1) + (i - 1)];
+
+                            var key = titleNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "");
+                            var value = dataNode.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("&nbsp;", "").Replace(",", "");
+
+                            if (string.IsNullOrWhiteSpace(value)) continue;
+                            finance.Add(key, value);
+                        }
+
+                        if (finance.GetDictionary().Keys.Count < 5) continue;
+                        result.rawdata.Add(finance);
                     }
-
-                    if (finance.GetDictionary().Keys.Count < 5) continue;
-                    result.rawdata.Add(finance);
-                }
-                if (result.rawdata.Count > 0)
-                {
-                    ThreadPool.QueueUserWorkItem((a) =>
+                    if (result.rawdata.Count > 0)
                     {
-                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                    });
+                        ThreadPool.QueueUserWorkItem((a) =>
+                        {
+                            var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Finance Collector Error");
                 }
             }
             Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -477,7 +491,7 @@ namespace Finance
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    Console.WriteLine("All Stock Collector Error");
                 }
                 EnvironmentHelper.ProgressBar(progress, stockJson.Count);
                 progress++;

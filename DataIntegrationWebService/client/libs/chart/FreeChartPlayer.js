@@ -933,8 +933,8 @@ module.exports = function () {
             }
             self.options.style.chart.graphSubTitle = 'Range : ' + self.renderData.labels["unixtime"][0] + " ~ "
                                                    + self.renderData.labels["unixtime"][self.renderData.labels["unixtime"].length-1];
-            //self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
-            //self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
+            self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
+            self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
         }
         return true;
     };

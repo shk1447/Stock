@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Connector;
 using Helper;
+using Log;
 using Model.Common;
 using Model.Response;
 using SourceModuleManager;
@@ -146,14 +147,21 @@ namespace DataIntegrationServiceLogic
 
             var action = new Func<string, bool>((switchMode) =>
             {
-                if (switchMode == "wait" || switchMode == "stop")
+                try
                 {
-                    setDict["status"] = "play";
-                    var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                    MariaDBConnector.Instance.SetQuery(statusUpdate);
-                }
+                    if (switchMode == "wait" || switchMode == "stop")
+                    {
+                        setDict["status"] = "play";
+                        var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
+                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                    }
 
-                ModuleManager.Instance.ExecuteModule(moduleInfo);
+                    ModuleManager.Instance.ExecuteModule(moduleInfo);
+                }
+                catch (Exception ex)
+                {
+                    LogWriter.Error(ex.ToString());
+                }
 
                 return true;
             });
