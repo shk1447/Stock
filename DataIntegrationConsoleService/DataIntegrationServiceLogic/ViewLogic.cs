@@ -15,6 +15,12 @@ namespace DataIntegrationServiceLogic
     {
         private const string TableName = "data_view";
 
+        public enum TrendType
+        {
+            Upward,
+            Downward
+        }
+
         public string Schema(string privilege)
         {
             var fields = new JsonArray();
@@ -24,7 +30,7 @@ namespace DataIntegrationServiceLogic
                                       new KeyValuePair<string, JsonValue>("type", "Text"),
                                       new KeyValuePair<string, JsonValue>("group", 0),
                                       new KeyValuePair<string, JsonValue>("required", true)));
-            
+
             var sourceArray_current = new JsonArray();
             var sourceArray_past = new JsonArray();
             var sourceQuery = MariaQueryDefine.GetSourceInformation;
@@ -126,10 +132,10 @@ namespace DataIntegrationServiceLogic
                                                             new JsonObject(
                                                                 new KeyValuePair<string, JsonValue>("text", "MAX"),
                                                                 new KeyValuePair<string, JsonValue>("value", "max")
-                                                            ),new JsonObject(
+                                                            ), new JsonObject(
                                                                 new KeyValuePair<string, JsonValue>("text", "MIN"),
                                                                 new KeyValuePair<string, JsonValue>("value", "min")
-                                                            ),new JsonObject(
+                                                            ), new JsonObject(
                                                                 new KeyValuePair<string, JsonValue>("text", "AVG"),
                                                                 new KeyValuePair<string, JsonValue>("value", "avg")
                                                             ), new JsonObject(
@@ -165,7 +171,7 @@ namespace DataIntegrationServiceLogic
                                                                 new KeyValuePair<string, JsonValue>("text", "YEAR"),
                                                                 new KeyValuePair<string, JsonValue>("value", "year")
                                                             )))));
-                
+
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "VIEW TYPE"),
                                         new KeyValuePair<string, JsonValue>("value", "view_type"),
                                         new KeyValuePair<string, JsonValue>("type", "Select"),
@@ -186,7 +192,7 @@ namespace DataIntegrationServiceLogic
                                                 new KeyValuePair<string, JsonValue>("value", "video"),
                                                 new KeyValuePair<string, JsonValue>("fields", video_sourceFields)
                                             )))));
-            
+
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "UPDATED TIME"),
                                         new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                         new KeyValuePair<string, JsonValue>("type", "Data")));
@@ -378,9 +384,171 @@ namespace DataIntegrationServiceLogic
             Stopwatch sw = new Stopwatch();
             sw.Start();
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+            var data = res["data"].ReadAs<JsonArray>();
+            var refFields = res["fields"].ReadAs<JsonArray>();
+            var fieldCnt = refFields.ReadAs<JsonArray>().Count;
+            for (int i = 0; i < fieldCnt; i++)
+            {
+                var key = refFields[i]["value"].ReadAs<string>();
+                if (key == "unixtime") continue;
+                Segmentation(ref refFields, ref data, data, key);
+            }
             sw.Stop();
             Console.WriteLine("{0} data speed : {1} ms", res.Count, sw.ElapsedMilliseconds);
             return res.ToString();
+        }
+
+        private void Segmentation(ref JsonArray fields, ref JsonArray result, JsonArray data, string key, double? startUnixTime = null)
+        {
+            if (startUnixTime != null)
+            {
+                data = data.Where<JsonValue>(p => p["unixtime"].ReadAs<double>() >= startUnixTime).ToJsonArray();
+                if (data.Count == 1)
+                {
+                    return;
+                }
+            }
+
+            var max = data.Aggregate<JsonValue>((arg1, arg2) =>
+            {
+                return arg1[key].ReadAs<int>() > arg2[key].ReadAs<int>() ? arg1 : arg2;
+            });
+            var min = data.Aggregate<JsonValue>((arg1, arg2) =>
+            {
+                return arg1[key].ReadAs<int>() < arg2[key].ReadAs<int>() ? arg1 : arg2;
+            });
+
+            var trendType = max["unixtime"].ReadAs<int>() > min["unixtime"].ReadAs<int>() ? TrendType.Upward : TrendType.Downward;
+            var result2 = new JsonArray();
+            var lastIndex = result.Count;
+            switch (trendType)
+            {
+                case TrendType.Upward:
+                    {
+                        var internalData = data.Where<JsonValue>((p) =>
+                        {
+                            return p["unixtime"].ReadAs<int>() > min["unixtime"].ReadAs<int>() && p["unixtime"].ReadAs<int>() < max["unixtime"].ReadAs<int>();
+                        });
+                        this.TrendAnalysis(key, min, max, internalData, ref result2, 0, min[key].ReadAs<double>());
+
+                        foreach (var inc in result2)
+                        {
+                            var unixtime = inc["unixtime"].ReadAs<int>();
+                            var id = key + "_support_" + unixtime;
+                            var next = 0;
+                            for (int i = result.IndexOf(min); i < lastIndex; i++)
+                            {
+                                if (unixtime <= result[i]["unixtime"].ReadAs<int>())
+                                {
+                                    var nextValue = inc[key].ReadAs<double>() + (inc["diff"].ReadAs<double>() * next);
+                                    if (nextValue < max[key].ReadAs<double>())
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    }
+                                    next++;
+                                }
+                                if (i == result.IndexOf(min))
+                                {
+                                    result[i].ReadAs<JsonObject>().Add(id, min[key].ReadAs<double>());
+                                }
+                            }
+                            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", id),
+                                                    new KeyValuePair<string, JsonValue>("value", id),
+                                                    new KeyValuePair<string, JsonValue>("type", "Number")));
+                        }
+
+
+                        this.Segmentation(ref fields, ref result, data, key, max["unixtime"].ReadAs<double>());
+                        break;
+                    }
+                case TrendType.Downward:
+                    {
+                        var internalData = data.Where<JsonValue>((p) =>
+                        {
+                            return p["unixtime"].ReadAs<int>() < min["unixtime"].ReadAs<int>() && p["unixtime"].ReadAs<int>() > max["unixtime"].ReadAs<int>();
+                        });
+                        this.TrendAnalysis(key, max, min, internalData, ref result2, 0, max[key].ReadAs<double>());
+
+                        foreach (var dec in result2)
+                        {
+                            var unixtime = dec["unixtime"].ReadAs<int>();
+                            var next = 0;
+                            var id = key + "_resistance_" + unixtime;
+                            for (int i = result.IndexOf(max); i < lastIndex; i++)
+                            {
+                                if (unixtime <= result[i]["unixtime"].ReadAs<int>())
+                                {
+                                    var nextValue = dec[key].ReadAs<double>() + (dec["diff"].ReadAs<double>() * next);
+                                    if (nextValue > min[key].ReadAs<double>())
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    }
+                                    next++;
+                                }
+                                if (i == result.IndexOf(max))
+                                {
+                                    result[i].ReadAs<JsonObject>().Add(id, max[key].ReadAs<double>());
+                                }
+                            }
+                            fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", id),
+                                                    new KeyValuePair<string, JsonValue>("value", id),
+                                                    new KeyValuePair<string, JsonValue>("type", "Number")));
+                        }
+
+                        this.Segmentation(ref fields, ref result, data, key, min["unixtime"].ReadAs<double>());
+                        break;
+                    }
+            }
+        }
+
+        private void TrendAnalysis(string key, JsonValue start, JsonValue end, IEnumerable<JsonValue> data, ref JsonArray result, int prevIndex, double firstValue)
+        {
+            if (data.Count() == 0) return;
+
+            var startX = start["unixtime"].ReadAs<double>();
+            var startY = start[key].ReadAs<double>();
+            var endX = end["unixtime"].ReadAs<double>();
+            var endY = end[key].ReadAs<double>();
+            var standardDegree = Math.Atan2(Math.Abs(endY - startY), (Math.Abs(endX - startX)) / 3600) * 180d / Math.PI;
+
+            var index = prevIndex;
+            JsonObject minimum = null;
+            double? prevDegree = null;
+            foreach (var item in data)
+            {
+                var dynamicX = item["unixtime"].ReadAs<double>();
+                var dynamicY = item[key].ReadAs<double>();
+                var dynamicDegree = Math.Atan2(Math.Abs(dynamicY - startY), (Math.Abs(dynamicX - startX)) / 3600) * 180d / Math.PI;
+                if (prevDegree != null)
+                {
+                    if (prevDegree > dynamicDegree && standardDegree > dynamicDegree)
+                    {    
+                        minimum[key] = dynamicY;
+                        minimum["unixtime"] = dynamicX;
+                        minimum["degree"] = dynamicDegree;
+                        minimum["index"] = index;
+                        minimum["diff"] = (dynamicY - firstValue) / index;
+                        
+                        prevDegree = dynamicDegree;
+                    }
+                }
+                if (index == prevIndex)
+                {
+                    prevDegree = dynamicDegree;
+                    minimum = new JsonObject(new KeyValuePair<string, JsonValue>(key, dynamicY),
+                                                     new KeyValuePair<string, JsonValue>("unixtime", dynamicX),
+                                                     new KeyValuePair<string, JsonValue>("degree", dynamicDegree),
+                                                     new KeyValuePair<string, JsonValue>("index", index),
+                                                     new KeyValuePair<string, JsonValue>("diff", (dynamicY - firstValue) / (index + 1)));
+                }
+                index++;
+            }
+
+            if (minimum == null) return;
+
+            result.Add(minimum);
+            index = minimum["index"].ReadAs<int>();
+            this.TrendAnalysis(key, minimum, end, data.Where(p => p["unixtime"].ReadAs<int>() > minimum["unixtime"].ReadAs<int>()), ref result, index, firstValue);
         }
 
         public string Download(JsonValue jsonValue)

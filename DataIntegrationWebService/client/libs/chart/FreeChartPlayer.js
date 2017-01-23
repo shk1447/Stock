@@ -375,7 +375,7 @@ module.exports = function () {
                 legendFontStyle: "normal normal",
                 legendFontColor: "#ffffff",
                 legendFontSize: 12,
-                seriesColor : ["#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
+                seriesColor : ["#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
                     "#55BF3B", "#8d4654", "#7798BF", "#aaeeee","#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
                 annotateDisplay: true,
                 annotateLabel: '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',
@@ -885,10 +885,27 @@ module.exports = function () {
                         visible : true,
                         hover : false
                     };
-
                     self.renderData.chart.datasets.push(series);
                     self.renderData.pie.push(pieSeries);
                     self.options.Fields.push(field.value);
+                    if(self.options.predict) {
+                        var trend = result.trend[field.value]
+                        if(trend) {
+                            for(var ti = 0; ti < trend.length; ti++) {
+                                var trendSeries = _.cloneDeep(series);
+                                var trendPieSeries = _.cloneDeep(series);
+                                var type = trend[ti]["support"] ? "support" : "resistance";
+                                var fieldId = field.value + "_" + type + "_" + ti;
+                                trendSeries["title"] = fieldId;
+                                trendSeries["id"] = fieldId;
+                                trendPieSeries["title"] = fieldId;
+                                trendPieSeries["id"] = fieldId;
+                                self.renderData.chart.datasets.push(trendSeries);
+                                self.renderData.pie.push(trendPieSeries);
+                                self.options.Fields.push(fieldId);
+                            }
+                        }
+                    }
                     colorIndex++;
                 } else {
                     self.renderData.labels[field.value] = [];

@@ -39,16 +39,6 @@ namespace Connector
 
         public void Initialize()
         {
-            var query = "SELECT column_get(rawdata, '종가' as int) as `price`, unixtime FROM past_stock WHERE category = '038060' AND column_get(rawdata, '종가' as int) IS NOT NULL";
-            var data = MariaDBConnector.Instance.GetJsonArray(query);
-            /**
-             * 1. min / max 인덱스를 통해 구간 나누기
-             * 2. 구간별 타입 지정(상향, 하향)
-             *  - 구간에 대한 각도 지정
-             *  - 구간 내의 포인트에 대한 각도 구하기
-             *  - 해당 구간내의 각도에 대한 
-            **/
-
             this.SetQuery(MariaQueryDefine.CreateFunction);
             this.SetQuery(MariaQueryDefine.CreateProcedure);
             this.SetQuery("DynamicQueryExecuter", MariaQueryDefine.CreateTableQuery);
@@ -434,6 +424,10 @@ namespace Connector
                                             else if (type.Contains("double") || type.Contains("float") || type.Contains("decimal"))
                                             {
                                                 obj.Add(reader.GetName(i), reader.GetDouble(i));
+                                            }
+                                            else if (type.Contains("timestamp"))
+                                            {
+                                                obj.Add(reader.GetName(i), reader.GetDateTime(i));
                                             }
                                         }
                                     }
