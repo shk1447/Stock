@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Connector;
 using System.Diagnostics;
+using Common;
 
 namespace DataIntegrationServiceLogic
 {
@@ -352,6 +353,9 @@ namespace DataIntegrationServiceLogic
             var category = jsonObj["category"].ReadAs<string>();
             var sampling = jsonObj["sampling"].ReadAs<string>();
             var sampling_period = jsonObj["sampling_period"].ReadAs<string>();
+            var trend_analysis = jsonObj["trend_analysis"].ReadAs<bool>();
+            var from = jsonObj["from"].ReadAs<string>();
+            var to = jsonObj["to"].ReadAs<string>();
             var fieldQuery = new StringBuilder("SELECT column_json(rawdata) as `types` FROM fields_").Append(source).Append(" WHERE category = '").Append(category).Append("'");
             var fieldInfo = MariaDBConnector.Instance.GetJsonObject(fieldQuery.ToString());
 
@@ -371,7 +375,8 @@ namespace DataIntegrationServiceLogic
                     }
                 }
             }
-            queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '").Append(category).Append("') as result");
+            queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '").Append(category).Append("' AND ")
+                .Append("unixtime > '").Append(from).Append("' AND unixtime < '").Append(to).Append("') as result");
 
             if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
             else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -387,11 +392,21 @@ namespace DataIntegrationServiceLogic
             var data = res["data"].ReadAs<JsonArray>();
             var refFields = res["fields"].ReadAs<JsonArray>();
             var fieldCnt = refFields.ReadAs<JsonArray>().Count;
-            for (int i = 0; i < fieldCnt; i++)
+            if (trend_analysis)
             {
-                var key = refFields[i]["value"].ReadAs<string>();
-                if (key == "unixtime") continue;
-                Segmentation(ref refFields, ref data, data, key);
+                for (int i = 0; i < fieldCnt; i++)
+                {
+                    var key = refFields[i]["value"].ReadAs<string>();
+                    if (key == "unixtime") continue;
+                    Segmentation(ref refFields, ref data, data, key);
+                }
+                var dataCnt = data.Count;
+                var lastUnixtime = data[data.Count - 1]["unixtime"].ReadAs<int>();
+                var interval = lastUnixtime - data[data.Count - 2]["unixtime"].ReadAs<int>();
+                for (var j = 0; j < dataCnt / 20; j++)
+                {
+                    data.Add(new JsonObject(new KeyValuePair<string, JsonValue>("unixtime", lastUnixtime + (interval * (j + 1)))));
+                }
             }
             sw.Stop();
             Console.WriteLine("{0} data speed : {1} ms", res.Count, sw.ElapsedMilliseconds);
@@ -434,16 +449,31 @@ namespace DataIntegrationServiceLogic
                         foreach (var inc in result2)
                         {
                             var unixtime = inc["unixtime"].ReadAs<int>();
-                            var id = key + "_support_" + unixtime;
+
+                            var id = key + "_support_" + EnvironmentHelper.GetDateTimeString(unixtime);
                             var next = 0;
+                            var complete = false;
                             for (int i = result.IndexOf(min); i < lastIndex; i++)
                             {
-                                if (unixtime <= result[i]["unixtime"].ReadAs<int>())
+                                if (complete) break;
+                                var dynamicUnixtime = result[i]["unixtime"].ReadAs<int>();
+                                if (unixtime <= dynamicUnixtime)
                                 {
-                                    var nextValue = inc[key].ReadAs<double>() + (inc["diff"].ReadAs<double>() * next);
-                                    if (nextValue < max[key].ReadAs<double>())
+                                    var diff = inc["diff"].ReadAs<double>();
+                                    var nextValue = inc[key].ReadAs<double>() + (diff * next);
+                                    if (!(nextValue <= max[key].ReadAs<double>()))
                                     {
                                         result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                        complete = true;
+                                    }
+                                    else if (unixtime == result[i]["unixtime"].ReadAs<int>())
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    }
+                                    else if (i == lastIndex - 1)
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                        complete = true;
                                     }
                                     next++;
                                 }
@@ -473,15 +503,29 @@ namespace DataIntegrationServiceLogic
                         {
                             var unixtime = dec["unixtime"].ReadAs<int>();
                             var next = 0;
-                            var id = key + "_resistance_" + unixtime;
+                            var id = key + "_resistance_" + EnvironmentHelper.GetDateTimeString(unixtime);
+                            var complete = false;
                             for (int i = result.IndexOf(max); i < lastIndex; i++)
                             {
-                                if (unixtime <= result[i]["unixtime"].ReadAs<int>())
+                                if (complete) break;
+                                var dynamicUnixtime = result[i]["unixtime"].ReadAs<int>();
+                                if (unixtime <= dynamicUnixtime)
                                 {
-                                    var nextValue = dec[key].ReadAs<double>() + (dec["diff"].ReadAs<double>() * next);
-                                    if (nextValue > min[key].ReadAs<double>())
+                                    var diff = dec["diff"].ReadAs<double>();
+                                    var nextValue = dec[key].ReadAs<double>() + (diff * next);
+                                    if (!(nextValue >= min[key].ReadAs<double>()))
                                     {
                                         result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                        complete = true;
+                                    }
+                                    else if(unixtime == result[i]["unixtime"].ReadAs<int>())
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    }
+                                    else if (i == lastIndex - 1)
+                                    {
+                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                        complete = true;
                                     }
                                     next++;
                                 }
@@ -509,7 +553,7 @@ namespace DataIntegrationServiceLogic
             var startY = start[key].ReadAs<double>();
             var endX = end["unixtime"].ReadAs<double>();
             var endY = end[key].ReadAs<double>();
-            var standardDegree = Math.Atan2(Math.Abs(endY - startY), (Math.Abs(endX - startX)) / 3600) * 180d / Math.PI;
+            var standardDegree = Math.Atan2(Math.Abs(endY - startY), (Math.Abs(endX - startX))) * 180d / Math.PI;
 
             var index = prevIndex;
             JsonObject minimum = null;
@@ -518,9 +562,10 @@ namespace DataIntegrationServiceLogic
             {
                 var dynamicX = item["unixtime"].ReadAs<double>();
                 var dynamicY = item[key].ReadAs<double>();
-                var dynamicDegree = Math.Atan2(Math.Abs(dynamicY - startY), (Math.Abs(dynamicX - startX)) / 3600) * 180d / Math.PI;
+                var dynamicDegree = Math.Atan2(Math.Abs(dynamicY - startY), (Math.Abs(dynamicX - startX))) * 180d / Math.PI;
                 if (prevDegree != null)
                 {
+                    index++;
                     if (prevDegree > dynamicDegree && standardDegree > dynamicDegree)
                     {    
                         minimum[key] = dynamicY;
@@ -534,14 +579,14 @@ namespace DataIntegrationServiceLogic
                 }
                 if (index == prevIndex)
                 {
+                    index++;
                     prevDegree = dynamicDegree;
                     minimum = new JsonObject(new KeyValuePair<string, JsonValue>(key, dynamicY),
                                                      new KeyValuePair<string, JsonValue>("unixtime", dynamicX),
                                                      new KeyValuePair<string, JsonValue>("degree", dynamicDegree),
                                                      new KeyValuePair<string, JsonValue>("index", index),
-                                                     new KeyValuePair<string, JsonValue>("diff", (dynamicY - firstValue) / (index + 1)));
+                                                     new KeyValuePair<string, JsonValue>("diff", (dynamicY - firstValue) / index));
                 }
-                index++;
             }
 
             if (minimum == null) return;

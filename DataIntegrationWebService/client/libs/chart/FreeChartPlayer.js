@@ -857,7 +857,8 @@ module.exports = function () {
             for(var i = 0; i < fieldsLen; i++) {
                 var field = result.fields[i];
                 if (field.value !== "unixtime" && field.type !== "Text") {
-                    var color = convertHex(self.options.style.chart.seriesColor[colorIndex], 50);
+                    var real_color = field.value.includes("_support") ? '#8eb021' : field.value.includes("_resistance") ? '#d04437' : self.options.style.chart.seriesColor[colorIndex];
+                    var color = convertHex(real_color, field.value.includes("_real_") ? 100 : 45);
                     var series = {
                         fillColor: color,
                         strokeColor: color,
@@ -888,24 +889,6 @@ module.exports = function () {
                     self.renderData.chart.datasets.push(series);
                     self.renderData.pie.push(pieSeries);
                     self.options.Fields.push(field.value);
-                    if(self.options.predict) {
-                        var trend = result.trend[field.value]
-                        if(trend) {
-                            for(var ti = 0; ti < trend.length; ti++) {
-                                var trendSeries = _.cloneDeep(series);
-                                var trendPieSeries = _.cloneDeep(series);
-                                var type = trend[ti]["support"] ? "support" : "resistance";
-                                var fieldId = field.value + "_" + type + "_" + ti;
-                                trendSeries["title"] = fieldId;
-                                trendSeries["id"] = fieldId;
-                                trendPieSeries["title"] = fieldId;
-                                trendPieSeries["id"] = fieldId;
-                                self.renderData.chart.datasets.push(trendSeries);
-                                self.renderData.pie.push(trendPieSeries);
-                                self.options.Fields.push(fieldId);
-                            }
-                        }
-                    }
                     colorIndex++;
                 } else {
                     self.renderData.labels[field.value] = [];
@@ -1002,24 +985,23 @@ module.exports = function () {
                 if(row.id.includes("support") || row.id.includes("resistance")){
                     continue;
                 }
-                // undefined에 대한 처리 필요 - 임시로 DAY단위로 샘플링하여 오류없이 사용해야함.
-                var maxIndex = row.data.indexOf(Math.max(...row.data));
-                var minIndex = row.data.indexOf(Math.min(...row.data));
+                var maxIndex = row.data.indexOf(Math.max(...row.data.filter(function(d){ return d != undefined && d != "undefined"})));
+                var minIndex = row.data.indexOf(Math.min(...row.data.filter(function(d){ return d != undefined && d != "undefined"})));
                 var nextData, nextMin, nextMax;
                 if(minIndex > maxIndex) {
-                    nextData = row.data.filter(function(d,k){ return k > minIndex});
+                    nextData = row.data.filter(function(d,k){ return k > minIndex && d != undefined && d != "undefined"});
                     if(nextData.length > 0) {
                         nextMax = row.data.lastIndexOf(Math.max(...nextData));
-                        nextData = row.data.filter(function(d,k) { return k > nextMax});
+                        nextData = row.data.filter(function(d,k) { return k > nextMax && d != undefined && d != "undefined"});
                         if(nextData.length > 0) {
                             nextMin = row.data.lastIndexOf(Math.min(...nextData));
                         }
                     }
                 } else {
-                    nextData = row.data.filter(function(d,k){ return k > maxIndex});
+                    nextData = row.data.filter(function(d,k){ return k > maxIndex && d != undefined && d != "undefined"});
                     if(nextData.length > 0) {
                         nextMin = row.data.lastIndexOf(Math.min(...nextData));
-                        nextData = row.data.filter(function(d,k) { return k > nextMin});
+                        nextData = row.data.filter(function(d,k) { return k > nextMin && d != undefined && d != "undefined"});
                         if(nextData.length > 0) {
                             nextMax = row.data.lastIndexOf(Math.max(...nextData));
                         }
@@ -1029,8 +1011,8 @@ module.exports = function () {
                     if(minIndex > maxIndex) {
                         var timeMaxGap = (data.times[minIndex] - data.times[maxIndex]) / (minIndex - maxIndex);
                         var maxGap = (row.data[minIndex] - row.data[maxIndex]) / (minIndex - maxIndex);
-                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
                             }
@@ -1038,8 +1020,8 @@ module.exports = function () {
                     } else {
                         var timeMinGap = (data.times[maxIndex] - data.times[minIndex]) / (maxIndex - minIndex);
                         var minGap = (row.data[maxIndex] - row.data[minIndex]) / (maxIndex - minIndex);
-                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
                             }
@@ -1049,8 +1031,8 @@ module.exports = function () {
                     if(nextMin != undefined) {
                         var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
                         var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
-                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
                             }
@@ -1058,8 +1040,8 @@ module.exports = function () {
                     } else if(nextMax != undefined) {
                         var timeMinGap = (data.times[nextMax] - data.times[minIndex]) / (nextMax - minIndex);
                         var minGap = (row.data[nextMax] - row.data[minIndex]) / (nextMax - minIndex);
-                        for(var j = minIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_support' });
+                        for(var j = minIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
                             }
@@ -1068,8 +1050,8 @@ module.exports = function () {
                     if(nextMax != undefined) {
                         var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
                         var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
-                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
                             }
@@ -1077,8 +1059,8 @@ module.exports = function () {
                     } else if (nextMin != undefined) {
                         var timeMaxGap = (data.times[nextMin] - data.times[maxIndex]) / (nextMin - maxIndex);
                         var maxGap = (row.data[nextMin] - row.data[maxIndex]) / (nextMin - maxIndex);
-                        for(var j = maxIndex; j < row.data.length + (row.data.length/20); j++) {
-                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_resistance' });
+                        for(var j = maxIndex; j < row.data.length; j++) {
+                            var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
                             }

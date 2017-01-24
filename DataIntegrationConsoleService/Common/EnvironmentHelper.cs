@@ -66,7 +66,7 @@ namespace Common
 
         public static string GetDateTimeString(int unixTime)
         {
-            return unixBase.AddSeconds(unixTime).ToString("yyyy-MM-dd HH:mm");
+            return unixBase.AddSeconds(unixTime).ToString("yyyy-MM-dd");
         }
 
         public static void ProgressBar(int progress, int total)

@@ -73,16 +73,16 @@ module.exports = React.createClass({
         if(!this.state.player.options.predict) {
             for(var j = 0; j < fieldLength; j++){
                 var row = this.state.player.options.data.fields[j];
-                if(row.value != "unixtime") {
-                    self.state.player.options.data.fields.push({text:row.value+"_support",value:row.value+"_support",type:"Number"});
-                    self.state.player.options.data.fields.push({text:row.value+"_resistance",value:row.value+"_resistance",type:"Number"});
+                if(row.value != "unixtime" && !row.value.includes('support') && !row.value.includes('resistance')) {
+                    self.state.player.options.data.fields.push({text:row.value+"_real_support",value:row.value+"_real_support",type:"Number"});
+                    self.state.player.options.data.fields.push({text:row.value+"_real_resistance",value:row.value+"_real_resistance",type:"Number"});
                 }
             }
             this.state.player.options.predict = true;
         } else {
             for(var j = fieldLength - 1; j >= 0; j--){
                 var row = this.state.player.options.data.fields[j];
-                if(row.value.includes('support') || row.value.includes('resistance')) {
+                if(row.value.includes('real_support') || row.value.includes('real_resistance')) {
                     this.state.player.options.data.fields.splice(j,1);
                 }
             }

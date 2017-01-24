@@ -221,7 +221,7 @@ module.exports = React.createClass({
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
                                         type='number' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
-                                        min={attributes.min} max={attributes.max} step={attributes.step} error={error}/>;
+                                        min={attributes.min} max={attributes.max} step={attributes.step} error={error} focus={false}/>;
                         break;
                     }
                     case 'Password' :{

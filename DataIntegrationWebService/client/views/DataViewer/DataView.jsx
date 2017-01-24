@@ -13,10 +13,10 @@ module.exports = React.createClass({
     { value:'fields', text:"FILEDS", type:'MultiSelect', required:true, group:1, options:[]},
     { value:'sampling', text:"SAMPLING", type:'Select', required:true, group:2, options:[
         {value:'max',text:'MAX'},{value:'min',text:'MIN'},{value:'avg',text:'AVG'},{value:'sum',text:'SUM'},{value:'count',text:'COUNT'}
-    ]},
-    {value:'sampling_period', text:"SAMPLING PERIOD", type:'Select', group:2, required:true, options:[
-        {value:'all',text:'ALL'},{value:'day',text:'DAY'},{value:'week',text:'WEEK'},{value:'month',text:'MONTH'},{value:'year',text:'YEAR'}
-    ]}],
+    ]},{value:'sampling_period', text:"SAMPLING PERIOD", type:'Select', group:2, required:true, options:[
+        {value:'day',text:'DAY'},{value:'week',text:'WEEK'},{value:'month',text:'MONTH'},{value:'year',text:'YEAR'}
+    ]},{value:'from', text:"FROM", type:'Date', group:3, required:true},{value:'to', text:"TO", type:'Date', group:3, required:true},
+    { value:'trend_analysis', text:"TrendAnalysis", type:'Checkbox', required:true, group:4}],
     contextTypes: {
         router: React.PropTypes.object.isRequired
     },
@@ -209,9 +209,11 @@ module.exports = React.createClass({
             let fields = result.data.fields;
             let sampling = result.data.sampling;
             let sampling_period = result.data.sampling_period;
+            let from = result.data.from; let to = result.data.to;
+            let trend_analysis = result.data.trend_analysis.checked;
             var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"],
-                        "fields":fields, "category":self.state.gridInfo[cellId]["category"], "sampling":sampling,"sampling_period":sampling_period },
-                        "title": title, "cellId":cellId};
+                        "fields":fields, "category":self.state.gridInfo[cellId]["category"], "sampling":sampling,"sampling_period":sampling_period,
+                        "from":from,"to":to,"trend_analysis":trend_analysis }, "title": title, "cellId":cellId};
             this.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);
@@ -343,10 +345,15 @@ module.exports = React.createClass({
                 fieldOptions.push({text:key,value:key});
                 defaultFields.push(key);
             });
+            var today = new Date();
             this.refs.ModalForm.state.fields[0].options = options;
             this.refs.ModalForm.state.fields[1].options = fieldOptions;
             this.refs.ModalForm.state.data["title"] = result.data.category;
             this.refs.ModalForm.state.data["fields"]= defaultFields;
+            today.setDate(today.getDate() + 1);
+            this.refs.ModalForm.state.data["to"]= today.format('yyyy-MM-dd');
+            today.setYear(today.getFullYear() - 10);
+            this.refs.ModalForm.state.data["from"]= today.format('yyyy-MM-dd');
             self.state.gridInfo[cellId]["category"] = result.data.category;
             self.state.gridInfo[cellId]["fields"] = result.data;
             this.refs.ModalForm.setState({active:true,action:cellId});
