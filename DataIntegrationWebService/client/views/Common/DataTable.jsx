@@ -33,7 +33,8 @@ module.exports = React.createClass({
         this.state.data = nextProps.data;
     },
     getInitialState: function() {
-		return {title: this.props.title, filters:this.props.filters, fields:this.props.fields, data: this.props.data,
+        var filters = this.props.filters ? this.props.filters : [];
+		return {title: this.props.title, filters:filters, fields:this.props.fields, data: this.props.data,
                 searchable: this.props.searchable, updatable : this.props.updatable, repeatable : this.props.repeatable };
 	},
     render : function () {
@@ -64,7 +65,7 @@ module.exports = React.createClass({
                         </thead>
                     </table>
                     <div ref='table_contents_container' style={{width:'auto',overflowY:'auto',overflowX:'hidden'}}>
-                        <DataArea ref='DataArea' data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
+                        <DataArea ref='DataArea' filters={filters} data={data} fields={fields} executeItem={this.props.executeItem} modify={this.modifyItem}/>
                     </div>
                 </div>
             </div>
@@ -84,6 +85,7 @@ module.exports = React.createClass({
             this.refs.DataArea.state.page -= 1;
         } else if(control == 'search') {
             this.refs.DataArea.state.filters = args;
+            this.props.callback({action:'search', cellId:this.props.cellId, data:args});
         } else {
             this.props.callback({action:control});
         }

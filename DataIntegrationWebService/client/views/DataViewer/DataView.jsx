@@ -47,11 +47,12 @@ module.exports = React.createClass({
         self.socket.on('view.execute', function(response) {
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
             let cellInfo = self.state.gridInfo[cellId];
+            let filters = cellInfo.filters ? cellInfo.filters : [];
             if(cellInfo["view_type"] == 'past') {
                 var contents = <Chart title={cellInfo["name"]} data={response.data} fields={response.fields} cellId={cellId}
                                       action={self.callbackDataView} />;
             } else if(cellInfo["view_type"] =='current') {
-                var contents = <DataTable title={'DataView'} data={response.data} filters={[]} repeatable={true}
+                var contents = <DataTable title={'DataView'} data={response.data} repeatable={true} cellId={cellId} filters={filters}
                                           fields={response.fields} searchable callback={self.callbackDataView}/>;
             }
             ReactDOM.render(contents, self.refs[cellId]);
@@ -362,6 +363,8 @@ module.exports = React.createClass({
             this.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);
+        } else if (result.action == 'search') {
+            self.state.gridInfo[result.cellId]['filters'] = _.cloneDeep(result.data);
         }
     },
     saveFile : function (blob) {

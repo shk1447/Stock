@@ -10,7 +10,8 @@ module.exports = React.createClass({
     componentDidUpdate : function (nextProps) {
     },
     getInitialState: function() {
-		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50,filters:[],sort_field:{},direction:'desc'};
+        var filters = this.props.filters ? this.props.filters : [];
+		return {data:this.props.data,fields:this.props.fields,selectedItems:[],page:1, pageCount:50,filters:filters,sort_field:{},direction:'desc'};
 	},
     render : function () {
         var trArr = [];
