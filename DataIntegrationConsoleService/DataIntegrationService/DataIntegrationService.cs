@@ -87,5 +87,34 @@ namespace DataIntegrationService
         }
 
         #endregion
+
+        #region IDataIntegrationService 멤버
+
+
+        public CommonResponse AutoAnalysis(string state)
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var viewLogic = new ViewLogic();
+            var result = new CommonResponse();
+
+            try
+            {
+                result.code = "200";
+                result.message = viewLogic.AutoAnalysis(state);
+            }
+            catch(Exception ex)
+            {
+                result.code = "400";
+                Console.WriteLine(ex.ToString());
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

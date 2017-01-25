@@ -14,13 +14,13 @@ namespace DataIntegrationServiceLogic
 {
     public class ViewLogic
     {
-        private const string TableName = "data_view";
-
         public enum TrendType
         {
             Upward,
             Downward
         }
+
+        private const string TableName = "data_view";
 
         public string Schema(string privilege)
         {
@@ -200,7 +200,6 @@ namespace DataIntegrationServiceLogic
 
             return fields.ToString();
         }
-
 
         public string GetList(JsonValue jsonObj)
         {
@@ -398,7 +397,20 @@ namespace DataIntegrationServiceLogic
                 {
                     var key = refFields[i]["value"].ReadAs<string>();
                     if (key == "unixtime") continue;
-                    Segmentation(ref refFields, ref data, data, key);
+                    var max = data.Aggregate<JsonValue>((arg1, arg2) =>
+                    {
+                        return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
+                    });
+                    var min = data.Aggregate<JsonValue>((arg1, arg2) =>
+                    {
+                        return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
+                    });
+                    Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
+                }
+                foreach (var item in data[data.Count - 1])
+                {
+                    Console.WriteLine(item.Key);
+                    Console.WriteLine(item.Value);
                 }
                 var dataCnt = data.Count;
                 var lastUnixtime = data[data.Count - 1]["unixtime"].ReadAs<int>();
@@ -413,7 +425,143 @@ namespace DataIntegrationServiceLogic
             return res.ToString();
         }
 
-        private void Segmentation(ref JsonArray fields, ref JsonArray result, JsonArray data, string key, double? startUnixTime = null)
+        public string AutoAnalysis(string state)
+        {
+            var resultArr = new JsonArray();
+            var source = "stock";
+            var field = "종가";
+            var sampling = "min";
+            var sampling_period = "week";
+
+            var progress = 1;
+            var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
+            var categories = MariaDBConnector.Instance.GetJsonArray(categories_query);
+            var total = categories.Count;
+            foreach (var row in categories)
+            {
+                var name = row["종목명"].ReadAs<string>();
+                var category = row["category"].ReadAs<string>();
+                var queryBuilder = new StringBuilder();
+                var sampling_items = new StringBuilder();
+                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
+
+                var item_key = field;
+                queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
+                sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
+                queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
+                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL ").Append(") as result");
+
+                if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
+                else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
+                else if (sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
+                else if (sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
+                else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
+
+                var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
+                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+
+                var data = res["data"].ReadAs<JsonArray>();
+                var refFields = res["fields"].ReadAs<JsonArray>();
+                var fieldCnt = refFields.ReadAs<JsonArray>().Count;
+
+                for (int i = 0; i < fieldCnt; i++)
+                {
+                    var key = refFields[i]["value"].ReadAs<string>();
+                    if (key == "unixtime") continue;
+                    try
+                    {
+                        var max = data.Aggregate<JsonValue>((arg1, arg2) =>
+                        {
+                            return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
+                        });
+                        var min = data.Aggregate<JsonValue>((arg1, arg2) =>
+                        {
+                            return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
+                        });
+                        Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+
+                var prevCount = 0;
+                var currentCount = 0;
+                var lastState = string.Empty;
+                var result = new JsonObject();
+                var supportArr = new JsonArray();
+                var resistanceArr = new JsonArray();
+                foreach (var item in data[data.Count - 1])
+                {
+                    if (item.Key == "unixtime") continue;
+                    if (item.Key == field) { result.Add(field, item.Value.ReadAs<int>()); continue; }
+                    if (item.Key.Contains("support"))
+                    {
+                        if (lastState == "하락")
+                        {
+                            prevCount = currentCount;
+                            currentCount = 0;
+                        }
+                        lastState = "상승";
+                        supportArr.Add(item.Value.ReadAs<int>());
+                        currentCount++;
+                    }
+                    else if(item.Key.Contains("resistance"))
+                    {
+                        if (lastState == "상승")
+                        {
+                            prevCount = currentCount;
+                            currentCount = 0;
+                        }
+                        lastState = "하락";
+                        resistanceArr.Add(item.Value.ReadAs<int>());
+                        currentCount++;
+                    }
+                }
+                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
+                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
+                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
+                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
+                result.Add("종목명", name);
+                result.Add("현재상태", lastState);
+                result.Add("현재상태_유지횟수", currentCount);
+                result.Add("과거상태_유지횟수", prevCount);
+                result.Add("실제지지_갯수", real_support.Count());
+                result.Add("실제저항_갯수", real_resistance.Count());
+                result.Add("반전지지_갯수", reverse_resistance.Count());
+                result.Add("반전저항_갯수", reverse_support.Count());
+
+                if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
+                if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
+                if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
+                if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
+
+                resultArr.Add(result);
+                EnvironmentHelper.ProgressBar(progress, total);
+                progress++;
+            }
+
+            return resultArr.Where<JsonValue>(arg => 
+                arg["현재상태"].ReadAs<string>() == state && arg["반전저항_갯수"].ReadAs<int>() > 0 && arg["실제저항_갯수"].ReadAs<int>() > 0)
+                .OrderByDescending(p => p["반전저항_갯수"].ReadAs<int>()).ToJsonArray().ToString();
+        }
+
+        public string Download(JsonValue jsonValue)
+        {
+            var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]).Replace(@"\", "/");
+            var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
+            var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
+            var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
+            var filePath = repository + "/" + "temp.csv";
+            var outFileQuery = viewInfo["view_query"].ReadAs<string>() + " INTO OUTFILE '" + filePath + "' CHARACTER SET utf8 FIELDS TERMINATED BY ','";
+            MariaDBConnector.Instance.SetQuery(outFileQuery);
+            var result = File.ReadAllBytes(filePath);
+            File.Delete(filePath);
+            return Encoding.UTF8.GetString(result);
+        }
+
+        private void Segmentation(ref JsonArray fields, ref JsonArray result, JsonArray data, string key, double maximum, double minimum, double? startUnixTime = null)
         {
             if (startUnixTime != null)
             {
@@ -426,11 +574,11 @@ namespace DataIntegrationServiceLogic
 
             var max = data.Aggregate<JsonValue>((arg1, arg2) =>
             {
-                return arg1[key].ReadAs<int>() > arg2[key].ReadAs<int>() ? arg1 : arg2;
+                return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
             });
             var min = data.Aggregate<JsonValue>((arg1, arg2) =>
             {
-                return arg1[key].ReadAs<int>() < arg2[key].ReadAs<int>() ? arg1 : arg2;
+                return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
             });
 
             var trendType = max["unixtime"].ReadAs<int>() > min["unixtime"].ReadAs<int>() ? TrendType.Upward : TrendType.Downward;
@@ -461,7 +609,7 @@ namespace DataIntegrationServiceLogic
                                 {
                                     var diff = inc["diff"].ReadAs<double>();
                                     var nextValue = inc[key].ReadAs<double>() + (diff * next);
-                                    if (!(nextValue <= max[key].ReadAs<double>()))
+                                    if (!(nextValue <= maximum))
                                     {
                                         result[i].ReadAs<JsonObject>().Add(id, nextValue);
                                         complete = true;
@@ -487,8 +635,7 @@ namespace DataIntegrationServiceLogic
                                                     new KeyValuePair<string, JsonValue>("type", "Number")));
                         }
 
-
-                        this.Segmentation(ref fields, ref result, data, key, max["unixtime"].ReadAs<double>());
+                        this.Segmentation(ref fields, ref result, data, key, maximum, minimum, max["unixtime"].ReadAs<double>());
                         break;
                     }
                 case TrendType.Downward:
@@ -513,12 +660,12 @@ namespace DataIntegrationServiceLogic
                                 {
                                     var diff = dec["diff"].ReadAs<double>();
                                     var nextValue = dec[key].ReadAs<double>() + (diff * next);
-                                    if (!(nextValue >= min[key].ReadAs<double>()))
+                                    if (!(nextValue >= minimum))
                                     {
                                         result[i].ReadAs<JsonObject>().Add(id, nextValue);
                                         complete = true;
                                     }
-                                    else if(unixtime == result[i]["unixtime"].ReadAs<int>())
+                                    else if (unixtime == result[i]["unixtime"].ReadAs<int>())
                                     {
                                         result[i].ReadAs<JsonObject>().Add(id, nextValue);
                                     }
@@ -539,7 +686,7 @@ namespace DataIntegrationServiceLogic
                                                     new KeyValuePair<string, JsonValue>("type", "Number")));
                         }
 
-                        this.Segmentation(ref fields, ref result, data, key, min["unixtime"].ReadAs<double>());
+                        this.Segmentation(ref fields, ref result, data, key, maximum, minimum, min["unixtime"].ReadAs<double>());
                         break;
                     }
             }
@@ -594,20 +741,6 @@ namespace DataIntegrationServiceLogic
             result.Add(minimum);
             index = minimum["index"].ReadAs<int>();
             this.TrendAnalysis(key, minimum, end, data.Where(p => p["unixtime"].ReadAs<int>() > minimum["unixtime"].ReadAs<int>()), ref result, index, firstValue);
-        }
-
-        public string Download(JsonValue jsonValue)
-        {
-            var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]).Replace(@"\", "/");
-            var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
-            var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
-            var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
-            var filePath = repository + "/" + "temp.csv";
-            var outFileQuery = viewInfo["view_query"].ReadAs<string>() + " INTO OUTFILE '" + filePath + "' CHARACTER SET utf8 FIELDS TERMINATED BY ','";
-            MariaDBConnector.Instance.SetQuery(outFileQuery);
-            var result = File.ReadAllBytes(filePath);
-            File.Delete(filePath);
-            return Encoding.UTF8.GetString(result);
         }
     }
 }
