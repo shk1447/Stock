@@ -536,15 +536,65 @@ namespace DataIntegrationServiceLogic
                 if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
                 if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
                 if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
+                if (result["반전지지_갯수"].ReadAs<int>() + result["실제저항_갯수"].ReadAs<int>() > 0)
+                {
+                    result.Add("V패턴_비율", (result["반전지지_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>())) * 100);
+                }
+                if (result["반전저항_갯수"].ReadAs<int>() + result["실제지지_갯수"].ReadAs<int>() > 0)
+                {
+                    result.Add("A패턴_비율", (result["반전저항_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>())) * 100);
+                }
 
+                if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
+                {
+                    if (result["V패턴_비율"].ReadAs<double>() > result["A패턴_비율"].ReadAs<double>())
+                    {
+                        // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
+                        result.Add("전체상태", "상승");
+                        result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
+                    }
+                    else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
+                    {
+                        // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
+                        result.Add("전체상태", "하락");
+                        result.Add("강도", result["A패턴_비율"].ReadAs<double>() - result["V패턴_비율"].ReadAs<double>());
+                    }
+                    else
+                    {
+                        result.Add("전체상태", "모름");
+                    }
+                }
+                else if (!(result.ContainsKey("V패턴_비율")) && result.ContainsKey("A패턴_비율"))
+                {
+                    result.Add("전체상태", "상승");
+                }
+                else if (result.ContainsKey("V패턴_비율") && !(result.ContainsKey("A패턴_비율")))
+                {
+                    result.Add("전체상태", "하락");
+                }
+                else if (!(result.ContainsKey("V패턴_비율")) && !(result.ContainsKey("A패턴_비율")))
+                {
+                    result.Add("전체상태", "모름");
+                }
+                
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
-
-            return resultArr.Where<JsonValue>(arg => 
-                arg["현재상태"].ReadAs<string>() == state && arg["반전저항_갯수"].ReadAs<int>() > 0 && arg["실제저항_갯수"].ReadAs<int>() > 0)
-                .OrderByDescending(p => p["반전저항_갯수"].ReadAs<int>()).ToJsonArray().ToString();
+            
+            return resultArr.Where<JsonValue>(arg =>
+                arg["전체상태"].ReadAs<string>() == state).OrderBy((p) =>
+                {
+                    if (p["전체상태"].ReadAs<string>() == "상승")
+                    {
+                        return p["A패턴_비율"].ReadAs<double>(); 
+                    }
+                    else if (p["전체상태"].ReadAs<string>() == "하락")
+                    {
+                        return p["V패턴_비율"].ReadAs<double>(); 
+                    }
+                    return p["현재상태_유지횟수"].ReadAs<double>(); 
+                }).ToJsonArray().ToString();
         }
 
         public string Download(JsonValue jsonValue)
