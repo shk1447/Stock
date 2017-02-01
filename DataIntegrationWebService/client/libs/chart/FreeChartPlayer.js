@@ -386,7 +386,7 @@ module.exports = function () {
                 spaceTop: 20,
                 spaceBottom: 20,
                 bezierCurve: true,
-                bezierCurveTension: 0,
+                bezierCurveTension: 0.2,
                 reverseLegend : true,
                 dynamicDisplay : false,
                 pointHitDetectionRadius : 10,
