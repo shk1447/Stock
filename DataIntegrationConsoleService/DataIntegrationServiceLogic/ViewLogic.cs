@@ -733,7 +733,7 @@ namespace DataIntegrationServiceLogic
             }
 
             return resultArr.Where<JsonValue>(arg =>
-                arg["전체상태"].ReadAs<string>() == state).OrderBy((p) =>
+                arg["전체상태"].ReadAs<string>() == state).OrderByDescending((p) =>
                 {
                     if (p["전체상태"].ReadAs<string>() == "상승")
                     {
@@ -743,7 +743,10 @@ namespace DataIntegrationServiceLogic
                     {
                         return p["V패턴_비율"].ReadAs<double>();
                     }
-                    return p["현재상태_유지횟수"].ReadAs<double>();
+                    else
+                    {
+                        return p["현재상태_유지횟수"].ReadAs<double>();
+                    }
                 }).ToJsonArray().ToString();
         }
 
