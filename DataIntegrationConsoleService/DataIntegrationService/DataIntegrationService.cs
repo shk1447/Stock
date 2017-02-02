@@ -91,7 +91,7 @@ namespace DataIntegrationService
         #region IDataIntegrationService 멤버
 
 
-        public CommonResponse AutoAnalysis(string state)
+        public CommonResponse AutoAnalysis()
         {
             if (WebOperationContext.Current.IncomingRequest.Headers == null)
             {
@@ -104,7 +104,7 @@ namespace DataIntegrationService
             try
             {
                 result.code = "200";
-                result.message = viewLogic.AutoAnalysis(state);
+                result.message = viewLogic.AutoAnalysis();
             }
             catch(Exception ex)
             {

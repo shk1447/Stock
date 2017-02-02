@@ -443,7 +443,7 @@ namespace DataIntegrationServiceLogic
             List<int> duplChk = new List<int>();
             for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
             {
-                var unixtime = day.ToString("yyyy-MM-dd");
+                var unixtime = day.ToString("yyyy-MM-dd 23:59:59");
                 var queryBuilder = new StringBuilder();
                 var sampling_items = new StringBuilder();
                 queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
@@ -543,13 +543,23 @@ namespace DataIntegrationServiceLogic
                 {
                     result.Add("V패턴_비율", (result["반전지지_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>())) * 100);
                 }
+                else
+                {
+                    result.Add("V패턴_비율", 150);
+                }
                 if (result["반전저항_갯수"].ReadAs<int>() + result["실제지지_갯수"].ReadAs<int>() > 0)
                 {
                     result.Add("A패턴_비율", (result["반전저항_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>())) * 100);
                 }
+                else
+                {
+                    result.Add("A패턴_비율", 150);
+                }
                 var pattern = new JsonObject();
                 if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
                 if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
+                var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
+                pattern.Add("VA_SIGNAL", va_signal);
                 pattern.Add("unixtime", time);
                 duplChk.Add(time);
                 resultArr.Add(pattern);
@@ -566,6 +576,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VA_SIGNAL"),
+                                                           new KeyValuePair<string, JsonValue>("value", "VA_SIGNAL"),
+                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
+                                                           new KeyValuePair<string, JsonValue>("group", 0),
+                                                           new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -575,7 +590,7 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string state)
+        public string AutoAnalysis()
         {
             var resultArr = new JsonArray();
             var source = "stock";
@@ -690,9 +705,17 @@ namespace DataIntegrationServiceLogic
                 {
                     result.Add("V패턴_비율", (result["반전지지_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>())) * 100);
                 }
+                else
+                {
+                    result.Add("V패턴_비율", 150);
+                }
                 if (result["반전저항_갯수"].ReadAs<int>() + result["실제지지_갯수"].ReadAs<int>() > 0)
                 {
                     result.Add("A패턴_비율", (result["반전저항_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>())) * 100);
+                }
+                else
+                {
+                    result.Add("A패턴_비율", 150);
                 }
 
                 if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
@@ -701,18 +724,17 @@ namespace DataIntegrationServiceLogic
                     {
                         // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
                         result.Add("전체상태", "상승");
-                        result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
                     }
                     else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
                     {
                         // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
                         result.Add("전체상태", "하락");
-                        result.Add("강도", result["A패턴_비율"].ReadAs<double>() - result["V패턴_비율"].ReadAs<double>());
                     }
                     else
                     {
                         result.Add("전체상태", "모름");
                     }
+                    result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
                 }
                 else if (!(result.ContainsKey("V패턴_비율")) && result.ContainsKey("A패턴_비율"))
                 {
@@ -732,22 +754,8 @@ namespace DataIntegrationServiceLogic
                 progress++;
             }
 
-            return resultArr.Where<JsonValue>(arg =>
-                arg["전체상태"].ReadAs<string>() == state).OrderByDescending((p) =>
-                {
-                    if (p["전체상태"].ReadAs<string>() == "상승")
-                    {
-                        return p["A패턴_비율"].ReadAs<double>();
-                    }
-                    else if (p["전체상태"].ReadAs<string>() == "하락")
-                    {
-                        return p["V패턴_비율"].ReadAs<double>();
-                    }
-                    else
-                    {
-                        return p["현재상태_유지횟수"].ReadAs<double>();
-                    }
-                }).ToJsonArray().ToString();
+            return resultArr.Where<JsonValue>(arg => arg["현재상태"].ReadAs<string>() == "상승" && arg.ContainsKey("강도") && arg["강도"].ReadAs<double>() >= 0)
+                            .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
         }
 
         public string Download(JsonValue jsonValue)
