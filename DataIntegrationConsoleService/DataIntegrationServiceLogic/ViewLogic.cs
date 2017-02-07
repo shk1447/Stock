@@ -439,7 +439,7 @@ namespace DataIntegrationServiceLogic
             var resultArr = new JsonArray();
             var field = "종가";
             var current = DateTime.Now;
-            var prev = sampling == "day" ? current.AddMonths(-6) : current.AddYears(-1);
+            var prev = sampling_period == "day" ? current.AddYears(-1) : sampling_period == "week" ? current.AddMonths(-18) : current.AddYears(-2);
             List<int> duplChk = new List<int>();
             for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
             {
@@ -464,7 +464,6 @@ namespace DataIntegrationServiceLogic
                 var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
 
                 var data = res["data"].ReadAs<JsonArray>();
-                if (duplChk.Contains(data[data.Count - 1]["unixtime"].ReadAs<int>())) continue;
                 var refFields = res["fields"].ReadAs<JsonArray>();
                 var fieldCnt = refFields.ReadAs<JsonArray>().Count;
 
@@ -524,10 +523,10 @@ namespace DataIntegrationServiceLogic
                     }
                 }
                 var time = result["unixtime"].ReadAs<int>();
-                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
-                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
-                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
-                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
+                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
+                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
+                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
+                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
                 result.Add("현재상태", lastState);
                 result.Add("현재상태_유지횟수", currentCount);
                 result.Add("과거상태_유지횟수", prevCount);
@@ -556,13 +555,23 @@ namespace DataIntegrationServiceLogic
                     result.Add("A패턴_비율", 150);
                 }
                 var pattern = new JsonObject();
-                if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
-                if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
-                var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
-                pattern.Add("VA_SIGNAL", va_signal);
-                pattern.Add("unixtime", time);
-                duplChk.Add(time);
-                resultArr.Add(pattern);
+                if (duplChk.Contains(time))
+                {
+                    if (result.ContainsKey("V패턴_비율")) resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["V패턴_비율"] = result["V패턴_비율"].ReadAs<int>();
+                    if (result.ContainsKey("A패턴_비율")) resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["A패턴_비율"] = result["A패턴_비율"].ReadAs<int>();
+                    var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
+                    resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["VA_SIGNAL"] = va_signal;
+                }
+                else
+                {
+                    if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
+                    if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
+                    var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
+                    pattern.Add("VA_SIGNAL", va_signal);
+                    pattern.Add("unixtime", time);
+                    resultArr.Add(pattern);
+                    duplChk.Add(time);
+                }
             }
             var ret = new JsonObject();
             ret.Add("data", resultArr);
@@ -596,7 +605,7 @@ namespace DataIntegrationServiceLogic
             var source = "stock";
             var field = "종가";
             var sampling = "min";
-            var sampling_period = "week";
+            var sampling_period = "day";
 
             var progress = 1;
             var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
@@ -614,7 +623,7 @@ namespace DataIntegrationServiceLogic
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL ").Append(") as result");
+                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL").Append(") as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
                 else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -626,6 +635,7 @@ namespace DataIntegrationServiceLogic
                 var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
 
                 var data = res["data"].ReadAs<JsonArray>();
+                if (data.Count == 0) continue;
                 var refFields = res["fields"].ReadAs<JsonArray>();
                 var fieldCnt = refFields.ReadAs<JsonArray>().Count;
 
@@ -684,10 +694,16 @@ namespace DataIntegrationServiceLogic
                         currentCount++;
                     }
                 }
-                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
-                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
-                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() > result[field].ReadAs<int>());
-                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() < result[field].ReadAs<int>());
+                var total_support = new JsonArray();
+                var total_resistance = new JsonArray();
+                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
+                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
+                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
+                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
+                total_support.AddRange(real_support);
+                total_support.AddRange(reverse_resistance);
+                total_resistance.AddRange(real_resistance);
+                total_resistance.AddRange(reverse_support);
                 result.Add("종목명", name);
                 result.Add("현재상태", lastState);
                 result.Add("현재상태_유지횟수", currentCount);
@@ -749,12 +765,82 @@ namespace DataIntegrationServiceLogic
                     result.Add("전체상태", "모름");
                 }
 
+                if (result.ContainsKey("강도") && result["강도"].ReadAs<double>() > 0)
+                {
+                    var prev_support = 0.0;
+                    foreach (var support_obj in total_support.Where<JsonValue>(p => true).OrderByDescending(k => k.ReadAs<double>()))
+                    {
+                        var support = support_obj.ReadAs<int>();
+                        var v_pattern = 150.0;
+                        var a_pattern = 150.0;
+                        var real_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= support).Count();
+                        var reverse_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= support).Count();
+                        var real_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= support).Count();
+                        var reverse_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= support).Count();
+
+                        if (reverse_resistance_for_price + real_resistance_for_price > 0)
+                        {
+                            v_pattern = (double)reverse_resistance_for_price / (reverse_resistance_for_price + real_resistance_for_price) * 100;
+                        }
+
+                        if (reverse_support_for_price + real_support_for_price > 0)
+                        {
+                            a_pattern = (double)reverse_support_for_price / (reverse_support_for_price + real_support_for_price) * 100;
+                        }
+                        var power = v_pattern - a_pattern;
+                        if (power <= 0)
+                        {
+                            result.Add("하락 전환 구간", string.Format("{0} ~ {1}", support, prev_support));
+                            break;
+                        }
+                        else
+                        {
+                            prev_support = support;
+                        }
+                    }
+                }
+                else if (result.ContainsKey("강도") && result["강도"].ReadAs<double>() < 0)
+                {
+                    var prev_resistance = 0.0;
+                    foreach(var resistance_obj in total_resistance.Where<JsonValue>(p => true).OrderBy(k => k.ReadAs<int>()))
+                    {
+                        var resistance = resistance_obj.ReadAs<int>();
+
+                        var v_pattern = 150.0;
+                        var a_pattern = 150.0;
+                        var real_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= resistance).Count();
+                        var reverse_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= resistance).Count();
+                        var real_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= resistance).Count();
+                        var reverse_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= resistance).Count();
+
+                        if (reverse_resistance_for_price + real_resistance_for_price > 0)
+                        {
+                            v_pattern = (double)reverse_resistance_for_price / (reverse_resistance_for_price + real_resistance_for_price) * 100;
+                        }
+
+                        if (reverse_support_for_price + real_support_for_price > 0)
+                        {
+                            a_pattern = (double)reverse_support_for_price / (reverse_support_for_price + real_support_for_price) * 100;
+                        }
+                        var power = v_pattern - a_pattern;
+                        if (power >= 0)
+                        {
+                            result.Add("상승 전환 구간", string.Format("{0} ~ {1}", prev_resistance, resistance));
+                            break;
+                        }
+                        else
+                        {
+                            prev_resistance = resistance;
+                        }
+                    }
+                }
+
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
 
-            return resultArr.Where<JsonValue>(arg => arg["현재상태"].ReadAs<string>() == "상승" && arg.ContainsKey("강도") && arg["강도"].ReadAs<double>() >= 0)
+            return resultArr.Where<JsonValue>(arg => arg.ContainsKey("강도"))
                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
         }
 
