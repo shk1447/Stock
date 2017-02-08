@@ -31,15 +31,18 @@ namespace Finance
         {
             this.config = new Dictionary<string, JsonValue>();
             this.functionDict = new Dictionary<string, Delegate>();
+            var KOSPI_KOSDAQ_Config = new JsonObject();
             var AllStockInformationConfig = new JsonObject();
             var CurrentStockInformationConfig = new JsonObject();
             var FinanceInformationConfig = new JsonObject();
             var EmptyInformationConfig = new JsonObject();
+            this.config.Add("KOSPI_KOSDAQ", KOSPI_KOSDAQ_Config);
             this.config.Add("AllStockInformation", AllStockInformationConfig);
             this.config.Add("CurrentStockInformation", CurrentStockInformationConfig);
             this.config.Add("FinanceInformation", FinanceInformationConfig);
             this.config.Add("EmptyInformation", EmptyInformationConfig);
             this.functionDict.Add("AllStockInformation", new Func<string, bool>(AllStockInformation));
+            this.functionDict.Add("KOSPI_KOSDAQ", new Func<string, bool>(KOSPI_KOSDAQ));
             this.functionDict.Add("CurrentStockInformation", new Func<string, bool>(CurrentStockInformation));
             this.functionDict.Add("FinanceInformation", new Func<string, bool>(FinanceInformation));
             this.functionDict.Add("EmptyInformation", new Func<string, bool>(EmptyInformation));
@@ -153,7 +156,7 @@ namespace Finance
             {
                 if (this.config.ContainsKey(method))
                 {
-                    if(this.config[method].ContainsKey(kv.Key))
+                    if (this.config[method].ContainsKey(kv.Key))
                     {
                         this.config[method][kv.Key] = kv.Value;
                     }
@@ -198,7 +201,7 @@ namespace Finance
 
         private bool CurrentStockInformation(string collectionName)
         {
-            Console.WriteLine("{0} Collector Start : {1}",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Console.WriteLine("{0} Collector Start : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
@@ -287,7 +290,7 @@ namespace Finance
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
             var stockJson = JsonValue.Parse(stockText);
-            
+
             foreach (var stock in stockJson)
             {
                 try
@@ -406,9 +409,93 @@ namespace Finance
             return true;
         }
 
+        private bool KOSPI_KOSDAQ(string collectionName)
+        {
+            Console.WriteLine("{0} Collector Start : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+            var codeArr = new List<string>() { "KOSPI", "KOSDAQ" };
+            foreach (var code in codeArr)
+            {
+                try
+                {
+                    var googleUrl = "http://www.google.com/finance/getprices?q={code}&i=86400&p=40Y&f=d,c,v,k,o,h,l&df=cpct&auto=0".Replace("{code}", code);
+
+                    var reqParam = new RequestParameter()
+                    {
+                        Url = googleUrl,
+                        ContentType = "application/json",
+                        EncodingOption = "UTF8",
+                        Method = "GET"
+                    };
+
+                    var stockData = this.DecodeHex(HttpsRequest.Instance.GetResponseByHttps(reqParam));
+                    var histroyCsv = Regex.Split(stockData, @"\n");
+                    var columnInfo = new string[] { "날짜", "종가", "고가", "저가", "시가", "거래량", "전일비", "전일비율" };
+
+                    var result = new SetDataSourceReq();
+                    result.rawdata = new List<JsonDictionary>();
+                    result.source = collectionName;
+                    result.category = "종목코드";
+                    result.collected_at = "날짜";
+
+                    var standardTime = string.Empty;
+                    for (int i = 7; i < histroyCsv.Length - 1; i++)
+                    {
+                        var sise = new JsonDictionary();
+                        var row = histroyCsv[i].Split(',');
+
+                        sise.Add("종목코드", code);
+                        sise.Add("종목명", code);
+                        sise.Add("종목유형", "SOSOK");
+                        if (row[0].Trim().Contains("a"))
+                        {
+                            standardTime = row[0].Trim().Replace("a", "");
+                            sise.Add(columnInfo[0], standardTime);
+                        }
+                        else
+                        {
+                            sise.Add(columnInfo[0], (int.Parse(standardTime) + (86400 * int.Parse(row[0]))).ToString());
+                        }
+                        sise.Add(columnInfo[1], row[1].Trim());
+                        sise.Add(columnInfo[2], row[2].Trim());
+                        sise.Add(columnInfo[3], row[3].Trim());
+                        sise.Add(columnInfo[4], row[4].Trim());
+                        sise.Add(columnInfo[5], row[5].Trim());
+                        if (result.rawdata.Count > 0)
+                        {
+                            var prevPrice = double.Parse(result.rawdata[result.rawdata.Count - 1]["종가"].ToString());
+                            if (prevPrice > 0)
+                            {
+                                var diff = double.Parse(row[1].Trim()) - prevPrice;
+                                sise.Add(columnInfo[6], diff);
+                                sise.Add(columnInfo[7], (double)diff / prevPrice * 100);
+                            }
+                        }
+
+                        result.rawdata.Add(sise);
+                    }
+                    if (result.rawdata.Count > 0)
+                    {
+                        ThreadPool.QueueUserWorkItem((a) =>
+                        {
+                            var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("All Stock Collector Error");
+                }
+            }
+
+            Console.WriteLine("{0} Collector End : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            return true;
+        }
+
         private bool AllStockInformation(string collectionName)
         {
-            Console.WriteLine("{0} Collector Start : {1}",collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            Console.WriteLine("{0} Collector Start : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
             var stockText = File.ReadAllText(file);
