@@ -439,7 +439,8 @@ namespace DataIntegrationServiceLogic
             var resultArr = new JsonArray();
             var field = "종가";
             var current = DateTime.Now;
-            var prev = sampling_period == "day" ? current.AddYears(-1) : sampling_period == "week" ? current.AddMonths(-18) : current.AddYears(-2);
+            var prev = sampling_period == "day" ? current.AddYears(-1) : sampling_period == "week" ? current.AddMonths(-18) :
+                       sampling_period == "month" ? current.AddYears(-2) : current.AddYears(-5);
             List<int> duplChk = new List<int>();
             for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
             {
@@ -599,7 +600,7 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis()
+        public string AutoAnalysis(string state)
         {
             var resultArr = new JsonArray();
             var source = "stock";
@@ -748,20 +749,34 @@ namespace DataIntegrationServiceLogic
                     }
                     else
                     {
-                        result.Add("전체상태", "모름");
+                        if (total_support.Count > total_resistance.Count)
+                        {
+                            result.Add("전체상태", "상승");
+                        }
+                        else if (total_support.Count < total_resistance.Count)
+                        {
+                            result.Add("전체상태", "하락");
+                        }
+                        else
+                        {
+                            result.Add("전체상태", "횡보");
+                        }
                     }
                     result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
                 }
                 else if (!(result.ContainsKey("V패턴_비율")) && result.ContainsKey("A패턴_비율"))
                 {
+                    Console.Write("하락막했어?????");
                     result.Add("전체상태", "상승");
                 }
                 else if (result.ContainsKey("V패턴_비율") && !(result.ContainsKey("A패턴_비율")))
                 {
+                    Console.Write("상승만했어??");
                     result.Add("전체상태", "하락");
                 }
                 else if (!(result.ContainsKey("V패턴_비율")) && !(result.ContainsKey("A패턴_비율")))
                 {
+                    Console.Write("모르는게 있어??");
                     result.Add("전체상태", "모름");
                 }
 
@@ -834,13 +849,18 @@ namespace DataIntegrationServiceLogic
                         }
                     }
                 }
-
+                result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
 
-            return resultArr.Where<JsonValue>(arg => arg.ContainsKey("강도"))
+            return resultArr.Where<JsonValue>(arg => state == "하락" ?
+                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" : state == "반등" ?
+                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" : state == "조정" ? 
+                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" : state == "상승" ?
+                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" :
+                             arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
         }
 

@@ -24,7 +24,7 @@ namespace DataIntegrationService
         CommonResponse ViewExecute(ViewExecuteReq req);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "AutoAnalysis", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        CommonResponse AutoAnalysis();
+        [WebInvoke(Method = "GET", UriTemplate = "AutoAnalysis?state={state}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        CommonResponse AutoAnalysis(string state);
     }
 }
