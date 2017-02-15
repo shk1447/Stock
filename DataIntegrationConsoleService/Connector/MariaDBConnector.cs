@@ -57,7 +57,7 @@ namespace Connector
             T ret = default(T);
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -138,7 +138,7 @@ namespace Connector
             
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -226,7 +226,7 @@ namespace Connector
 
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -297,7 +297,7 @@ namespace Connector
 
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -373,7 +373,7 @@ namespace Connector
             var ret = new JsonArray();
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -468,7 +468,7 @@ namespace Connector
             var fields = new JsonArray();
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -581,7 +581,7 @@ namespace Connector
             var ret = new JsonObject();
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=100;Max Pool Size=1000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
@@ -653,7 +653,7 @@ namespace Connector
 
             try
             {
-                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=200;Max Pool Size=2000;Pooling=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
+                string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Min Pool Size=200;Max Pool Size=2000;Pooling=true;Allow User Variables=true;", this.ServerIp, this.ServerPort, this.Database, this.Uid, this.Pwd);
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();

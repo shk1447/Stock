@@ -442,6 +442,18 @@ namespace DataIntegrationServiceLogic
             var prev = sampling_period == "day" ? current.AddYears(-1) : sampling_period == "week" ? current.AddMonths(-18) :
                        sampling_period == "month" ? current.AddYears(-2) : current.AddYears(-5);
             List<int> duplChk = new List<int>();
+
+            var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
+
+            if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 ASC");
+            else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) ASC");
+            else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) ASC");
+            else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') ASC");
+            else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') ASC");
+
+            var volume_query = volume_query_builder.ToString().Replace("{category}", category);
+            var volume_signal_arr = MariaDBConnector.Instance.GetJsonArray(volume_query);
+
             for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
             {
                 var unixtime = day.ToString("yyyy-MM-dd 23:59:59");
@@ -568,8 +580,11 @@ namespace DataIntegrationServiceLogic
                     if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
                     if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
                     var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
+                    var volume_signal = volume_signal_arr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["VOLUME_SIGNAL"].ReadAs<double>();
                     pattern.Add("VA_SIGNAL", va_signal);
+                    pattern.Add("VOLUME_SIGNAL", volume_signal);
                     pattern.Add("unixtime", time);
+                    
                     resultArr.Add(pattern);
                     duplChk.Add(time);
                 }
@@ -591,6 +606,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_SIGNAL"),
+                                                           new KeyValuePair<string, JsonValue>("value", "VOLUME_SIGNAL"),
+                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
+                                                           new KeyValuePair<string, JsonValue>("group", 0),
+                                                           new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -600,16 +620,27 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string state)
+        public string AutoAnalysis(string state, List<string> stock)
         {
             var resultArr = new JsonArray();
             var source = "stock";
             var field = "종가";
             var sampling = "min";
-            var sampling_period = "day";
+            var sampling_period = "week";
 
             var progress = 1;
             var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
+            if (stock.Count > 0)
+            {
+                var last = 1;
+                categories_query = categories_query + " WHERE ";
+                foreach (var stock_name in stock)
+                {
+                    var separator = stock.Count > last ? " OR " : ";";
+                    categories_query = categories_query + " column_get(rawdata, '종목명' as char) like '%" + stock_name.Trim() + "%'" + separator;
+                    last++;
+                }
+            }
             var categories = MariaDBConnector.Instance.GetJsonArray(categories_query);
             var total = categories.Count;
             foreach (var row in categories)
@@ -620,6 +651,23 @@ namespace DataIntegrationServiceLogic
                 var sampling_items = new StringBuilder();
                 queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
 
+                var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
+
+                if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 DESC LIMIT 2");
+                else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) DESC LIMIT 2");
+                else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) DESC LIMIT 2");
+                else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') DESC LIMIT 2");
+                else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') DESC LIMIT 2");
+
+                var volume_query = volume_query_builder.ToString().Replace("{category}", category);
+                var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
+                if (state == "자동")
+                {
+                    if (volume_signal[0]["VOLUME_SIGNAL"] == null || volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() < 0 || volume_signal[0]["전일비율"].ReadAs<double>() < 0)
+                    {
+                        continue;
+                    }
+                }
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
@@ -780,88 +828,32 @@ namespace DataIntegrationServiceLogic
                     result.Add("전체상태", "모름");
                 }
 
-                if (result.ContainsKey("강도") && result["강도"].ReadAs<double>() > 0)
-                {
-                    var prev_support = 0.0;
-                    foreach (var support_obj in total_support.Where<JsonValue>(p => true).OrderByDescending(k => k.ReadAs<double>()))
-                    {
-                        var support = support_obj.ReadAs<int>();
-                        var v_pattern = 150.0;
-                        var a_pattern = 150.0;
-                        var real_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= support).Count();
-                        var reverse_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= support).Count();
-                        var real_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= support).Count();
-                        var reverse_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= support).Count();
-
-                        if (reverse_resistance_for_price + real_resistance_for_price > 0)
-                        {
-                            v_pattern = (double)reverse_resistance_for_price / (reverse_resistance_for_price + real_resistance_for_price) * 100;
-                        }
-
-                        if (reverse_support_for_price + real_support_for_price > 0)
-                        {
-                            a_pattern = (double)reverse_support_for_price / (reverse_support_for_price + real_support_for_price) * 100;
-                        }
-                        var power = v_pattern - a_pattern;
-                        if (power <= 0)
-                        {
-                            result.Add("하락 전환 구간", string.Format("{0} ~ {1}", support, prev_support));
-                            break;
-                        }
-                        else
-                        {
-                            prev_support = support;
-                        }
-                    }
-                }
-                else if (result.ContainsKey("강도") && result["강도"].ReadAs<double>() < 0)
-                {
-                    var prev_resistance = 0.0;
-                    foreach(var resistance_obj in total_resistance.Where<JsonValue>(p => true).OrderBy(k => k.ReadAs<int>()))
-                    {
-                        var resistance = resistance_obj.ReadAs<int>();
-
-                        var v_pattern = 150.0;
-                        var a_pattern = 150.0;
-                        var real_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= resistance).Count();
-                        var reverse_support_for_price = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= resistance).Count();
-                        var real_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= resistance).Count();
-                        var reverse_resistance_for_price = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= resistance).Count();
-
-                        if (reverse_resistance_for_price + real_resistance_for_price > 0)
-                        {
-                            v_pattern = (double)reverse_resistance_for_price / (reverse_resistance_for_price + real_resistance_for_price) * 100;
-                        }
-
-                        if (reverse_support_for_price + real_support_for_price > 0)
-                        {
-                            a_pattern = (double)reverse_support_for_price / (reverse_support_for_price + real_support_for_price) * 100;
-                        }
-                        var power = v_pattern - a_pattern;
-                        if (power >= 0)
-                        {
-                            result.Add("상승 전환 구간", string.Format("{0} ~ {1}", prev_resistance, resistance));
-                            break;
-                        }
-                        else
-                        {
-                            prev_resistance = resistance;
-                        }
-                    }
-                }
                 result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
+                if (volume_signal != null && volume_signal.Count > 1)
+                {
+                    try
+                    {
+                        result.Add("VOLUME_SIGNAL", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() - volume_signal[1]["VOLUME_SIGNAL"].ReadAs<double>());
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
+                }
+                result.Add("전일비율", volume_signal[0]["전일비율"].ReadAs<double>());
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
-
-            return resultArr.Where<JsonValue>(arg => state == "하락" ?
+            return stock.Count > 0 ? resultArr.ToString() : state == "자동" ? 
+                            resultArr.Where<JsonValue>(arg => true).OrderByDescending(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString() :
+                            resultArr.Where<JsonValue>(arg => state == "하락" ?
                              arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" : state == "반등" ?
                              arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" : state == "조정" ? 
                              arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" : state == "상승" ?
                              arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" :
                              arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
-                            .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
+                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
         }
 
         public string Download(JsonValue jsonValue)
