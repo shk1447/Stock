@@ -661,13 +661,6 @@ namespace DataIntegrationServiceLogic
 
                 var volume_query = volume_query_builder.ToString().Replace("{category}", category);
                 var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
-                if (state == "자동")
-                {
-                    if (volume_signal[0]["VOLUME_SIGNAL"] == null || volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() < 0 || volume_signal[0]["전일비율"].ReadAs<double>() < 0)
-                    {
-                        continue;
-                    }
-                }
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
@@ -833,6 +826,7 @@ namespace DataIntegrationServiceLogic
                 {
                     try
                     {
+                        result.Add("VOLUME_OSCILLATOR", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>());
                         result.Add("VOLUME_SIGNAL", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() - volume_signal[1]["VOLUME_SIGNAL"].ReadAs<double>());
                     }
                     catch (Exception ex)
@@ -845,9 +839,8 @@ namespace DataIntegrationServiceLogic
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
-            return stock.Count > 0 ? resultArr.ToString() : state == "자동" ? 
-                            resultArr.Where<JsonValue>(arg => true).OrderByDescending(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString() :
-                            resultArr.Where<JsonValue>(arg => state == "하락" ?
+            
+            return stock.Count > 0 ? resultArr.ToString() : resultArr.Where<JsonValue>(arg => state == "하락" ?
                              arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" : state == "반등" ?
                              arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" : state == "조정" ? 
                              arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" : state == "상승" ?
