@@ -397,38 +397,6 @@ namespace DataIntegrationServiceLogic
                 var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
                 ret = res.ToString();
             }
-            //var data = res["data"].ReadAs<JsonArray>();
-            //var refFields = res["fields"].ReadAs<JsonArray>();
-            //var fieldCnt = refFields.ReadAs<JsonArray>().Count;
-            //if (trend_analysis)
-            //{
-            //    for (int i = 0; i < fieldCnt; i++)
-            //    {
-            //        var key = refFields[i]["value"].ReadAs<string>();
-            //        if (key == "unixtime") continue;
-            //        var max = data.Aggregate<JsonValue>((arg1, arg2) =>
-            //        {
-            //            return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
-            //        });
-            //        var min = data.Aggregate<JsonValue>((arg1, arg2) =>
-            //        {
-            //            return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
-            //        });
-            //        Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
-            //    }
-            //    foreach (var item in data[data.Count - 1])
-            //    {
-            //        Console.WriteLine(item.Key);
-            //        Console.WriteLine(item.Value);
-            //    }
-            //    var dataCnt = data.Count;
-            //    var lastUnixtime = data[data.Count - 1]["unixtime"].ReadAs<int>();
-            //    var interval = lastUnixtime - data[data.Count - 2]["unixtime"].ReadAs<int>();
-            //    for (var j = 0; j < dataCnt / 20; j++)
-            //    {
-            //        data.Add(new JsonObject(new KeyValuePair<string, JsonValue>("unixtime", lastUnixtime + (interval * (j + 1)))));
-            //    }
-            //}
             sw.Stop();
             Console.WriteLine("response speed : {0} ms", sw.ElapsedMilliseconds);
             return ret;
@@ -459,7 +427,7 @@ namespace DataIntegrationServiceLogic
                 var unixtime = day.ToString("yyyy-MM-dd 23:59:59");
                 var queryBuilder = new StringBuilder();
                 var sampling_items = new StringBuilder();
-                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
+                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(DATE(unixtime)) as unixtime FROM (SELECT ");
 
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
@@ -626,7 +594,7 @@ namespace DataIntegrationServiceLogic
             var source = "stock";
             var field = "종가";
             var sampling = "min";
-            var sampling_period = "week";
+            var sampling_period = "day";
 
             var progress = 1;
             var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
@@ -649,7 +617,7 @@ namespace DataIntegrationServiceLogic
                 var category = row["category"].ReadAs<string>();
                 var queryBuilder = new StringBuilder();
                 var sampling_items = new StringBuilder();
-                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(unixtime) as unixtime FROM (SELECT ");
+                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(DATE(unixtime)) as unixtime FROM (SELECT ");
 
                 var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
 
@@ -804,21 +772,6 @@ namespace DataIntegrationServiceLogic
                         }
                     }
                     result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
-                }
-                else if (!(result.ContainsKey("V패턴_비율")) && result.ContainsKey("A패턴_비율"))
-                {
-                    Console.Write("하락막했어?????");
-                    result.Add("전체상태", "상승");
-                }
-                else if (result.ContainsKey("V패턴_비율") && !(result.ContainsKey("A패턴_비율")))
-                {
-                    Console.Write("상승만했어??");
-                    result.Add("전체상태", "하락");
-                }
-                else if (!(result.ContainsKey("V패턴_비율")) && !(result.ContainsKey("A패턴_비율")))
-                {
-                    Console.Write("모르는게 있어??");
-                    result.Add("전체상태", "모름");
                 }
 
                 result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
