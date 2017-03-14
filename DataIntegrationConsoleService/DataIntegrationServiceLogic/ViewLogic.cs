@@ -385,7 +385,7 @@ namespace DataIntegrationServiceLogic
                     }
                 }
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '").Append(category).Append("' AND ")
-                    .Append("unixtime > '").Append(from).Append("' AND unixtime < '").Append(to).Append("') as result");
+                    .Append("unixtime >= '").Append(from).Append("' AND unixtime <= '").Append(to).Append("') as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
                 else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -548,11 +548,12 @@ namespace DataIntegrationServiceLogic
                     if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
                     if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
                     var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
-                    var volume_signal = volume_signal_arr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["VOLUME_SIGNAL"].ReadAs<double>();
+
+                    var volume_signal = volume_signal_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
                     pattern.Add("VA_SIGNAL", va_signal);
-                    pattern.Add("VOLUME_SIGNAL", volume_signal);
+                    pattern.Add("VOLUME_SIGNAL", volume_signal == null ? 0 : volume_signal["VOLUME_SIGNAL"].ReadAs<double>());
                     pattern.Add("unixtime", time);
-                    
+
                     resultArr.Add(pattern);
                     duplChk.Add(time);
                 }
@@ -588,13 +589,13 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string state, List<string> stock)
+        public string AutoAnalysis(string period, string state, List<string> stock)
         {
             var resultArr = new JsonArray();
             var source = "stock";
             var field = "종가";
             var sampling = "min";
-            var sampling_period = "day";
+            var sampling_period = period == "day" || period == "week" || period == "month" || period == "year" ? period : "week";
 
             var progress = 1;
             var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
@@ -619,7 +620,7 @@ namespace DataIntegrationServiceLogic
                 var sampling_items = new StringBuilder();
                 queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(DATE(unixtime)) as unixtime FROM (SELECT ");
 
-                var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
+                var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);//.Append(" WHERE 날짜 <= '2016-04-23'");
 
                 if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 DESC LIMIT 2");
                 else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) DESC LIMIT 2");
@@ -633,7 +634,9 @@ namespace DataIntegrationServiceLogic
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL").Append(") as result");
+                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL")
+                    //.Append("AND unixtime <= '2016-04-23'")
+                    .Append(") as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
                 else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -784,7 +787,7 @@ namespace DataIntegrationServiceLogic
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
                 result.Add("전일비율", volume_signal[0]["전일비율"].ReadAs<double>());
@@ -792,14 +795,22 @@ namespace DataIntegrationServiceLogic
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
-            
+
             return stock.Count > 0 ? resultArr.ToString() : resultArr.Where<JsonValue>(arg => state == "하락" ?
-                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" : state == "반등" ?
-                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" : state == "조정" ? 
-                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" : state == "상승" ?
-                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" :
-                             arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
-                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
+                         arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" &&
+                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
+                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "반등" ?
+                         arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" &&
+                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
+                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 : state == "조정" ?
+                         arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" &&
+                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
+                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "상승" ?
+                         arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" &&
+                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
+                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 :
+                         arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
+                         .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
         }
 
         public string Download(JsonValue jsonValue)
