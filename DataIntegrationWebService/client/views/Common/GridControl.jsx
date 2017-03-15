@@ -28,7 +28,7 @@ module.exports = React.createClass({
                     <Button icon='chevron right' onClick={function(){self.props.action('next')}}/>
                     {repeatBtn}
                 </Button.Group>
-                <ModalForm ref='ModalForm' action={'search'} size={'large'} title={'SEARCHER'} active={active} fields={_.cloneDeep(fields)} callback={self.handleSearch.bind(self)}/>
+                <ModalForm ref='ModalForm' action={'search'} size={'large'} title={'SEARCHER'} active={active} fields={_.cloneDeep(fields)} callback={self.handleSearch}/>
             </div>
         )
     },
@@ -54,7 +54,7 @@ module.exports = React.createClass({
                 if(value !== "") {
                     var field = self.state.fields.find(function(d){return d.value == key;});
                     var condition = '';
-                    if(field && field.type == 'Text') {
+                    if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
                         condition = 'data.' + key + '.includes("' + value + '")'
                     } else {
                         condition = 'data.' + key + value;

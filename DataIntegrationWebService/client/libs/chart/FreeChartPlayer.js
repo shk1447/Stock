@@ -375,7 +375,7 @@ module.exports = function () {
                 legendFontStyle: "normal normal",
                 legendFontColor: "#ffffff",
                 legendFontSize: 12,
-                seriesColor : ["#ff0000", "#0000ff", "#00ff00", "#ffff00", "#C6FF00 ", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
+                seriesColor : ["#ff0000", "#0000ff", "#000000", "#00ff00", "#C6FF00 ", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
                     "#55BF3B", "#8d4654", "#7798BF", "#aaeeee","#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
                 annotateDisplay: true,
                 annotateLabel: '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',

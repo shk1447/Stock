@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Connector;
 using System.Diagnostics;
 using Common;
+using Model.Request;
+using Model.Common;
 
 namespace DataIntegrationServiceLogic
 {
@@ -413,11 +415,11 @@ namespace DataIntegrationServiceLogic
 
             var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
 
-            if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 ASC");
-            else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) ASC");
-            else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) ASC");
-            else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') ASC");
-            else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') ASC");
+            if (sampling_period == "all") volume_query_builder.Replace("{short_day}", "5").Replace("{long_day}", "20");
+            else if (sampling_period == "day") volume_query_builder.Replace("{short_day}", "5").Replace("{long_day}", "20");
+            else if (sampling_period == "week") volume_query_builder.Replace("{short_day}", "25").Replace("{long_day}", "100");
+            else if (sampling_period == "month") volume_query_builder.Replace("{short_day}", "100").Replace("{long_day}", "400");
+            else if (sampling_period == "year") volume_query_builder.Replace("{short_day}", "1000").Replace("{long_day}", "4000");
 
             var volume_query = volume_query_builder.ToString().Replace("{category}", category);
             var volume_signal_arr = MariaDBConnector.Instance.GetJsonArray(volume_query);
@@ -436,7 +438,7 @@ namespace DataIntegrationServiceLogic
                     .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL AND unixtime <= '").Append(unixtime).Append("') as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
-                else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
+                else if (sampling_period == "day" || day == current.Date) queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
                 else if (sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
                 else if (sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
                 else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
@@ -550,7 +552,7 @@ namespace DataIntegrationServiceLogic
                     var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
 
                     var volume_signal = volume_signal_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
-                    pattern.Add("VA_SIGNAL", va_signal);
+                    //pattern.Add("VA_SIGNAL", va_signal);
                     pattern.Add("VOLUME_SIGNAL", volume_signal == null ? 0 : volume_signal["VOLUME_SIGNAL"].ReadAs<double>());
                     pattern.Add("unixtime", time);
 
@@ -570,11 +572,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VA_SIGNAL"),
-                                                           new KeyValuePair<string, JsonValue>("value", "VA_SIGNAL"),
-                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
-                                                           new KeyValuePair<string, JsonValue>("group", 0),
-                                                           new KeyValuePair<string, JsonValue>("required", false)),
+                                            //new JsonObject(new KeyValuePair<string, JsonValue>("text", "VA_SIGNAL"),
+                                            //               new KeyValuePair<string, JsonValue>("value", "VA_SIGNAL"),
+                                            //               new KeyValuePair<string, JsonValue>("type", "Number"),
+                                            //               new KeyValuePair<string, JsonValue>("group", 0),
+                                            //               new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_SIGNAL"),
                                                            new KeyValuePair<string, JsonValue>("value", "VOLUME_SIGNAL"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -622,11 +624,14 @@ namespace DataIntegrationServiceLogic
 
                 var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);//.Append(" WHERE 날짜 <= '2016-04-23'");
 
-                if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 DESC LIMIT 2");
-                else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) DESC LIMIT 2");
-                else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) DESC LIMIT 2");
-                else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') DESC LIMIT 2");
-                else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') DESC LIMIT 2");
+                if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 DESC LIMIT 2").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) DESC LIMIT 2").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) DESC LIMIT 2")
+                                                                        .Replace("{short_day}", "25").Replace("{long_day}", "100");
+                else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') DESC LIMIT 2")
+                                                                         .Replace("{short_day}", "100").Replace("{long_day}", "400");
+                else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') DESC LIMIT 2")
+                                                                        .Replace("{short_day}", "1000").Replace("{long_day}", "4000");
 
                 var volume_query = volume_query_builder.ToString().Replace("{category}", category);
                 var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
@@ -635,7 +640,7 @@ namespace DataIntegrationServiceLogic
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
                     .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL")
-                    //.Append("AND unixtime <= '2016-04-23'")
+                    //.Append(" AND unixtime <= '2016-10-21'")
                     .Append(") as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
@@ -795,22 +800,52 @@ namespace DataIntegrationServiceLogic
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
+            if (state == "모두")
+            {
+                return resultArr.ToString();
+            }
+            else
+            {
+                return stock.Count > 0 ? resultArr.ToString() : resultArr.Where<JsonValue>(arg => state == "하락" ?
+                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" &&
+                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
+                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "반등" ?
+                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" &&
+                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
+                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 : state == "조정" ?
+                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" &&
+                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
+                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "상승" ?
+                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" &&
+                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
+                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 :
+                             arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
+                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
+            }
+        }
 
-            return stock.Count > 0 ? resultArr.ToString() : resultArr.Where<JsonValue>(arg => state == "하락" ?
-                         arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" &&
-                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
-                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "반등" ?
-                         arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" &&
-                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
-                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 : state == "조정" ?
-                         arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" &&
-                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
-                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "상승" ?
-                         arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" &&
-                         arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
-                         arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 :
-                         arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
-                         .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
+        public string SaveFilter(string type, JsonArray jsonValue)
+        {
+            var set_query = string.Empty;
+            var setSource = new SetDataSourceReq()
+            {
+                rawdata = new List<JsonDictionary>(),
+                category = "종목명",
+                source = "selected_stock_"+type,
+                collected_at = ""
+            };
+            foreach (var item in jsonValue)
+            {
+                var jsonDict = new JsonDictionary();
+                foreach (var kv in item)
+                {
+                    jsonDict.Add(kv.Key, kv.Value.ReadAs<string>());
+                }
+                setSource.rawdata.Add(jsonDict);
+            }
+            set_query = MariaQueryBuilder.SetDataSource(setSource);
+            MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", set_query);
+            return string.Empty;
         }
 
         public string Download(JsonValue jsonValue)
