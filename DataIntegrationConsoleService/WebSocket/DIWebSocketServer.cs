@@ -67,7 +67,7 @@ namespace DIWebSocket
             this.server.Start();
 
             var thread = new Thread(AutoFilter);
-            //thread.Start();
+            thread.Start();
         }
 
         private void AutoFilter(object obj)

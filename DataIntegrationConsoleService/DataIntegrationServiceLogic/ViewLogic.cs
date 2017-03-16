@@ -795,7 +795,7 @@ namespace DataIntegrationServiceLogic
 
                     }
                 }
-                result.Add("전일비율", volume_signal[0]["전일비율"].ReadAs<double>());
+                result.Add("전일비율", volume_signal[0].ContainsKey("전일비율") && volume_signal[0]["전일비율"] != null ? volume_signal[0]["전일비율"].ReadAs<double>() : 0);
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
