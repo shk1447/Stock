@@ -529,51 +529,51 @@ namespace Finance
                     result.source = collectionName;
                     result.category = "종목코드";
                     result.collected_at = "날짜";
-
+                    var start_point = false;
                     var standardTime = string.Empty;
-                    for (int i = 7; i < histroyCsv.Length - 1; i++)
+                    for (int i = 0; i < histroyCsv.Length - 1; i++)
                     {
                         var sise = new JsonDictionary();
                         var row = histroyCsv[i].Split(',');
-
-                        sise.Add("종목코드", code);
-                        sise.Add("종목명", name);
-                        sise.Add("종목유형", type);
-                        sise.Add("상장주식수", cnt);
-                        if (row[0].Trim().Contains("a"))
+                        if (row[0].StartsWith("a")) start_point = true;
+                        if (start_point)
                         {
-                            standardTime = row[0].Trim().Replace("a", "");
-                            sise.Add(columnInfo[0], standardTime);
-                        }
-                        else
-                        {
-                            sise.Add(columnInfo[0], (int.Parse(standardTime) + (86400 * int.Parse(row[0]))).ToString());
-                        }
-                        sise.Add(columnInfo[1], row[1].Trim());
-                        sise.Add(columnInfo[2], row[2].Trim());
-                        sise.Add(columnInfo[3], row[3].Trim());
-                        sise.Add(columnInfo[4], row[4].Trim());
-                        sise.Add(columnInfo[5], row[5].Trim());
-                        if (result.rawdata.Count > 0)
-                        {
-                            var prevPrice = double.Parse(result.rawdata[result.rawdata.Count - 1]["종가"].ToString());
-                            if (prevPrice > 0)
+                            sise.Add("종목코드", code);
+                            sise.Add("종목명", name);
+                            sise.Add("종목유형", type);
+                            sise.Add("상장주식수", cnt);
+                            if (row[0].Trim().Contains("a"))
                             {
-                                var diff = double.Parse(row[1].Trim()) - prevPrice;
-                                sise.Add(columnInfo[6], diff);
-                                sise.Add(columnInfo[7], (double)diff / prevPrice * 100);
+                                standardTime = row[0].Trim().Replace("a", "");
+                                sise.Add(columnInfo[0], standardTime);
                             }
-                        }
+                            else
+                            {
+                                sise.Add(columnInfo[0], (int.Parse(standardTime) + (86400 * int.Parse(row[0]))).ToString());
+                            }
+                            sise.Add(columnInfo[1], row[1].Trim());
+                            sise.Add(columnInfo[2], row[2].Trim());
+                            sise.Add(columnInfo[3], row[3].Trim());
+                            sise.Add(columnInfo[4], row[4].Trim());
+                            sise.Add(columnInfo[5], row[5].Trim());
+                            if (result.rawdata.Count > 0)
+                            {
+                                var prevPrice = double.Parse(result.rawdata[result.rawdata.Count - 1]["종가"].ToString());
+                                if (prevPrice > 0)
+                                {
+                                    var diff = double.Parse(row[1].Trim()) - prevPrice;
+                                    sise.Add(columnInfo[6], diff);
+                                    sise.Add(columnInfo[7], (double)diff / prevPrice * 100);
+                                }
+                            }
 
-                        result.rawdata.Add(sise);
+                            result.rawdata.Add(sise);
+                        }
                     }
                     if (result.rawdata.Count > 0)
                     {
-                        ThreadPool.QueueUserWorkItem((a) =>
-                            {
-                                var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
-                                MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
-                            });
+                        var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                     }
                 }
                 catch (Exception ex)

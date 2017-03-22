@@ -84,7 +84,7 @@ namespace DIWebSocket
 
             var dayFilter = viewLogic.AutoAnalysis("day", "모두", new List<string>());
             var dayJson = JsonArray.Parse(dayFilter);
-            viewLogic.SaveFilter("day", (JsonArray)dayJson);    
+            viewLogic.SaveFilter("day", (JsonArray)dayJson);
         }
 
         /// <summary>

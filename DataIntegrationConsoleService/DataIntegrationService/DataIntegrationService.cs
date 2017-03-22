@@ -105,7 +105,14 @@ namespace DataIntegrationService
             {
                 result.code = "200";
                 var stock_list = name == null ? new List<string>() : name.Split(',').ToList();
-                result.message = viewLogic.AutoAnalysis(period == null ? string.Empty : period.ToLower(), state, stock_list);
+                if (state == "테스트")
+                {
+                    viewLogic.AutoAnalysisTest();
+                }
+                else
+                {
+                    result.message = viewLogic.AutoAnalysis(period == null ? string.Empty : period.ToLower(), state, stock_list);
+                }
             }
             catch(Exception ex)
             {
