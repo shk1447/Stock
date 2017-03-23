@@ -49,6 +49,10 @@ module.exports = React.createClass({
                         </Dropdown.Menu>
                     </Dropdown>
 
+                    <Menu.Item name='dataview' onClick={this.handleDataEditor}>
+                        Editor
+                    </Menu.Item>
+
                     <Menu.Menu position='right'>
                         <Menu.Item>
                             <Dropdown trigger={trigger}>
@@ -79,6 +83,9 @@ module.exports = React.createClass({
     },
     handleDataViewer : function(){
         this.context.router.replace('/App/DataViewer/DataView');
+    },
+    handleDataEditor : function(){
+        this.context.router.replace('/App/DataEditor/DataEditor');
     },
     handleDataManager : function(e,v){
         var route = '/App/DataManager/' + e.target.innerText;

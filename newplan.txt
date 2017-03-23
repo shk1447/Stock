@@ -282,3 +282,43 @@ VA=100
 
 산과 숲과 나무를 모두 보아라.
 - 산과 숲을 통해 현재 상태를 확인하며, 나무를 통해 다음 상황을 예측하라.
+
+
+
+
+DROP TABLE IF EXISTS `temp`; CREATE TEMPORARY TABLE IF NOT EXISTS `temp` ENGINE=MEMORY AS
+SELECT result02.idx, result01.category, result01.종가 - result02.종가 as Gain, CAST(NULL as DOUBLE) as AvgGain, CAST(NULL as DOUBLE) as AvgLoss, result01.unixtime
+FROM (
+SELECT @rownum:=@rownum+1 as idx, category, 종가, unixtime
+FROM (
+SELECT category, COLUMN_GET(rawdata, '종가' as double) as `종가`, unixtime
+FROM past_stock
+WHERE category = '038060' AND (@rownum:=0)=0 GROUP BY DATE(unixtime)) temp01
+ORDER BY unixtime ASC) as result01,
+(
+SELECT @rownum:=@rownum+1 as idx, category, 종가, unixtime
+FROM (
+SELECT category, COLUMN_GET(rawdata, '종가' as double) as `종가`, unixtime
+FROM past_stock
+WHERE category = '038060' AND (@rownum:=0)=0 GROUP BY DATE(unixtime)) as temp02
+ORDER BY unixtime ASC) as result02
+WHERE result01.idx - 1 = result02.idx;
+
+
+DROP TABLE IF EXISTS `start_temp`; CREATE TEMPORARY TABLE IF NOT EXISTS `start_temp` ENGINE=MEMORY AS
+SELECT category, SUM(CASE WHEN Gain >= 0 THEN Gain ELSE 0 END) AS start_gain_sum, SUM(CASE WHEN Gain < 0 THEN ABS(Gain) ELSE 0 END) AS start_loss_sum
+FROM temp WHERE idx <= 14 GROUP BY category;
+
+SET @avg_gain = 0;
+SET @avg_loss = 0;
+
+UPDATE temp,start_temp SET AvgGain = @avg_gain := if(idx = 14, start_temp.start_gain_sum, if(idx > 14, @avg_gain * 13 + if(Gain >= 0, Gain, 0), 0))/14,
+					 AvgLoss = @avg_loss := if(idx = 14, start_temp.start_loss_sum, if(idx > 14, @avg_loss * 13 + if(Gain < 0, abs(Gain), 0), 0))/14
+WHERE temp.category = start_temp.category;
+
+SELECT idx, category, unixtime, Gain, AvgGain, AvgLoss, AvgGain / AvgLoss as RS, 100 - (100 / (1 + AvgGain / AvgLoss)) as RSI
+FROM temp
+GROUP BY category
+
+
+해당 지표!!!다이버전스!!!추가

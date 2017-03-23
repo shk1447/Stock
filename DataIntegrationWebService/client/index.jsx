@@ -22,6 +22,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var App = require('./views/App');
 var Login = require('./views/Login');
+var DataEditor = require('./views/DataEditor/DataEditor');
 var DataView = require('./views/DataViewer/DataView');
 var Collection = require('./views/DataManager/Collection');
 var Analysis = require('./views/DataManager/Analysis');
@@ -36,6 +37,7 @@ ReactDOM.render(<Router history = {browserHistory}>
     <Route path="/" component = {App} onEnter={requireAuth} />
     <Route path="/Login" component={Login}/>
     <Route path="/App" component = {App} onEnter={requireAuth} >
+        <Route path="DataEditor/DataEditor" component={DataEditor}/>
         <Route path="DataViewer/DataView" component={DataView}/>
         <Route path="DataManager/Collection" component={Collection}/>
         <Route path="DataManager/Analysis" component={Analysis}/>
