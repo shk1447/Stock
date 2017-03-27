@@ -423,6 +423,7 @@ namespace DataIntegrationServiceLogic
 
             var volume_query = volume_query_builder.ToString().Replace("{category}", category);
             var volume_signal_arr = MariaDBConnector.Instance.GetJsonArray(volume_query);
+            var rsi_arr = MariaDBConnector.Instance.GetJsonArray(MariaQueryDefine.GetRSI.Replace("{category}", category));
 
             for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
             {
@@ -552,7 +553,10 @@ namespace DataIntegrationServiceLogic
                     var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
 
                     var volume_signal = volume_signal_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
-                    //pattern.Add("VA_SIGNAL", va_signal);
+                    var rsi = rsi_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
+                    
+                    pattern.Add("RSI", rsi == null || rsi["RSI"] == null || !rsi.ContainsKey("RSI") ? -1 : rsi["RSI"].ReadAs<double>());
+                    
                     pattern.Add("VOLUME_SIGNAL", volume_signal == null ? 0 : volume_signal["VOLUME_SIGNAL"].ReadAs<double>());
                     pattern.Add("unixtime", time);
 
@@ -572,11 +576,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            //new JsonObject(new KeyValuePair<string, JsonValue>("text", "VA_SIGNAL"),
-                                            //               new KeyValuePair<string, JsonValue>("value", "VA_SIGNAL"),
-                                            //               new KeyValuePair<string, JsonValue>("type", "Number"),
-                                            //               new KeyValuePair<string, JsonValue>("group", 0),
-                                            //               new KeyValuePair<string, JsonValue>("required", false)),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "RSI"),
+                                                           new KeyValuePair<string, JsonValue>("value", "RSI"),
+                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
+                                                           new KeyValuePair<string, JsonValue>("group", 0),
+                                                           new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_SIGNAL"),
                                                            new KeyValuePair<string, JsonValue>("value", "VOLUME_SIGNAL"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -635,6 +639,8 @@ namespace DataIntegrationServiceLogic
 
                 var volume_query = volume_query_builder.ToString().Replace("{category}", category);
                 var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
+                var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " ORDER BY unixtime DESC LIMIT 1";
+                var rsi_signal = MariaDBConnector.Instance.GetJsonObject(rsi_query);
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
@@ -789,14 +795,22 @@ namespace DataIntegrationServiceLogic
                     {
                         result.Add("VOLUME_OSCILLATOR", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>());
                         result.Add("VOLUME_SIGNAL", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() - volume_signal[1]["VOLUME_SIGNAL"].ReadAs<double>());
+                        result.Add("전일비율", volume_signal[0].ContainsKey("전일비율") && volume_signal[0]["전일비율"] != null ? volume_signal[0]["전일비율"].ReadAs<double>() : 0);
+                        result.Add("생명선", volume_signal[0]["생명선"].ReadAs<double>());
                     }
                     catch (Exception ex)
                     {
 
                     }
                 }
-                result.Add("전일비율", volume_signal[0].ContainsKey("전일비율") && volume_signal[0]["전일비율"] != null ? volume_signal[0]["전일비율"].ReadAs<double>() : 0);
-                result.Add("생명선", volume_signal[0]["생명선"].ReadAs<double>());
+                try
+                {
+                    result.Add("RSI", rsi_signal == null || rsi_signal["RSI"] == null || !rsi_signal.ContainsKey("RSI") ? -1 : rsi_signal["RSI"].ReadAs<double>());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
                 resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;

@@ -504,7 +504,7 @@ namespace Connector
                                         }
                                         else if (reader.GetValue(i).GetType().Name == "DBNull")
                                         {
-                                            fieldType = "Number";
+                                            fieldType = "Text";
                                             obj.Add(reader.GetName(i), null);
                                         }
                                         else
