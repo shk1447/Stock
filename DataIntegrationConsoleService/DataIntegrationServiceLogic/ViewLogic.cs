@@ -11,6 +11,7 @@ using System.Diagnostics;
 using Common;
 using Model.Request;
 using Model.Common;
+using System.Threading;
 
 namespace DataIntegrationServiceLogic
 {
@@ -479,6 +480,7 @@ namespace DataIntegrationServiceLogic
                 var result = new JsonObject();
                 var supportArr = new JsonArray();
                 var resistanceArr = new JsonArray();
+                if (data.Count == 0) continue;
                 foreach (var item in data[data.Count - 1])
                 {
                     if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<int>()); continue; }
@@ -928,6 +930,7 @@ namespace DataIntegrationServiceLogic
                     var result = new JsonObject();
                     var supportArr = new JsonArray();
                     var resistanceArr = new JsonArray();
+                    if (data.Count == 0) continue;
                     foreach (var item in data[data.Count - 1])
                     {
                         if (item.Key == "unixtime") continue;
@@ -1273,6 +1276,27 @@ namespace DataIntegrationServiceLogic
             result.Add(minimum);
             index = minimum["index"].ReadAs<int>();
             this.TrendAnalysis(key, minimum, end, data.Where(p => p["unixtime"].ReadAs<int>() > minimum["unixtime"].ReadAs<int>()), ref result, index, firstValue);
+        }
+
+        public void AutoFilter()
+        {
+            var thread = new Thread(AutoFiltering);
+            thread.Start();
+        }
+
+        private void AutoFiltering(object obj)
+        {
+            var monthFilter = this.AutoAnalysis("month", "모두", new List<string>());
+            var monthJson = JsonArray.Parse(monthFilter);
+            this.SaveFilter("month", (JsonArray)monthJson);
+
+            var weekFilter = this.AutoAnalysis("week", "모두", new List<string>());
+            var weekJson = JsonArray.Parse(weekFilter);
+            this.SaveFilter("week", (JsonArray)weekJson);
+
+            var dayFilter = this.AutoAnalysis("day", "모두", new List<string>());
+            var dayJson = JsonArray.Parse(dayFilter);
+            this.SaveFilter("day", (JsonArray)dayJson);
         }
     }
 }

@@ -123,6 +123,21 @@ namespace DataIntegrationService
             return result;
         }
 
+        public CommonResponse AutoFilter()
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var viewLogic = new ViewLogic();
+            var result = new CommonResponse();
+
+            viewLogic.AutoFilter();
+
+            return result;
+        }
+
         #endregion
     }
 }

@@ -65,26 +65,6 @@ namespace DIWebSocket
             this.server = new WebSocketServer(System.Net.IPAddress.Any, Convert.ToInt32(port));
             SetServices();
             this.server.Start();
-
-            var thread = new Thread(AutoFilter);
-            //thread.Start();
-        }
-
-        private void AutoFilter(object obj)
-        {
-            var viewLogic = new ViewLogic();
-            
-            var monthFilter = viewLogic.AutoAnalysis("month", "모두", new List<string>());
-            var monthJson = JsonArray.Parse(monthFilter);
-            viewLogic.SaveFilter("month", (JsonArray)monthJson);
-
-            var weekFilter = viewLogic.AutoAnalysis("week", "모두", new List<string>());
-            var weekJson = JsonArray.Parse(weekFilter);
-            viewLogic.SaveFilter("week", (JsonArray)weekJson);
-
-            var dayFilter = viewLogic.AutoAnalysis("day", "모두", new List<string>());
-            var dayJson = JsonArray.Parse(dayFilter);
-            viewLogic.SaveFilter("day", (JsonArray)dayJson);
         }
 
         /// <summary>
