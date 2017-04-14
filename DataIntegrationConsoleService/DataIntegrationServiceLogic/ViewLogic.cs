@@ -452,6 +452,8 @@ namespace DataIntegrationServiceLogic
                 var refFields = res["fields"].ReadAs<JsonArray>();
                 var fieldCnt = refFields.ReadAs<JsonArray>().Count;
 
+                double 최고가 = 0;
+                double 최저가 = 0;
                 for (int i = 0; i < fieldCnt; i++)
                 {
                     var key = refFields[i]["value"].ReadAs<string>();
@@ -466,6 +468,8 @@ namespace DataIntegrationServiceLogic
                         {
                             return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
                         });
+                        최고가 = max[key].ReadAs<double>();
+                        최저가 = min[key].ReadAs<double>();
                         Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
                     }
                     catch (Exception ex)
@@ -520,6 +524,9 @@ namespace DataIntegrationServiceLogic
                 result.Add("실제저항_갯수", real_resistance.Count());
                 result.Add("반전지지_갯수", reverse_resistance.Count());
                 result.Add("반전저항_갯수", reverse_support.Count());
+                result.Add("최고가", 최고가);
+                result.Add("최저가", 최저가);
+                result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
                 if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
                 if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
                 if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
@@ -550,8 +557,9 @@ namespace DataIntegrationServiceLogic
                 }
                 else
                 {
-                    if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<int>());
-                    if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<int>());
+                    if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<double>());
+                    if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<double>());
+                    if (result.ContainsKey("주가위치")) pattern.Add("주가위치", result["주가위치"].ReadAs<double>());
                     var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
 
                     var volume_signal = volume_signal_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
@@ -583,8 +591,8 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_SIGNAL"),
-                                                           new KeyValuePair<string, JsonValue>("value", "VOLUME_SIGNAL"),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "주가위치"),
+                                                           new KeyValuePair<string, JsonValue>("value", "주가위치"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
@@ -665,6 +673,9 @@ namespace DataIntegrationServiceLogic
                 var refFields = res["fields"].ReadAs<JsonArray>();
                 var fieldCnt = refFields.ReadAs<JsonArray>().Count;
 
+                double 최고가 = 0;
+                double 최저가 = 0;
+
                 for (int i = 0; i < fieldCnt; i++)
                 {
                     var key = refFields[i]["value"].ReadAs<string>();
@@ -679,6 +690,8 @@ namespace DataIntegrationServiceLogic
                         {
                             return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
                         });
+                        최고가 = max[key].ReadAs<double>();
+                        최저가 = min[key].ReadAs<double>();
                         Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
                     }
                     catch (Exception ex)
@@ -738,6 +751,9 @@ namespace DataIntegrationServiceLogic
                 result.Add("실제저항_갯수", real_resistance.Count());
                 result.Add("반전지지_갯수", reverse_resistance.Count());
                 result.Add("반전저항_갯수", reverse_support.Count());
+                result.Add("최고가", 최고가);
+                result.Add("최저가", 최저가);
+                result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
 
                 if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
                 if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
