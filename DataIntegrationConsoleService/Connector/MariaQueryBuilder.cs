@@ -293,7 +293,9 @@ namespace Connector
             foreach (var duplicate_key in totalFields)
             {
                 var duplSeparator = dupl_cnt < totalFields.Count ? "," : "";
-                duplicateUpdateBuilder.Append("\"").Append(duplicate_key).Append("\",COLUMN_GET(VALUES(rawdata), \"").Append(duplicate_key).Append("\" as char)").Append(duplSeparator);
+                duplicateUpdateBuilder.Append("\"").Append(duplicate_key).Append("\",IF(COLUMN_EXISTS(VALUES(rawdata), \"").Append(duplicate_key).Append("\"),")
+                    .Append("COLUMN_GET(VALUES(rawdata), \"").Append(duplicate_key).Append("\" as char),").Append("COLUMN_GET(rawdata, \"").Append(duplicate_key).Append("\" as char))")
+                    .Append(duplSeparator);
                 dupl_cnt++;
             }
             duplicateQuery = duplicateUpdateBuilder.Append(")").ToString();
@@ -304,7 +306,10 @@ namespace Connector
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
             resultQueryBuilder.Append(fieldsQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
-            
+            if (category == "052420")
+            {
+                Console.WriteLine("test");
+            }
             return resultQueryBuilder.ToString();
         }
 

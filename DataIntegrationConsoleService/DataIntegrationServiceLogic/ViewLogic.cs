@@ -1302,13 +1302,13 @@ namespace DataIntegrationServiceLogic
 
         private void AutoFiltering(object obj)
         {
-            var monthFilter = this.AutoAnalysis("month", "모두", new List<string>());
-            var monthJson = JsonArray.Parse(monthFilter);
-            this.SaveFilter("month", (JsonArray)monthJson);
+            //var monthFilter = this.AutoAnalysis("month", "모두", new List<string>());
+            //var monthJson = JsonArray.Parse(monthFilter);
+            //this.SaveFilter("month", (JsonArray)monthJson);
 
-            var weekFilter = this.AutoAnalysis("week", "모두", new List<string>());
-            var weekJson = JsonArray.Parse(weekFilter);
-            this.SaveFilter("week", (JsonArray)weekJson);
+            //var weekFilter = this.AutoAnalysis("week", "모두", new List<string>());
+            //var weekJson = JsonArray.Parse(weekFilter);
+            //this.SaveFilter("week", (JsonArray)weekJson);
 
             var dayFilter = this.AutoAnalysis("day", "모두", new List<string>());
             var dayJson = JsonArray.Parse(dayFilter);
