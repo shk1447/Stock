@@ -1,0 +1,269 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="Aggregate">
+    <div class="form-row">
+        <label for="node-input-Name"><i class="fa fa-tag"></i> <span>Name</span></label>
+        <input type="text" id="node-input-Name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <div class="form-row" style="margin-bottom: 0px;">
+            <label style="width:100% !important;" for="node-input-HQuery"><i class="fa fa-wrench"></i> <span>Hierarchical Query</span></label>
+            <input type="hidden" id="node-input-HQuery" autofocus="autofocus">
+        </div>
+        <div class="form-row node-text-editor-row">
+            <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-HQuery-editor" ></div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-row" style="margin-bottom: 0px;">
+            <label style="width:100% !important;" for="node-input-AQuery"><i class="fa fa-wrench"></i> <span>Aggregate Query</span></label>
+            <input type="hidden" id="node-input-AQuery" autofocus="autofocus">
+        </div>
+        <div class="form-row node-text-editor-row">
+            <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-AQuery-editor" ></div>
+        </div>
+    </div>
+</script>
+<style>
+</style>
+<script type="text/x-red" data-help-name="Aggregate">
+    <p>계층적 집계 노드</p>
+</script>
+
+<script type="text/javascript">
+    function temporary (type, data) {
+        console.log(type, ": ha");
+        var sync = $.ajax({
+            url: "temporary/aggregate/" + type,
+            type:"POST",
+            data:data,
+            async:false,
+            success:function(resp) {
+                //console.log('success');
+            },
+            error:function(jqXHR,textStatus,errorThrown){
+                RED.notify("서버 상태를 확인해주세요.","error");
+            }
+        });
+        return sync;
+    };
+    RED.nodes.registerType('Aggregate',{
+        category: 'adp',
+        color:"#4DB6AC",
+        defaults: {
+            Name: {value:""},
+            HQuery: {value:""},
+            AQuery: {value:""},
+            ObjectType: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "inject.png",
+        label: function() {
+            return this.Name;
+        },
+        labelStyle: function() {
+            return this.Name?"node_label_italic":"";
+        },
+        onaddlink : function(src, dst) {
+            console.log('Add Link at HA Node');
+            var possible = true;
+            var links = RED.nodes.filterLinks({target:dst});
+            if(src.type == dst.type) {
+                possible = false;
+            }
+            if(links.length > 0) {
+                possible = false;
+            }
+            if(possible) {
+                dst.ObjectType = src.id;
+                var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+                if(connector.length > 0) {
+                    dst.ip = connector[0].ip;
+                    dst.port = connector[0].port;
+                    msg = {
+                        connector : {
+                            ip : dst.ip,
+                            port : dst.port
+                        },
+                        data : {
+                            id : dst.id,
+                            ObjectType : dst.ObjectType,
+                            HierarchicalQuery : dst.HQuery,
+                            AggregateQuery : dst.AQuery
+                        }
+                    }
+                    var sync = temporary("save", msg);
+                    if(sync.status !== 200) {
+                        possible = false;
+                    }
+                } else {
+                    possible = false;
+                }
+            }
+            return possible;
+        },
+        onremovelink : function(src, dst) {
+            var possible = true;
+            if(RED.nodes.filterNodes({id:dst.id}).length === 0) {
+                return possible;
+            }
+            dst.ObjectType = "";
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                dst.ip = connector[0].ip;
+                dst.port = connector[0].port;
+                msg = {
+                    connector : {
+                        ip : dst.ip,
+                        port : dst.port
+                    },
+                    data : {
+                        id : dst.id,
+                        ObjectType : dst.ObjectType,
+                        HierarchicalQuery : dst.HQuery,
+                        AggregateQuery : dst.AQuery
+                    }
+                }
+                var sync = temporary("save", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                }
+            } else {
+                possible = false;
+            }
+            return possible;
+        },
+        onbeforeadd : function () {
+            var possible = true;
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                this.ip = connector[0].ip;
+                this.port = connector[0].port;
+                var msg = {
+                    connector : {
+                        ip : this.ip,
+                        port : this.port
+                    },
+                    data : {
+                        id : this.id,
+                        ObjectType : this.ObjectType,
+                        HierarchicalQuery : this.HQuery,
+                        AggregateQuery : this.AQuery
+                    }
+                }
+                var sync = temporary("save", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                }
+            } else {
+                possible = false;
+                RED.notify("ADP(ObjectType) Connector를 등록해주세요.","error");
+            }
+            return possible;
+        },
+        onbeforeremove : function () {
+            var possible = true;
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                this.ip = connector[0].ip;
+                this.port = connector[0].port;
+                var msg = {
+                    connector : {
+                        ip : this.ip,
+                        port : this.port
+                    },
+                    data : {
+                        id : this.id
+                    }
+                }
+                var sync = temporary("remove", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                }
+            }
+            return possible;
+        },
+        oneditprepare: function() {
+            console.log('Edit Prepare HA Node');
+            this.heditor = RED.editor.createEditor({
+                id: 'node-input-HQuery-editor',
+                mode: 'ace/mode/sql',
+                value: $("#node-input-HQuery").val(),
+                globals: {
+                    msg:true,
+                    context:true,
+                    RED: true,
+                    util: true,
+                    flow: true,
+                    global: true,
+                    console: true,
+                    Buffer: true,
+                    setTimeout: true,
+                    clearTimeout: true,
+                    setInterval: true,
+                    clearInterval: true
+                }
+            });
+            this.aeditor = RED.editor.createEditor({
+                id: 'node-input-AQuery-editor',
+                mode: 'ace/mode/sql',
+                value: $("#node-input-AQuery").val(),
+                globals: {
+                    msg:true,
+                    context:true,
+                    RED: true,
+                    util: true,
+                    flow: true,
+                    global: true,
+                    console: true,
+                    Buffer: true,
+                    setTimeout: true,
+                    clearTimeout: true,
+                    setInterval: true,
+                    clearInterval: true
+                }
+            });
+            this.heditor.focus();
+        },
+        oneditsave: function() {
+            var msg;
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                this.ip = connector[0].ip;
+                this.port = connector[0].port;
+                msg = {
+                    connector : {
+                        ip : this.ip,
+                        port : this.port
+                    },
+                    data : {
+                        ObjectType : this.ObjectType,
+                        HierarchicalQuery : this.heditor.getValue(),
+                        AggregateQuery : this.aeditor.getValue()
+                    }
+                }
+                var sync = temporary("save", msg);
+                if(sync.status === 200) {
+                    $("#node-input-HQuery").val(this.heditor.getValue());
+                    $("#node-input-AQuery").val(this.aeditor.getValue());
+                }
+            }
+        }
+    });
+
+</script>

@@ -1,0 +1,867 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="rule">
+    <div class="form-row node-input-rule">
+        <label for="node-config-input-Name"><i class="fa fa-tag"></i> <span>Rule</span></label>
+        <input type="text" id="node-config-input-Name" placeholder="RULE NAME">
+    </div>
+    <div class="form-row node-input-rule" style="margin-bottom:15px;">
+        <label for="node-config-input-Conditions"><i class="fa fa-wrench"></i> <span>Conditions</span></label>
+        <input type="hidden" id="node-config-input-Conditions">
+        <canvas id="gradient-canvas" style="width:100%; height:34px; position:relative;"></canvas>
+        <div id="selector-container" style="height:25px; width:100%; position:relative; cursor:pointer;"></div>
+    </div>
+    <div class="form-row" id="selector-information-container">
+
+    </div>
+</script>
+<script type="text/x-red" data-help-name="rule">
+    <p>RULE SETTING</p>
+</script>
+<script type="text/javascript">
+    function renderCanvas (color_range) {
+        var gradient_canvas = document.getElementById('gradient-canvas');
+        var ctx = gradient_canvas.getContext('2d');
+        var grd = ctx.createLinearGradient(0,gradient_canvas.height,gradient_canvas.width,gradient_canvas.height);
+        for(var j = 0; j < color_range.length; j++) {
+            var row = color_range[j];
+            if(row === undefined) continue;
+            grd.addColorStop(row.Percent, row.ColorHex);
+        }
+        ctx.fillStyle = grd;
+        ctx.fillRect(0,0,gradient_canvas.width,gradient_canvas.height)
+    };
+    function addPicker (conditions, index) {
+        var condition = conditions[index];
+        var selector_container = $('#selector-container');
+        var picker_container = $('<div style="position:absolute; left:'+ condition.Percent +'%"></div>');
+        var picker = $('<i style="position:absolute; left:-11px; color:gray;" class="chevron circle up icon large"></i>');
+        picker_container.data('condition', condition).data('target',index).data('conditions', conditions)
+        picker_container.bind('mousedown', function(e){
+            $('#selector-container').data('dragging', true);
+            $('#selector-container').data('picker', this);
+        });
+        picker_container.bind('contextmenu', {conditions:conditions,target:index}, function(e) {
+            e.preventDefault();
+            this.remove();
+            e.data.conditions[e.data.target] = undefined;
+            var information_container = $('#selector-information-container');
+            information_container.empty();
+            var conditions = JSON.parse(JSON.stringify(e.data.conditions)).filter(function(row){return row !== null})
+                                            .sort(function(prev,cur) {return prev.Percent < cur.Percent ? -1 : prev.Percent > cur.Percent ? 1: 0});
+            for(var q = 0; q < conditions.length; q++) {
+                var row = conditions[q];
+                var field = $('<div id="point-'+q+'" class="form-row"><i style="color:gray;" class="chevron circle down icon large"></i>' +
+                '<input type="text" placeholder="Value" id="point-value-'+q+'" value="'+row.Value+'" style="display: inline;width: 45%;">' +
+                '<input type="number" placeholder="Percent" id="point-percent-'+q+'" value="'+row.Percent+'" style="display: inline;width: 45%; margin-left:15px;"></div>');
+                field.appendTo(information_container);
+                $('#point-percent-'+q).bind('change', {index:q}, function(e) {
+                    var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                        var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                        var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                        return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                    })[e.data.index];
+                    picker_container.style.left = $(this).val() + '%';
+                    $(picker_container).data('condition').Percent = parseFloat($(this).val());
+                });
+                $('#point-value-'+q).bind('change', {index:q}, function(e){
+                    var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                        var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                        var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                        return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                    })[e.data.index];
+                    $(picker_container).data('condition').Value = $(this).val();
+                });
+            }
+        });
+        picker.appendTo(picker_container.appendTo(selector_container));
+    };
+    RED.nodes.registerType('rule',{
+        category:'config',
+        defaults:{
+            rule: {value:""},
+            Name: {value:""},
+            Conditions: {value:""}
+        },
+        label : function () {
+            return this.Name;
+        },
+        oneditprepare: function () {
+            var color_range = [];
+            RED.nodes.eachNode(function(d){
+                if(d.selected) {
+                    color_range = d._colorrange;
+                }
+            });
+            renderCanvas(color_range);
+            if(!this.Conditions) {
+                this._conditions = [{
+                    Value:"",
+                    Percent:50
+                }];
+            } else {
+                this._conditions = JSON.parse(this.Conditions).sort(function(prev,cur) {return prev.Percent < cur.Percent ? -1 : prev.Percent > cur.Percent ? 1: 0});
+            }
+            console.log('test');
+            var selector_container = $('#selector-container');
+            selector_container.bind('mouseleave', function(e){
+                $(this).data('dragging', false)
+            });
+            selector_container.bind('mouseup', {conditions:this._conditions}, function(e){
+                if(e.button === 0 && !$(this).data('dragging')) {
+                    var Percent = (e.pageX - this.getBoundingClientRect().left) / this.getBoundingClientRect().width;
+                    e.data.conditions.push({Value:"", Percent:Percent*100});
+                    var index = e.data.conditions.length - 1;
+                    addPicker(e.data.conditions, index);
+
+                    var information_container = $('#selector-information-container');
+                    information_container.empty();
+                    var conditions = JSON.parse(JSON.stringify(e.data.conditions)).filter(function(row){return row !== null})
+                                                                .sort(function(prev,cur) {return prev.Percent < cur.Percent ? -1 : prev.Percent > cur.Percent ? 1: 0})
+                    for(var q = 0; q < conditions.length; q++) {
+                        var row = conditions[q];
+                        var field = $('<div id="point-'+q+'" class="form-row"><i style="color:gray;" class="chevron circle down icon large"></i>' +
+                        '<input type="text" placeholder="Value" id="point-value-'+q+'" value="'+row.Value+'" style="display: inline;width: 45%;">' +
+                        '<input type="number" placeholder="Percent" id="point-percent-'+q+'" value="'+row.Percent+'" style="display: inline;width: 45%; margin-left:15px;"></div>');
+                        field.appendTo(information_container);
+                        $('#point-percent-'+q).bind('change', {index:q}, function(e) {
+                            var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                                var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                                var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                                return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                            })[e.data.index];
+                            picker_container.style.left = $(this).val() + '%';
+                            $(picker_container).data('condition').Percent = parseFloat($(this).val());
+                        });
+                        $('#point-value-'+q).bind('change', {index:q}, function(e){
+                            var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                                var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                                var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                                return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                            })[e.data.index];
+                            $(picker_container).data('condition').Value = $(this).val();
+                        });
+                    }
+                }
+                $(this).data('dragging', false)
+            });
+            selector_container.bind('mousemove', {conditions:this._conditions}, function(e){
+                if($(this).data('dragging')) {
+                    var picker = $(this).data('picker')
+                    var global_container = $('#global_container');
+                    var container_rect = picker.getBoundingClientRect();
+                    var rect = document.getElementById('gradient-canvas').getBoundingClientRect();
+                    global_container.css({top:container_rect.top + 15, left:container_rect.left + 15});
+                    var relativeX = e.pageX - rect.left;
+                    var percent = (relativeX > rect.width ? rect.width : relativeX) / rect.width;
+                    $(picker).data('condition').Percent = (percent < 0 ? 0 : percent) * 100;
+                    $(this).data('picker').style.left = (percent < 0 ? 0 : percent * 100) + '%';
+
+                    var information_container = $('#selector-information-container');
+                    information_container.empty();
+                    var conditions = JSON.parse(JSON.stringify(e.data.conditions)).filter(function(row){return row !== null})
+                                                    .sort(function(prev,cur) {return prev.Percent < cur.Percent ? -1 : prev.Percent > cur.Percent ? 1: 0});
+                    for(var q = 0; q < conditions.length; q++) {
+                        var row = conditions[q];
+                        var field = $('<div id="point-'+q+'" class="form-row"><i style="color:gray;" class="chevron circle down icon large"></i>' +
+                        '<input type="text" placeholder="Value" id="point-value-'+q+'" value="'+row.Value+'" style="display: inline;width: 45%;">' +
+                        '<input type="number" placeholder="Percent" id="point-percent-'+q+'" value="'+row.Percent+'" style="display: inline;width: 45%; margin-left:15px;"></div>');
+                        field.appendTo(information_container);
+                        $('#point-percent-'+q).bind('change', {index:q}, function(e) {
+                            var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                                var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                                var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                                return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                            })[e.data.index];
+                            picker_container.style.left = $(this).val() + '%';
+                            $(picker_container).data('condition').Percent = parseFloat($(this).val());
+                        });
+                        $('#point-value-'+q).bind('change', {index:q}, function(e){
+                            var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                                var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                                var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                                return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                            })[e.data.index];
+                            $(picker_container).data('condition').Value = $(this).val();
+                        });
+                    }
+                }
+            });
+            var information_container = $('#selector-information-container');
+            for(var i = 0; i < this._conditions.length; i++) {
+                var condition = this._conditions[i];
+                addPicker(this._conditions, i);
+                var field = $('<div id="point-'+i+'" class="form-row"><i style="color:gray;" class="chevron circle down icon large"></i>' +
+                '<input type="text" placeholder="Value" id="point-value-'+i+'" value="'+condition.Value+'" style="display: inline;width: 45%;">' +
+                '<input type="number" placeholder="Percent" id="point-percent-'+i+'" value="'+condition.Percent+'" style="display: inline;width: 45%; margin-left:15px;"></div>');
+                field.appendTo(information_container);
+                $('#point-percent-'+i).bind('change', {index:i}, function(e) {
+                    var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                        var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                        var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                        return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                    })[e.data.index];
+                    picker_container.style.left = $(this).val() + '%';
+                    $(picker_container).data('condition').Percent = parseFloat($(this).val());
+                });
+                $('#point-value-'+i).bind('change', {index:i}, function(e){
+                    var picker_container = $('#selector-container').children().sort(function(prev,cur){
+                        var prev_left = parseFloat(prev.style.left.replace(/%/gi, ''));
+                        var cur_left = parseFloat(cur.style.left.replace(/%/gi, ''));
+                        return prev_left < cur_left ? -1 : prev_left > cur_left ? 1 : 0;
+                    })[e.data.index];
+                    $(picker_container).data('condition').Value = $(this).val();
+                });
+            }
+        },
+        oneditsave: function () {
+            this.Conditions = JSON.stringify(this._conditions.filter(function(d){return d}));
+            $('#node-config-input-Conditions').val(this.Conditions);
+        },
+        oneditcancel: function () {
+        }
+    })
+</script>
+<script type="text/x-red" data-template-name="adp_connector">
+    <div class="form-row node-input-adp_connector">
+        <label for="node-config-input-ip"><i class="fa fa-tag"></i> <span>Ip</span></label>
+        <input type="text" id="node-config-input-ip" placeholder="ADP IP">
+    </div>
+    <div class="form-row node-input-adp_connector">
+        <label for="node-config-input-port"><i class="fa fa-tag"></i> <span>Port</span></label>
+        <input type="text" id="node-config-input-port" placeholder="ADP PORT">
+    </div>
+</script>
+<script type="text/x-red" data-help-name="adp_connector">
+    <p>ADP Connector</p>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('adp_connector',{
+        single:true,
+        category:'config',
+        defaults:{
+            adp_connector: {value:"",required:true},
+            ip:{value:"127.0.0.1",required:true},
+            port:{value:"1344",required:true}
+        },
+        label : function () {
+            var url = 'http://' + this.ip + ':' + this.port
+            return url;
+        },
+        oneditprepare: function () {
+            console.log(this);
+        },
+        oneditsave: function () {
+            console.log('save adp_connector');
+        },
+        oneditcancel: function () {
+        }
+    });
+</script>
+<script type="text/x-red" data-template-name="ObjectType">
+    <div class="form-row">
+        <label for="node-input-ObjectType"><i class="fa fa-tag"></i> <span>Name</span></label>
+        <input type="text" id="node-input-ObjectType" placeholder="Object Type Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-adp_connector"><i class="fa fa-globe"></i> <span>Connector</span></label>
+        <input type="text" id="node-input-adp_connector">
+    </div>
+    <div class="form-row">
+        <ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-ObjectType-tabs"></ul>
+    </div>
+    <div id="node-ObjectType-tabs-content" style="min-height: 170px;">
+        <div id="ObjectType-tab-General" style="display:none">
+            <div class="form-row">
+                <label for=""><i class="fa fa-tag"></i> <span>Collector</span></label>
+                <select id="collector-select">
+                </select>
+                <input type="hidden" id="node-input-Collector">
+            </div>
+            <div class="form-row">
+                <label for="node-input-ObjectId"><i class="fa fa-tag"></i> <span>Object ID</span></label>
+                <input type="text" id="node-input-ObjectId" placeholder="Object Id">
+            </div>
+            <div class="form-row">
+                <label for="node-input-TimeField"><i class="fa fa-tag"></i> <span>Time Field</span></label>
+                <input type="text" id="node-input-TimeField" placeholder="Time Field">
+            </div>
+            <div class="form-row">
+                <label for="node-input-Interval"><i class="fa fa-tag"></i> <span>Interval</span></label>
+                <input type="number" id="node-input-Interval" placeholder="Interval">
+            </div>
+            <div class="form-row">
+                <label for="node-input-Storage"><i class="fa fa-wrench"></i> <span>Storage</span></label>
+                <select id="storage-select">
+                </select>
+                <input type="hidden" id="node-input-Storage">
+            </div>
+            <div class="form-row">
+                <label for="node-input-Query"><i class="fa fa-wrench"></i> <span>Query</span></label>
+                <input type="hidden" id="node-input-Query" autofocus="autofocus">
+            </div>
+            <div class="form-row node-text-editor-row">
+                <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-Query-editor" ></div>
+            </div>
+        </div>
+        <div id="ObjectType-tab-ColorDefine" style="display:none">
+            <div class="form-row" style="margin-bottom:15px;">
+                <label for="node-input-ColorRange"><i class="fa fa-wrench"></i> <span>ColorRange</span></label>
+                <input type="hidden" id="node-input-ColorRange">
+                <canvas id="gradient-canvas" style="width:100%; height:34px; position:relative;"></canvas>
+                <div id="selector-container" style="width:100%; height:25px; position:relative; cursor:pointer;"></div>
+            </div>
+            <div class="form-row">
+                <label for="node-input-HealthColor"><i class="fa fa-wrench"></i> <span>HealthColor</span></label>
+                <select id="node-input-HealthColor" multiple="" class="ui fluid dropdown" style="display:inline-block;">
+                </select>
+            </div>
+        </div>
+        <div id="ObjectType-tab-MetricRule" style="display:none">
+            <div class="form-row">
+                <label for="node-input-rule"><i class="fa fa-globe"></i> <span>RuleList</span></label>
+                <input type="text" id="node-input-rule">
+            </div>
+            <div class="form-row" id="metric-container">
+            </div>
+        </div>
+    </div>
+</script>
+<style>
+</style>
+<script type="text/x-red" data-help-name="ObjectType">
+    <p>데이터 군집화 노드</p>
+</script>
+
+<script type="text/javascript">
+(function() {
+    function renderCanvas (color_range) {
+        var gradient_canvas = document.getElementById('gradient-canvas');
+        var ctx = gradient_canvas.getContext('2d');
+        var grd = ctx.createLinearGradient(0,gradient_canvas.height,gradient_canvas.width,gradient_canvas.height);
+        for(var j = 0; j < color_range.length; j++) {
+            var row = color_range[j];
+            if(row === undefined) continue;
+            grd.addColorStop(row.Percent, row.ColorHex);
+        }
+        ctx.fillStyle = grd;
+        ctx.fillRect(0,0,gradient_canvas.width,gradient_canvas.height)
+    };
+    function addPicker (color_range, index) {
+        var row = color_range[index];
+        var selector_container = $('#selector-container');
+        var picker_container = $('<div style="position:absolute; left:'+ row.Percent*100 +'%"></div>');
+        var picker = $('<i style="position:absolute; left:-11px; color:'+ row.ColorHex +';" class="chevron circle up icon large"></i>');
+        picker_container.data('color_range', color_range).data('target', index);
+        picker.data('color_range', color_range).data('target', index).data('callback',renderCanvas);
+        picker_container.bind('mousedown', function(e){
+            $('#selector-container').data('dragging', true);
+            $('#selector-container').data('picker', this);
+        });
+        picker_container.bind('contextmenu', {color_range:color_range, target: index, callback:renderCanvas}, function(e) {
+            e.preventDefault();
+            this.remove();
+            e.data.color_range[e.data.target] = undefined;
+            e.data.callback.call(this, e.data.color_range);
+        });
+        picker.ColorPicker({
+            color: row.ColorHex,
+            onShow: function (colpkr) {
+                $(colpkr).fadeIn(100);
+                return false;
+            },
+            onHide: function (colpkr) {
+                $(colpkr).fadeOut(100);
+                return false;
+            },
+            onChange: function (hsb, hex, rgb) {
+                var color = "#" + hex;
+                var element = this.data('colorpicker').el;
+                var color_range = $(element).data('color_range');
+                element.style.color = color;
+                color_range[$(element).data('target')].ColorHex = color;
+                $(element).data('callback').call(this, color_range);
+            }
+        });
+        picker.appendTo(picker_container.appendTo(selector_container));
+    };
+    function temporary (type, data) {
+        console.log(type, ": ot");
+        var sync = $.ajax({
+            url: "temporary/objecttype/" + type,
+            type:"POST",
+            data:data,
+            async:false,
+            success:function(resp) {
+                console.log('success');
+            },
+            error:function(jqXHR,textStatus,errorThrown){
+                RED.notify("서버 상태를 확인해주세요.","error");
+            }
+        });
+        return sync;
+    };
+    RED.nodes.registerType('ObjectType',{
+        category: 'adp',
+        color:"#8085e9",
+        defaults: {
+            active:{value:false},
+            ObjectType: {value:""},
+            adp_connector:{type:"adp_connector",required:true,validate:function(v) {
+                console.log('validate');
+                console.log(v);
+                return true;
+            }},
+            rule:{type:"rule"},
+            ObjectId:{value:""},
+            TimeField:{value:""},
+            Interval:{value:""},
+            Query:{value:""},
+            Collector:{value:""},
+            Storage:{value:""},
+            HealthColor:{value:[]},
+            ColorRange:{value:""},
+            Metrics:{value:{}},
+            Children:{value:[]}
+        },
+        align:'right',
+        inputs:1,
+        outputs:1,
+        icon: "inject.png",
+        label: function() {
+            return this.ObjectType;
+        },
+        labelStyle: function() {
+            return this.ObjectType?"node_label_italic":"";
+        },
+        onaddlink : function(src, dst) {
+            var possible = true;
+            if(src.type === "Aggregate") {
+                if(!dst.Children.includes(src.id)) {
+                    dst.Children.push(src.id);
+                }
+                var msg = {
+                    connector : {
+                        ip:dst.ip,
+                        port:dst.port
+                    },
+                    data : {
+                        id:dst.id,
+                        Collector:dst.Collector,
+                        ObjectType:dst.ObjectType,
+                        ObjectId:dst.ObjectId,
+                        TimeField:dst.TimeField,
+                        Interval:dst.Interval,
+                        Storage:dst.Storage,
+                        Query:dst.Query,
+                        HealthColor:dst.HealthColor,
+                        ColorRange:dst.ColorRange === "" ? "" : JSON.parse(dst.ColorRange),
+                        Metrics : dst.Metrics,
+                        Children:dst.Children
+                    }
+                };
+                var sync = temporary("save", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                    dst.Children.splice(dst.Children.indexOf(src.id), 1);
+                }
+            }
+            return possible;
+        },
+        onremovelink : function(src, dst) {
+            var possible = true;
+            if(RED.nodes.filterNodes({id:dst.id}).length === 0) {
+                return possible;
+            }
+            if(dst.Children.includes(src.id)) {
+                dst.Children.splice(dst.Children.indexOf(src.id), 1);
+                var msg = {
+                    connector : {
+                        ip:dst.ip,
+                        port:dst.port
+                    },
+                    data : {
+                        id:dst.id,
+                        Collector:dst.Collector,
+                        ObjectType:dst.ObjectType,
+                        ObjectId:dst.ObjectId,
+                        TimeField:dst.TimeField,
+                        Interval:dst.Interval,
+                        Storage:dst.Storage,
+                        Query:dst.Query,
+                        HealthColor:dst.HealthColor,
+                        ColorRange:dst.ColorRange === "" ? "" : JSON.parse(dst.ColorRange),
+                        Metrics : dst.Metrics,
+                        Children:dst.Children
+                    }
+                };
+                var sync = temporary("save", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                    dst.Children.push(src.id);
+                }
+            }
+            return possible;
+        },
+        onbeforeadd : function () {
+            var possible = true;
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                this.ip = connector[0].ip;
+                this.port = connector[0].port;
+                var msg = {
+                    connector : {
+                        ip : this.ip,
+                        port : this.port
+                    },
+                    data : {
+                        id : this.id,
+                        Collector:this.Collector,
+                        ObjectType:this.ObjectType,
+                        ObjectId:this.ObjectId,
+                        TimeField:this.TimeField,
+                        Interval:this.Interval,
+                        Storage:this.Storage,
+                        Query:this.Query,
+                        HealthColor:this.HealthColor,
+                        ColorRange: this.ColorRange === "" ? "" : JSON.parse(this.ColorRange),
+                        Metrics : this.Metrics,
+                        Children:this.Children
+                    }
+                }
+                var sync = temporary("save", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                }
+            }
+            return possible;
+        },
+        onbeforeremove : function () {
+            var possible = true;
+            var connector = RED.nodes.filterConfigs({type:'adp_connector'});
+            if(connector.length > 0) {
+                this.ip = connector[0].ip;
+                this.port = connector[0].port;
+                var msg = {
+                    connector : {
+                        ip : this.ip,
+                        port : this.port
+                    },
+                    data : {
+                        id : this.id
+                    }
+                }
+                var sync = temporary("remove", msg);
+                if(sync.status !== 200) {
+                    possible = false;
+                }
+            }
+            return possible;
+        },
+        oneditprepare: function() {
+            console.log('Edit Prepare Object Type Node');
+            var self = this;
+            this._colorrange = [{
+                    Percent:0,
+                    ColorHex:'#00ff00'
+                },{
+                    Percent:1,
+                    ColorHex:'#ff0000'
+                }];
+            if(this.ColorRange !== "") {
+                this._colorrange = JSON.parse(this.ColorRange);
+            }
+
+            var tabs = RED.tabs.create({
+                id: "node-ObjectType-tabs",
+                onchange: function(tab) {
+                    $("#node-ObjectType-tabs-content").children().hide();
+                    $("#" + tab.id).show();
+                }
+            });
+            tabs.addTab({
+                id: "ObjectType-tab-General",
+                label: "General"
+            });
+            tabs.addTab({
+                id: "ObjectType-tab-ColorDefine",
+                label: "Color Define",
+                enableOnEdit: false
+            });
+            tabs.addTab({
+                id: "ObjectType-tab-MetricRule",
+                label: "Metric Rule",
+                enableOnEdit: false
+            });
+
+            var selector_container = $('#selector-container');
+            selector_container.bind('mouseleave', function(e){
+                $(this).data('dragging', false);
+            });
+            selector_container.bind('mouseup', {color_range:this._colorrange}, function(e){
+                if(e.button === 0 && !$(this).data('dragging')) {
+                    var Percent = (e.pageX - this.getBoundingClientRect().left) / this.getBoundingClientRect().width;
+                    var color = '#000000';
+                    e.data.color_range.push({Percent:Percent, ColorHex:color});
+                    renderCanvas(e.data.color_range);
+                    addPicker(e.data.color_range, e.data.color_range.length - 1);
+                }
+                $(this).data('dragging', false);
+            });
+            selector_container.bind('mousemove', function(e){
+                if($(this).data('dragging')) {
+                    var picker = $(this).data('picker');
+                    var color_range = $(picker).data('color_range')
+                    var rect = document.getElementById('gradient-canvas').getBoundingClientRect();
+                    var relativeX = e.pageX - rect.left;
+                    var percent = (relativeX > rect.width ? rect.width : relativeX) / rect.width;
+                    color_range[$(picker).data('target')].Percent = percent < 0 ? 0 : percent;
+                    picker.style.left = (percent < 0 ? 0 : percent * 100) + '%';
+                    renderCanvas(color_range);
+                }
+            });
+
+            var gradient_canvas = document.getElementById('gradient-canvas');
+            var ctx = gradient_canvas.getContext('2d');
+            var grd = ctx.createLinearGradient(0,gradient_canvas.height,gradient_canvas.width,gradient_canvas.height)
+            for(var i = 0; i < this._colorrange.length; i++) {
+                var row = this._colorrange[i];
+                grd.addColorStop(row.Percent, row.ColorHex);
+                addPicker(this._colorrange, i);
+            }
+            ctx.fillStyle = grd;
+            ctx.fillRect(0,0,gradient_canvas.width,gradient_canvas.height);
+
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-Query-editor',
+                mode: 'ace/mode/sql',
+                value: $("#node-input-Query").val(),
+                globals: {
+                    msg:true,
+                    context:true,
+                    RED: true,
+                    util: true,
+                    flow: true,
+                    global: true,
+                    console: true,
+                    Buffer: true,
+                    setTimeout: true,
+                    clearTimeout: true,
+                    setInterval: true,
+                    clearInterval: true
+                }
+            });
+            this.editor.focus();
+
+            var connector = RED.nodes.filterConfigs({id:self.adp_connector});
+            if(connector.length > 0) {
+                var data = {
+                    ip : connector[0].ip,
+                    port : connector[0].port,
+                    id : self.id
+                }
+                $.ajax({
+                    url: "metrics",
+                    type:"GET",
+                    data:data,
+                    success: function(resp) {
+                        var $health_color = $('#node-input-HealthColor');
+                        var $metric_container = $('#metric-container');
+                        $metric_container.empty();
+                        $health_color.empty();
+                        var metric_template = '<div class="form-row"><label for="node-input-metric_id"><i class="fa fa-globe"></i>'+
+                                                '<span> metric_id</span></label>' + '</div>';
+                        if(self.Metrics !== undefined) {
+                            self._metrics = self.Metrics;
+                        } else {
+                            self._metrics = {};
+                        }
+                        for(var k = 0; k < resp.length; k++) {
+                            var rule_list = RED.nodes.filterConfigs({type:'rule'});
+                            var rule_mapping = $('<select id="node-input-metric_id"></select>'.replace(/metric_id/gi, resp[k]));
+                            var healthOption = $('<option value="'+resp[k]+'">'+resp[k]+'</option>')
+                            for(var t = 0; t < rule_list.length; t++) {
+                                var rule = rule_list[t];
+                                var option = $('<option value="'+rule.id+'">'+rule.Name+'</option>');
+                                option.appendTo(rule_mapping);
+                            }
+                            var $metric = $(metric_template.replace(/metric_id/gi, resp[k]));
+                            rule_mapping.appendTo($metric);
+                            $metric.appendTo($metric_container);
+                            healthOption.appendTo($health_color);
+                            if(!self._metrics[resp[k]]) self._metrics[resp[k]] = "";
+                            $('#node-input-metric_id'.replace(/metric_id/gi, resp[k])).val(self._metrics[resp[k]]).dropdown().bind('change', resp[k], function(e){
+                                self._metrics[e.data] = $(e.target).val();
+                            });
+                        }
+                        $('#node-input-HealthColor').val(self.HealthColor).dropdown();
+                    },
+                    error: function(jqXHR,textStatus,errorThrown) {
+                        RED.notify("서버 정보를 받아오지 못하였습니다.","error");
+                    }
+                });
+            }
+            $('#node-input-adp_connector').change(function(){
+                // connector 설정 변경에 따라 ADP에 Collector 데이터 요청
+                self.adp_connector = $(this).val();
+                var connector = RED.nodes.filterConfigs({id:self.adp_connector});
+                if(connector.length > 0) {
+                    self.ip = connector[0].ip;
+                    self.port = connector[0].port;
+                    $.ajax({
+                        url: "collectors",
+                        type:"GET",
+                        data:{
+                            ip : self.ip,
+                            port : self.port
+                        },
+                        success: function(resp) {
+                            var selector = $('#collector-select');
+                            selector.empty();
+                            for(var i = 0; i < resp.length; i++) {
+                                var option = resp[i];
+                                selector.append('<option value="'+option+'">'+option+'</option>');
+                            }
+                            selector.val(self.Collector);
+                            selector.trigger('change');
+                        },
+                        error: function(jqXHR,textStatus,errorThrown) {
+                            RED.notify("서버 정보를 받아오지 못하였습니다.","error");
+                        }
+                    });
+                }
+            });
+            $("#collector-select").change(function(e) {
+                // collector 설정 변경에 따라 ADP에 Schema 요청
+                var connector = RED.nodes.filterConfigs({id:self.adp_connector});
+                if(connector.length > 0) {
+                    var data = {
+                        ip : connector[0].ip,
+                        port : connector[0].port,
+                        collector : $(e.target).val()
+                    };
+                    $.ajax({
+                        url: "schema",
+                        type:"GET",
+                        data:data,
+                        success:function(resp){
+                            var selector = $('#storage-select');
+                            selector.empty();
+                            for(var i = 0; i < resp.length; i++) {
+                                var option = resp[i];
+                                selector.append('<option value="'+option+'">'+option+'</option>');
+                            }
+                            selector.val(self.Storage);
+                        },
+                        error:function(jqXHR,textStatus,errorThrown){
+
+                        }
+                    });
+                }
+            });
+
+            $("#node-input-rule").change(function() {
+                console.log('change rule');
+            });
+        },
+        oneditsave: function() {
+            var self = this;
+            $('.colorpicker').remove();
+            var msg = {
+                connector : {
+                    ip:self.ip,
+                    port:self.port
+                },
+                data : {
+                    id:self.id,
+                    Collector:$("#collector-select").val(),
+                    ObjectType:$("#node-input-ObjectType").val(),
+                    ObjectId:$("#node-input-ObjectId").val(),
+                    TimeField:$("#node-input-TimeField").val(),
+                    Interval:$("#node-input-Interval").val(),
+                    Storage:$("#storage-select").val(),
+                    Query:self.editor.getValue(),
+                    HealthColor:$('#node-input-HealthColor').val(),
+                    ColorRange:self._colorrange.filter(function(d){return d}),
+                    Metrics : {},
+                    Children:self.Children
+                }
+            };
+            for(var metric in self._metrics) {
+                var configId = self._metrics[metric];
+                var config = RED.nodes.filterConfigs({id:configId});
+                if(config.length > 0) {
+                    msg.data.Metrics[metric] = {};
+                    msg.data.Metrics[metric]["Conditions"] = JSON.parse(config[0].Conditions);
+                }
+            }
+            var sync = temporary("save", msg);
+            if(sync.status === 200) {
+                $("#node-input-Query").val(msg.data.Query);
+                $("#node-input-Collector").val(msg.data.Collector);
+                $("#node-input-Storage").val(msg.data.Storage);
+                //self.HealthColor = data.HealthColor;
+                self.Metrics = self._metrics
+                $('#node-input-ColorRange').val(JSON.stringify(msg.data.ColorRange));
+                //self.ColorRange = JSON.stringify(data.ColorRange);
+                return true;
+            } else {
+                RED.notify("ADP Connector Error","error");
+                return false;
+            }
+        },
+        oneditcancel: function() {
+            console.log('cancel edit panel');
+            $('.colorpicker').remove();
+        },
+        button: {
+            toggle: "active",
+            onclick: function() {
+                var node = this;
+                var connector = RED.nodes.filterConfigs({id:node.adp_connector});
+                if(connector.length > 0) {
+                    var data = {
+                        connector : {
+                            ip : connector[0].ip,
+                            port : connector[0].port
+                        },
+                        data : {
+                            id : node.id,
+                            Collector : node.Collector
+                        }
+                    }
+                    $.ajax({
+                        url: "execute/"+this.id+"/"+(this.active?"enable":"disable"),
+                        type:"POST",
+                        data: data,
+                        success: function(resp) {
+                            RED.notify(resp);
+                            RED.notify("success","success");
+                        },
+                        error: function(jqXHR,textStatus,errorThrown) {
+                            RED.notify("error","error");
+                        }
+                    });
+                } else {
+                    RED.notify("ADP(ObjectType) Connector를 등록해주세요.","error");
+                    node.active = false;
+                }
+            }
+        }
+    });
+})()
+
+</script>
