@@ -16,8 +16,27 @@ namespace SourceModuleManager
 
         static AssemblyLoader()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             if (!Directory.Exists(moduleFilePath))
                 Directory.CreateDirectory(moduleFilePath);
+        }
+
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            foreach (var file in Directory.GetFiles(moduleFilePath))
+            {
+                if (string.Compare((new FileInfo(file)).Extension.ToUpper(), ".DLL") != 0)
+                    continue;
+
+                var assembly = Assembly.Load(File.ReadAllBytes(file));
+
+                if (string.Compare(args.Name, assembly.FullName) == 0)
+                {
+                    return assembly;
+                }
+            }
+
+            return null;
         }
 
         public static T LoadOne<T>(string moduleName) where T : class
