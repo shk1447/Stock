@@ -111,7 +111,7 @@ namespace DataIntegrationService
                 }
                 else
                 {
-                    result.message = viewLogic.AutoAnalysis(period == null ? string.Empty : period.ToLower(), state, stock_list);
+                    result.message = viewLogic.AutoAnalysis(period == null ? string.Empty : period.ToLower(), stock_list);
                 }
             }
             catch(Exception ex)

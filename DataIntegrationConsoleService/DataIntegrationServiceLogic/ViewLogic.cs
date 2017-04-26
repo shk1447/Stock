@@ -364,7 +364,7 @@ namespace DataIntegrationServiceLogic
             sw.Start();
             if (trend_analysis)
             {
-                ret = this.VAPatternAnalysis(source, category, sampling, sampling_period);
+                ret = this.VAPatternAnalysis(source, category, sampling, sampling_period, from, to);
             }
             else
             {
@@ -405,175 +405,10 @@ namespace DataIntegrationServiceLogic
             return ret;
         }
 
-        public string VAPatternAnalysis(string source, string category, string sampling, string sampling_period)
+        public string VAPatternAnalysis(string source, string category, string sampling, string sampling_period, string from = null, string to = null)
         {
-            var resultArr = new JsonArray();
-            var field = "종가";
-            var current = DateTime.Now;
-            var prev = sampling_period == "day" ? current.AddYears(-1) : sampling_period == "week" ? current.AddMonths(-18) :
-                       sampling_period == "month" ? current.AddYears(-2) : current.AddYears(-5);
-            List<int> duplChk = new List<int>();
-
-            var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);
-
-            if (sampling_period == "all") volume_query_builder.Replace("{short_day}", "5").Replace("{long_day}", "20");
-            else if (sampling_period == "day") volume_query_builder.Replace("{short_day}", "5").Replace("{long_day}", "20");
-            else if (sampling_period == "week") volume_query_builder.Replace("{short_day}", "25").Replace("{long_day}", "100");
-            else if (sampling_period == "month") volume_query_builder.Replace("{short_day}", "100").Replace("{long_day}", "400");
-            else if (sampling_period == "year") volume_query_builder.Replace("{short_day}", "1000").Replace("{long_day}", "4000");
-
-            var volume_query = volume_query_builder.ToString().Replace("{category}", category);
-            var volume_signal_arr = MariaDBConnector.Instance.GetJsonArray(volume_query);
-            var rsi_arr = MariaDBConnector.Instance.GetJsonArray(MariaQueryDefine.GetRSI.Replace("{category}", category));
-
-            for (var day = prev.Date; day.Date <= current.Date; day = day.AddDays(1))
-            {
-                var unixtime = day.ToString("yyyy-MM-dd 23:59:59");
-                var queryBuilder = new StringBuilder();
-                var sampling_items = new StringBuilder();
-                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(DATE(unixtime)) as unixtime FROM (SELECT ");
-
-                var item_key = field;
-                queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
-                sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
-                queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL AND unixtime <= '").Append(unixtime).Append("') as result");
-
-                if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
-                else if (sampling_period == "day" || day == current.Date) queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
-                else if (sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
-                else if (sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
-                else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
-
-                var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
-                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
-
-                var data = res["data"].ReadAs<JsonArray>();
-                var refFields = res["fields"].ReadAs<JsonArray>();
-                var fieldCnt = refFields.ReadAs<JsonArray>().Count;
-
-                double 최고가 = 0;
-                double 최저가 = 0;
-                for (int i = 0; i < fieldCnt; i++)
-                {
-                    var key = refFields[i]["value"].ReadAs<string>();
-                    if (key == "unixtime") continue;
-                    try
-                    {
-                        var max = data.Aggregate<JsonValue>((arg1, arg2) =>
-                        {
-                            return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
-                        });
-                        var min = data.Aggregate<JsonValue>((arg1, arg2) =>
-                        {
-                            return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
-                        });
-                        최고가 = max[key].ReadAs<double>();
-                        최저가 = min[key].ReadAs<double>();
-                        Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
-                }
-
-                var prevCount = 0;
-                var currentCount = 0;
-                var lastState = string.Empty;
-                var result = new JsonObject();
-                var supportArr = new JsonArray();
-                var resistanceArr = new JsonArray();
-                if (data.Count == 0) continue;
-                foreach (var item in data[data.Count - 1])
-                {
-                    if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<int>()); continue; }
-                    if (item.Key == field) { result.Add(field, item.Value.ReadAs<int>()); continue; }
-                    if (item.Key.Contains("support"))
-                    {
-                        if (lastState == "하락")
-                        {
-                            prevCount = currentCount;
-                            currentCount = 0;
-                        }
-                        lastState = "상승";
-                        supportArr.Add(item.Value.ReadAs<int>());
-                        currentCount++;
-                    }
-                    else if (item.Key.Contains("resistance"))
-                    {
-                        if (lastState == "상승")
-                        {
-                            prevCount = currentCount;
-                            currentCount = 0;
-                        }
-                        lastState = "하락";
-                        resistanceArr.Add(item.Value.ReadAs<int>());
-                        currentCount++;
-                    }
-                }
-                var time = result["unixtime"].ReadAs<int>();
-                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
-                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
-                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
-                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
-                result.Add("현재상태", lastState);
-                result.Add("현재상태_유지횟수", currentCount);
-                result.Add("과거상태_유지횟수", prevCount);
-                result.Add("실제지지_갯수", real_support.Count());
-                result.Add("실제저항_갯수", real_resistance.Count());
-                result.Add("반전지지_갯수", reverse_resistance.Count());
-                result.Add("반전저항_갯수", reverse_support.Count());
-                result.Add("최고가", 최고가);
-                result.Add("최저가", 최저가);
-                result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
-                if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (result["반전지지_갯수"].ReadAs<int>() + result["실제저항_갯수"].ReadAs<int>() > 0)
-                {
-                    result.Add("V패턴_비율", (result["반전지지_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>())) * 100);
-                }
-                else
-                {
-                    result.Add("V패턴_비율", 150);
-                }
-                if (result["반전저항_갯수"].ReadAs<int>() + result["실제지지_갯수"].ReadAs<int>() > 0)
-                {
-                    result.Add("A패턴_비율", (result["반전저항_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>())) * 100);
-                }
-                else
-                {
-                    result.Add("A패턴_비율", 150);
-                }
-                var pattern = new JsonObject();
-                if (duplChk.Contains(time))
-                {
-                    if (result.ContainsKey("V패턴_비율")) resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["V패턴_비율"] = result["V패턴_비율"].ReadAs<int>();
-                    if (result.ContainsKey("A패턴_비율")) resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["A패턴_비율"] = result["A패턴_비율"].ReadAs<int>();
-                    var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
-                    resultArr.First<JsonValue>(p => p["unixtime"].ReadAs<int>() == time)["VA_SIGNAL"] = va_signal;
-                }
-                else
-                {
-                    if (result.ContainsKey("V패턴_비율")) pattern.Add("V패턴_비율", result["V패턴_비율"].ReadAs<double>());
-                    if (result.ContainsKey("A패턴_비율")) pattern.Add("A패턴_비율", result["A패턴_비율"].ReadAs<double>());
-                    if (result.ContainsKey("주가위치")) pattern.Add("주가위치", result["주가위치"].ReadAs<double>());
-                    var va_signal = result["V패턴_비율"].ReadAs<int>() - result["A패턴_비율"].ReadAs<int>();
-
-                    var volume_signal = volume_signal_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
-                    var rsi = rsi_arr.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<int>() == time);
-                    
-                    pattern.Add("RSI", rsi == null || rsi["RSI"] == null || !rsi.ContainsKey("RSI") ? -1 : rsi["RSI"].ReadAs<double>());
-                    
-                    pattern.Add("VOLUME_SIGNAL", volume_signal == null ? 0 : volume_signal["VOLUME_SIGNAL"].ReadAs<double>());
-                    pattern.Add("unixtime", time);
-
-                    resultArr.Add(pattern);
-                    duplChk.Add(time);
-                }
-            }
+            var result = this.AutoAnalysis(sampling_period, new List<string>() { category }, from, to);
+            var resultArr = JsonArray.Parse(result);
             var ret = new JsonObject();
             ret.Add("data", resultArr);
             ret.Add("fields", new JsonArray(new JsonObject(new KeyValuePair<string, JsonValue>("text", "V패턴_비율"),
@@ -605,7 +440,7 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string period, string state, List<string> stock)
+        public string AutoAnalysis(string period, List<string> stock, string from = null, string to = null)
         {
             var resultArr = new JsonArray();
             var source = "stock";
@@ -622,7 +457,7 @@ namespace DataIntegrationServiceLogic
                 foreach (var stock_name in stock)
                 {
                     var separator = stock.Count > last ? " OR " : ";";
-                    categories_query = categories_query + " column_get(rawdata, '종목명' as char) like '%" + stock_name.Trim() + "%'" + separator;
+                    categories_query = categories_query + " category like '%" + stock_name.Trim() + "%'" + separator;
                     last++;
                 }
             }
@@ -638,26 +473,36 @@ namespace DataIntegrationServiceLogic
 
                 var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);//.Append(" WHERE 날짜 <= '2016-04-23'");
 
-                if (sampling_period == "all") volume_query_builder.Append(" GROUP BY 날짜 DESC LIMIT 2").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "day") volume_query_builder.Append(" GROUP BY DATE(날짜) DESC LIMIT 2").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "week") volume_query_builder.Append(" GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) DESC LIMIT 2")
-                                                                        .Replace("{short_day}", "25").Replace("{long_day}", "100");
-                else if (sampling_period == "month") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y-%m') DESC LIMIT 2")
-                                                                         .Replace("{short_day}", "100").Replace("{long_day}", "400");
-                else if (sampling_period == "year") volume_query_builder.Append(" GROUP BY DATE_FORMAT(날짜, '%Y') DESC LIMIT 2")
-                                                                        .Replace("{short_day}", "1000").Replace("{long_day}", "4000");
+                if (sampling_period == "all")
+                    volume_query_builder.Replace("{sampling_query}", "GROUP BY 날짜 ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "day")
+                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE(날짜) ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "week")
+                    volume_query_builder.Replace("{sampling_query}", "GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "month")
+                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(날짜, '%Y-%m') ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "year")
+                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(날짜, '%Y') ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
 
                 var volume_query = volume_query_builder.ToString().Replace("{category}", category);
+                var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " ORDER BY unixtime DESC";
+
                 var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
-                var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " ORDER BY unixtime DESC LIMIT 1";
-                var rsi_signal = MariaDBConnector.Instance.GetJsonObject(rsi_query);
+                var rsi_signal = MariaDBConnector.Instance.GetJsonArray(rsi_query);
+
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL")
-                    //.Append(" AND unixtime <= '2016-10-21'")
-                    .Append(") as result");
+                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL");
+                if (from != null && to != null)
+                {
+                    queryBuilder.Append(" AND unixtime >= '").Append(from).Append("' AND unixtime <= '").Append(to).Append("') as result");
+                }
+                else
+                {
+                    queryBuilder.Append(") as result");
+                }
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
                 else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -700,161 +545,132 @@ namespace DataIntegrationServiceLogic
                     }
                 }
 
-                var prevCount = 0;
-                var currentCount = 0;
-                var lastState = string.Empty;
-                var result = new JsonObject();
-                var supportArr = new JsonArray();
-                var resistanceArr = new JsonArray();
-                foreach (var item in data[data.Count - 1])
+                foreach (var datum in data)
                 {
-                    if (item.Key == "unixtime") continue;
-                    if (item.Key == field) { result.Add(field, item.Value.ReadAs<int>()); continue; }
-                    if (item.Key.Contains("support"))
+                    var prevCount = 0;
+                    var currentCount = 0;
+                    var lastState = string.Empty;
+                    var result = new JsonObject();
+                    var supportArr = new JsonArray();
+                    var resistanceArr = new JsonArray();
+                    foreach (var item in datum)
                     {
-                        if (lastState == "하락")
-                        {
-                            prevCount = currentCount;
-                            currentCount = 0;
-                        }
-                        lastState = "상승";
-                        supportArr.Add(item.Value.ReadAs<int>());
-                        currentCount++;
-                    }
-                    else if (item.Key.Contains("resistance"))
-                    {
-                        if (lastState == "상승")
-                        {
-                            prevCount = currentCount;
-                            currentCount = 0;
-                        }
-                        lastState = "하락";
-                        resistanceArr.Add(item.Value.ReadAs<int>());
-                        currentCount++;
-                    }
-                }
-                var total_support = new JsonArray();
-                var total_resistance = new JsonArray();
-                var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
-                var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
-                var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() >= result[field].ReadAs<int>());
-                var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<int>() <= result[field].ReadAs<int>());
-                total_support.AddRange(real_support);
-                total_support.AddRange(reverse_resistance);
-                total_resistance.AddRange(real_resistance);
-                total_resistance.AddRange(reverse_support);
-                result.Add("종목명", name);
-                result.Add("현재상태", lastState);
-                result.Add("현재상태_유지횟수", currentCount);
-                result.Add("과거상태_유지횟수", prevCount);
-                result.Add("실제지지_갯수", real_support.Count());
-                result.Add("실제저항_갯수", real_resistance.Count());
-                result.Add("반전지지_갯수", reverse_resistance.Count());
-                result.Add("반전저항_갯수", reverse_support.Count());
-                result.Add("최고가", 최고가);
-                result.Add("최저가", 최저가);
-                result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
+                        if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
+                        if (item.Key == field) { result.Add(field, item.Value.ReadAs<double>()); continue; }
 
-                if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<int>()).ToJsonArray().ToString());
-                if (result["반전지지_갯수"].ReadAs<int>() + result["실제저항_갯수"].ReadAs<int>() > 0)
-                {
-                    result.Add("V패턴_비율", (result["반전지지_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>())) * 100);
-                }
-                else
-                {
-                    result.Add("V패턴_비율", 150);
-                }
-                if (result["반전저항_갯수"].ReadAs<int>() + result["실제지지_갯수"].ReadAs<int>() > 0)
-                {
-                    result.Add("A패턴_비율", (result["반전저항_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>())) * 100);
-                }
-                else
-                {
-                    result.Add("A패턴_비율", 150);
-                }
-
-                if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
-                {
-                    if (result["V패턴_비율"].ReadAs<double>() > result["A패턴_비율"].ReadAs<double>())
-                    {
-                        // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
-                        result.Add("전체상태", "상승");
-                    }
-                    else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
-                    {
-                        // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
-                        result.Add("전체상태", "하락");
-                    }
-                    else
-                    {
-                        if (total_support.Count > total_resistance.Count)
+                        if (item.Key.Contains("support"))
                         {
+                            if (lastState == "하락")
+                            {
+                                prevCount = currentCount;
+                                currentCount = 0;
+                            }
+                            lastState = "상승";
+                            supportArr.Add(item.Value.ReadAs<double>());
+                            currentCount++;
+                        }
+                        else if (item.Key.Contains("resistance"))
+                        {
+                            if (lastState == "상승")
+                            {
+                                prevCount = currentCount;
+                                currentCount = 0;
+                            }
+                            lastState = "하락";
+                            resistanceArr.Add(item.Value.ReadAs<double>());
+                            currentCount++;
+                        }
+                    }
+                    var time = result["unixtime"].ReadAs<double>();
+                    var total_support = new JsonArray();
+                    var total_resistance = new JsonArray();
+                    var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= result[field].ReadAs<double>());
+                    var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= result[field].ReadAs<double>());
+                    var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= result[field].ReadAs<double>());
+                    var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= result[field].ReadAs<double>());
+                    total_support.AddRange(real_support);
+                    total_support.AddRange(reverse_resistance);
+                    total_resistance.AddRange(real_resistance);
+                    total_resistance.AddRange(reverse_support);
+                    result.Add("종목명", name);
+                    result.Add("현재상태", lastState);
+                    result.Add("현재상태_유지횟수", currentCount);
+                    result.Add("과거상태_유지횟수", prevCount);
+                    result.Add("실제지지_갯수", real_support.Count());
+                    result.Add("실제저항_갯수", real_resistance.Count());
+                    result.Add("반전지지_갯수", reverse_resistance.Count());
+                    result.Add("반전저항_갯수", reverse_support.Count());
+                    result.Add("최고가", 최고가);
+                    result.Add("최저가", 최저가);
+                    result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
+
+                    if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
+                    if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
+                    if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
+                    if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
+
+
+                    var v_pattern_real = result["실제지지_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>()) * 100;
+                    var v_pattern_reverse = result["반전지지_갯수"].ReadAs<double>() / (result["실제저항_갯수"].ReadAs<double>() + result["반전지지_갯수"].ReadAs<double>()) * 100;
+                    var v_pattern = ((double.IsNaN(v_pattern_real) || double.IsInfinity(v_pattern_real) ? 0 : v_pattern_real) +
+                                    (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse)) / 2;
+
+                    var a_pattern_real = result["실제저항_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>()) * 100;
+                    var a_pattern_reverse = result["반전저항_갯수"].ReadAs<double>() / (result["실제지지_갯수"].ReadAs<double>() + result["반전저항_갯수"].ReadAs<double>()) * 100;
+                    var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
+                                    (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse)) / 2;
+
+                    if (double.IsNaN(v_pattern))
+                    {
+                        Console.WriteLine("test");
+                    }
+
+                    result.Add("V패턴_비율", v_pattern);
+                    result.Add("A패턴_비율", a_pattern);
+                    
+
+                    if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
+                    {
+                        if (result["V패턴_비율"].ReadAs<double>() > result["A패턴_비율"].ReadAs<double>())
+                        {
+                            // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
                             result.Add("전체상태", "상승");
                         }
-                        else if (total_support.Count < total_resistance.Count)
+                        else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
                         {
+                            // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
                             result.Add("전체상태", "하락");
                         }
                         else
                         {
-                            result.Add("전체상태", "횡보");
+                            if (total_support.Count > total_resistance.Count)
+                            {
+                                result.Add("전체상태", "상승");
+                            }
+                            else if (total_support.Count < total_resistance.Count)
+                            {
+                                result.Add("전체상태", "하락");
+                            }
+                            else
+                            {
+                                result.Add("전체상태", "횡보");
+                            }
                         }
+                        result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
                     }
-                    result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
-                }
 
-                result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
-                if (volume_signal != null && volume_signal.Count > 1)
-                {
-                    try
-                    {
-                        result.Add("VOLUME_OSCILLATOR", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>());
-                        result.Add("VOLUME_SIGNAL", volume_signal[0]["VOLUME_SIGNAL"].ReadAs<double>() - volume_signal[1]["VOLUME_SIGNAL"].ReadAs<double>());
-                        result.Add("전일비율", volume_signal[0].ContainsKey("전일비율") && volume_signal[0]["전일비율"] != null ? volume_signal[0]["전일비율"].ReadAs<double>() : 0);
-                        result.Add("생명선", volume_signal[0]["생명선"].ReadAs<double>());
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
+                    var volume_row = volume_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
+                    var rsi_row = rsi_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
+                    result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? -1 : rsi_row["RSI"].ReadAs<double>());
+                    result.Add("VOLUME_OSCILLATOR", volume_row == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                    resultArr.Add(result);
                 }
-                try
-                {
-                    result.Add("RSI", rsi_signal == null || rsi_signal["RSI"] == null || !rsi_signal.ContainsKey("RSI") ? -1 : rsi_signal["RSI"].ReadAs<double>());
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-                resultArr.Add(result);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }
-            if (state == "모두")
-            {
-                return resultArr.ToString();
-            }
-            else
-            {
-                return stock.Count > 0 ? resultArr.ToString() : resultArr.Where<JsonValue>(arg => state == "하락" ?
-                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "하락" &&
-                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
-                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "반등" ?
-                             arg["전체상태"].ReadAs<string>() == "하락" && arg["현재상태"].ReadAs<string>() == "상승" &&
-                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
-                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 : state == "조정" ?
-                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "하락" &&
-                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 &&
-                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() < 0 : state == "상승" ?
-                             arg["전체상태"].ReadAs<string>() == "상승" && arg["현재상태"].ReadAs<string>() == "상승" &&
-                             arg.ContainsKey("VOLUME_OSCILLATOR") && arg["VOLUME_OSCILLATOR"].ReadAs<double>() > 0 &&
-                             arg.ContainsKey("VOLUME_SIGNAL") && arg["VOLUME_SIGNAL"].ReadAs<double>() > 0 :
-                             arg["전체상태"].ReadAs<string>() == "횡보" && arg.ContainsKey("강도"))
-                             .OrderBy(p => p["강도"].ReadAs<double>()).ToJsonArray().ToString();
-            }
+
+            return resultArr.ToString();
         }
 
         public string AutoAnalysisTest()
@@ -1081,8 +897,8 @@ namespace DataIntegrationServiceLogic
             {
                 rawdata = new List<JsonDictionary>(),
                 category = "종목명",
-                source = "selected_stock_"+type,
-                collected_at = ""
+                source = "selected_stock_" + type,
+                collected_at = "unixtime"
             };
             foreach (var item in jsonValue)
             {
@@ -1156,30 +972,23 @@ namespace DataIntegrationServiceLogic
                             {
                                 if (complete) break;
                                 var dynamicUnixtime = result[i]["unixtime"].ReadAs<int>();
-                                if (unixtime <= dynamicUnixtime)
+                                var diff = inc["diff"].ReadAs<double>();
+                                var nextValue = min[key].ReadAs<double>() + (diff * next);
+                                if (!(nextValue <= maximum))
                                 {
-                                    var diff = inc["diff"].ReadAs<double>();
-                                    var nextValue = inc[key].ReadAs<double>() + (diff * next);
-                                    if (!(nextValue <= maximum))
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                        complete = true;
-                                    }
-                                    else if (unixtime == result[i]["unixtime"].ReadAs<int>())
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                    }
-                                    else if (i == lastIndex - 1)
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                        complete = true;
-                                    }
-                                    next++;
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    complete = true;
                                 }
-                                if (i == result.IndexOf(min))
+                                else if (i == lastIndex - 1)
                                 {
-                                    result[i].ReadAs<JsonObject>().Add(id, min[key].ReadAs<double>());
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    complete = true;
                                 }
+                                else
+                                {
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                }
+                                next++;
                             }
                             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", id),
                                                     new KeyValuePair<string, JsonValue>("value", id),
@@ -1207,30 +1016,24 @@ namespace DataIntegrationServiceLogic
                             {
                                 if (complete) break;
                                 var dynamicUnixtime = result[i]["unixtime"].ReadAs<int>();
-                                if (unixtime <= dynamicUnixtime)
+
+                                var diff = dec["diff"].ReadAs<double>();
+                                var nextValue = max[key].ReadAs<double>() + (diff * next);
+                                if (!(nextValue >= minimum))
                                 {
-                                    var diff = dec["diff"].ReadAs<double>();
-                                    var nextValue = dec[key].ReadAs<double>() + (diff * next);
-                                    if (!(nextValue >= minimum))
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                        complete = true;
-                                    }
-                                    else if (unixtime == result[i]["unixtime"].ReadAs<int>())
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                    }
-                                    else if (i == lastIndex - 1)
-                                    {
-                                        result[i].ReadAs<JsonObject>().Add(id, nextValue);
-                                        complete = true;
-                                    }
-                                    next++;
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    complete = true;
                                 }
-                                if (i == result.IndexOf(max))
+                                else if (i == lastIndex - 1)
                                 {
-                                    result[i].ReadAs<JsonObject>().Add(id, max[key].ReadAs<double>());
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                    complete = true;
                                 }
+                                else
+                                {
+                                    result[i].ReadAs<JsonObject>().Add(id, nextValue);
+                                }
+                                next++;
                             }
                             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", id),
                                                     new KeyValuePair<string, JsonValue>("value", id),
@@ -1310,7 +1113,7 @@ namespace DataIntegrationServiceLogic
             //var weekJson = JsonArray.Parse(weekFilter);
             //this.SaveFilter("week", (JsonArray)weekJson);
 
-            var dayFilter = this.AutoAnalysis("day", "모두", new List<string>());
+            var dayFilter = this.AutoAnalysis("day", new List<string>());
             var dayJson = JsonArray.Parse(dayFilter);
             this.SaveFilter("day", (JsonArray)dayJson);
         }
