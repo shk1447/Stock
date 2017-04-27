@@ -431,6 +431,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
+                                            //new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_OSCILLATOR"),
+                                            //               new KeyValuePair<string, JsonValue>("value", "VOLUME_OSCILLATOR"),
+                                            //               new KeyValuePair<string, JsonValue>("type", "Number"),
+                                            //               new KeyValuePair<string, JsonValue>("group", 0),
+                                            //               new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -584,10 +589,10 @@ namespace DataIntegrationServiceLogic
                     var time = result["unixtime"].ReadAs<double>();
                     var total_support = new JsonArray();
                     var total_resistance = new JsonArray();
-                    var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() <= result[field].ReadAs<double>());
-                    var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() >= result[field].ReadAs<double>());
-                    var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() >= result[field].ReadAs<double>());
-                    var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() <= result[field].ReadAs<double>());
+                    var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
+                    var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
+                    var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
+                    var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
                     total_support.AddRange(real_support);
                     total_support.AddRange(reverse_resistance);
                     total_resistance.AddRange(real_resistance);
@@ -619,11 +624,6 @@ namespace DataIntegrationServiceLogic
                     var a_pattern_reverse = result["반전저항_갯수"].ReadAs<double>() / (result["실제지지_갯수"].ReadAs<double>() + result["반전저항_갯수"].ReadAs<double>()) * 100;
                     var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
                                     (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse)) / 2;
-
-                    if (double.IsNaN(v_pattern))
-                    {
-                        Console.WriteLine("test");
-                    }
 
                     result.Add("V패턴_비율", v_pattern);
                     result.Add("A패턴_비율", a_pattern);
@@ -662,8 +662,9 @@ namespace DataIntegrationServiceLogic
                     result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
                     var volume_row = volume_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
                     var rsi_row = rsi_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
-                    result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? -1 : rsi_row["RSI"].ReadAs<double>());
-                    result.Add("VOLUME_OSCILLATOR", volume_row == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                    result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? 0 : rsi_row["RSI"].ReadAs<double>());
+                    result.Add("VOLUME_OSCILLATOR", volume_row == null || !volume_row.ContainsKey("VOLUME_OSCILLATOR") || volume_row["VOLUME_OSCILLATOR"] != null ?
+                                                    0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
                     resultArr.Add(result);
                 }
                 EnvironmentHelper.ProgressBar(progress, total);
