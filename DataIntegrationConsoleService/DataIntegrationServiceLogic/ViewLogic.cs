@@ -663,8 +663,7 @@ namespace DataIntegrationServiceLogic
                     var volume_row = volume_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
                     var rsi_row = rsi_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
                     result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? 0 : rsi_row["RSI"].ReadAs<double>());
-                    result.Add("VOLUME_OSCILLATOR", volume_row == null || !volume_row.ContainsKey("VOLUME_OSCILLATOR") || volume_row["VOLUME_OSCILLATOR"] != null ?
-                                                    0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                    result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
                     resultArr.Add(result);
                 }
                 EnvironmentHelper.ProgressBar(progress, total);
