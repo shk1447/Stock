@@ -445,7 +445,7 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string period, List<string> stock, string from = null, string to = null)
+        public string AutoAnalysis(string period, List<string> stock, string from = null, string to = null, bool history = true)
         {
             var resultArr = new JsonArray();
             var source = "stock";
@@ -549,9 +549,17 @@ namespace DataIntegrationServiceLogic
                         Console.WriteLine(ex.ToString());
                     }
                 }
-
+                var index = 0;
                 foreach (var datum in data)
                 {
+                    if (!history)
+                    {
+                        if (index != data.Count - 1)
+                        {
+                            index++;
+                            continue;
+                        }
+                    }
                     var prevCount = 0;
                     var currentCount = 0;
                     var lastState = string.Empty;
@@ -662,7 +670,16 @@ namespace DataIntegrationServiceLogic
                     var volume_row = volume_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
                     var rsi_row = rsi_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
                     result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? 0 : rsi_row["RSI"].ReadAs<double>());
-                    result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                    if (volume_row == null)
+                    {
+                        result.Add("VOLUME_OSCILLATOR", 0);
+                        result.Add("생명선", 0);
+                    }
+                    else
+                    {
+                        result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                        result.Add("생명선", volume_row["생명선"] == null ? 0 : volume_row["생명선"].ReadAs<double>());
+                    }
                     resultArr.Add(result);
                 }
                 EnvironmentHelper.ProgressBar(progress, total);
@@ -1104,15 +1121,7 @@ namespace DataIntegrationServiceLogic
 
         private void AutoFiltering(object obj)
         {
-            //var monthFilter = this.AutoAnalysis("month", "모두", new List<string>());
-            //var monthJson = JsonArray.Parse(monthFilter);
-            //this.SaveFilter("month", (JsonArray)monthJson);
-
-            //var weekFilter = this.AutoAnalysis("week", "모두", new List<string>());
-            //var weekJson = JsonArray.Parse(weekFilter);
-            //this.SaveFilter("week", (JsonArray)weekJson);
-
-            var dayFilter = this.AutoAnalysis("day", new List<string>());
+            var dayFilter = this.AutoAnalysis("day", new List<string>(), null, null, false);
             var dayJson = JsonArray.Parse(dayFilter);
             this.SaveFilter("day", (JsonArray)dayJson);
         }
