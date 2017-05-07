@@ -431,11 +431,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            //new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_OSCILLATOR"),
-                                            //               new KeyValuePair<string, JsonValue>("value", "VOLUME_OSCILLATOR"),
-                                            //               new KeyValuePair<string, JsonValue>("type", "Number"),
-                                            //               new KeyValuePair<string, JsonValue>("group", 0),
-                                            //               new KeyValuePair<string, JsonValue>("required", false)),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "상태"),
+                                                           new KeyValuePair<string, JsonValue>("value", "상태"),
+                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
+                                                           new KeyValuePair<string, JsonValue>("group", 0),
+                                                           new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -618,16 +618,15 @@ namespace DataIntegrationServiceLogic
                     var v_pattern_real = result["실제지지_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>()) * 100;
                     var v_pattern_reverse = result["반전지지_갯수"].ReadAs<double>() / (result["실제저항_갯수"].ReadAs<double>() + result["반전지지_갯수"].ReadAs<double>()) * 100;
                     var v_pattern = ((double.IsNaN(v_pattern_real) || double.IsInfinity(v_pattern_real) ? 0 : v_pattern_real) +
-                                    (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse)) / 2;
+                                    (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse));
 
                     var a_pattern_real = result["실제저항_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>()) * 100;
                     var a_pattern_reverse = result["반전저항_갯수"].ReadAs<double>() / (result["실제지지_갯수"].ReadAs<double>() + result["반전저항_갯수"].ReadAs<double>()) * 100;
                     var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
-                                    (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse)) / 2;
+                                    (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse));
 
                     result.Add("V패턴_비율", v_pattern);
                     result.Add("A패턴_비율", a_pattern);
-                    
 
                     if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
                     {
