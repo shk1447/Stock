@@ -12,6 +12,20 @@ namespace DataIntegrationServiceLogic
     public class InputLogic
     {
         private const string TableName = "current_{user}";
+        private System.Threading.AutoResetEvent autoResetEvent;
+        private System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue;
+
+        public InputLogic(ref System.Threading.AutoResetEvent autoResetEvent, ref System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue)
+        {
+            // TODO: Complete member initialization
+            this.autoResetEvent = autoResetEvent;
+            this.concurrentQueue = concurrentQueue;
+        }
+
+        private void Notify()
+        {
+
+        }
 
         public string GetList(JsonValue jsonObj)
         {

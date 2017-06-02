@@ -8,12 +8,23 @@ using Connector;
 using Model.Response;
 using Helper;
 using System.Json;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DataIntegrationServiceLogic
 {
     public class MemberLogic
     {
         private const string TableName = "member";
+        private ConcurrentQueue<JsonObject> concurrentQueue;
+        private AutoResetEvent autoResetEvent;
+
+        public MemberLogic(ref AutoResetEvent autoResetEvent, ref ConcurrentQueue<JsonObject> concurrentQueue)
+        {
+            // TODO: Complete member initialization
+            this.autoResetEvent = autoResetEvent;
+            this.concurrentQueue = concurrentQueue;
+        }
 
         public string Schema()
         {

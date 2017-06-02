@@ -20,7 +20,7 @@ namespace DataIntegrationConsoleService
 
         static void Main(string[] args)
         {
-            ThreadPool.SetMinThreads(10000, 10000);
+            ThreadPool.SetMinThreads(10000, 20000);
 
             var appDomain = AppDomain.CurrentDomain;
 

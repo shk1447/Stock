@@ -24,6 +24,20 @@ namespace DataIntegrationServiceLogic
         }
 
         private const string TableName = "data_view";
+        private AutoResetEvent autoResetEvent;
+        private System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue;
+
+        public ViewLogic()
+        {
+
+        }
+
+        public ViewLogic(ref AutoResetEvent autoResetEvent, ref System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue)
+        {
+            // TODO: Complete member initialization
+            this.autoResetEvent = autoResetEvent;
+            this.concurrentQueue = concurrentQueue;
+        }
 
         public string Schema(string privilege)
         {
@@ -202,6 +216,11 @@ namespace DataIntegrationServiceLogic
                                         new KeyValuePair<string, JsonValue>("type", "Data")));
 
             return fields.ToString();
+        }
+
+        private void Notify()
+        {
+
         }
 
         public string GetList(JsonValue jsonObj)

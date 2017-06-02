@@ -48,11 +48,7 @@
   <ItemGroup>
     <Compile Include="DIWebSocketServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Analysis.cs" />
-    <Compile Include="Services\Collection.cs" />
     <Compile Include="Services\DIService.cs" />
-    <Compile Include="Services\Member.cs" />
-    <Compile Include="Services\View.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

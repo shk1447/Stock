@@ -21,6 +21,15 @@ namespace DataIntegrationServiceLogic
         private static Dictionary<string, Thread> scheduleThread = new Dictionary<string, Thread>();
 
         private const string TableName = "data_analysis";
+        private AutoResetEvent autoResetEvent;
+        private System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue;
+
+        public AnalysisLogic(ref AutoResetEvent autoResetEvent, ref System.Collections.Concurrent.ConcurrentQueue<JsonObject> concurrentQueue)
+        {
+            // TODO: Complete member initialization
+            this.autoResetEvent = autoResetEvent;
+            this.concurrentQueue = concurrentQueue;
+        }
 
         public string Schema()
         {
@@ -146,6 +155,17 @@ namespace DataIntegrationServiceLogic
             return fields;
         }
 
+        private void Notify()
+        {
+            var result = this.GetList();
+            var msg = new JsonObject(new KeyValuePair<string, JsonValue>("result", result),
+                                     new KeyValuePair<string, JsonValue>("broadcast", true),
+                                     new KeyValuePair<string, JsonValue>("target", "analysis"),
+                                     new KeyValuePair<string, JsonValue>("method", "getlist"));
+            this.concurrentQueue.Enqueue(msg);
+            this.autoResetEvent.Set();
+        }
+
         public string GetList()
         {
             var selectedItems = new List<string>() { "name", "target_source", "analysis_query", "action_type", "COLUMN_JSON(options) as options",
@@ -165,6 +185,8 @@ namespace DataIntegrationServiceLogic
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
 
+            this.Notify();
+
             return res.ToString();
         }
 
@@ -174,6 +196,8 @@ namespace DataIntegrationServiceLogic
 
             var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
 
+            this.Notify();
+
             return res.ToString();
         }
 
@@ -182,6 +206,8 @@ namespace DataIntegrationServiceLogic
             var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
 
             var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+
+            this.Notify();
 
             return res.ToString();
         }
@@ -222,6 +248,8 @@ namespace DataIntegrationServiceLogic
                         setDict["status"] = "play";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
                         MariaDBConnector.Instance.SetQuery(statusUpdate);
+
+                        this.Notify();
                     }
                     this.ExecuteAnalysis(analysisInfo);
                 }
@@ -240,7 +268,7 @@ namespace DataIntegrationServiceLogic
                         var statusUpdate = string.Empty;
                         var thread = new Thread(new ThreadStart(() =>
                         {
-                            Scheduler.ExecuteScheduler(TableName, analysisInfo["action_type"].ReadAs<string>(), whereKV, analysisInfo["schedule"], setDict, action);
+                            Scheduler.ExecuteScheduler(TableName, analysisInfo["action_type"].ReadAs<string>(), whereKV, analysisInfo["schedule"], setDict, action, this.Notify);
                         }));
 
                         if (scheduleThread.ContainsKey(name)) scheduleThread.Remove(name);
@@ -256,6 +284,7 @@ namespace DataIntegrationServiceLogic
                         setDict["status"] = "stop";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
                         MariaDBConnector.Instance.SetQuery(statusUpdate);
+                        this.Notify();
                         break;
                     }
             }

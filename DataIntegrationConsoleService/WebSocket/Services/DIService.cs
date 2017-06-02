@@ -48,6 +48,7 @@ namespace DIWebSocket.Services
         protected override void OnClose(CloseEventArgs e)
         {
             isOpen = false;
+            sendingThread.Abort();
         }
 
         protected override void OnMessage(MessageEventArgs e)
@@ -66,7 +67,7 @@ namespace DIWebSocket.Services
                 #region Member
                 case "member":
                     {
-                        var memberLogic = new MemberLogic();
+                        var memberLogic = new MemberLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -108,7 +109,7 @@ namespace DIWebSocket.Services
                 #region Collection
                 case "collection":
                     {
-                        var collectionLogic = new CollectionLogic();
+                        var collectionLogic = new CollectionLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -149,7 +150,7 @@ namespace DIWebSocket.Services
                 #region Analysis
                 case "analysis":
                     {
-                        var analysisLogic = new AnalysisLogic();
+                        var analysisLogic = new AnalysisLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -190,7 +191,7 @@ namespace DIWebSocket.Services
                 #region DataView
                 case "view":
                     {
-                        var viewLogic = new ViewLogic();
+                        var viewLogic = new ViewLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -241,7 +242,7 @@ namespace DIWebSocket.Services
                 #region Input
                 case "input":
                     {
-                        var inputLogic = new InputLogic();
+                        var inputLogic = new InputLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "getlist":
@@ -272,7 +273,7 @@ namespace DIWebSocket.Services
                 #region Cluster
                 case "cluster":
                     {
-                        var clusterLogic = new ClusterLogic();
+                        var clusterLogic = new ClusterLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":

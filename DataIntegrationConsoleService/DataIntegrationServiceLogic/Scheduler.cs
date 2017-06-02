@@ -11,7 +11,7 @@ namespace DataIntegrationServiceLogic
 {
     public static class Scheduler
     {
-        public static void ExecuteScheduler(string tableName, string action_type, JsonValue whereKV, JsonValue schedule, JsonValue setDict, Func<string, bool> action)
+        public static void ExecuteScheduler(string tableName, string action_type, JsonValue whereKV, JsonValue schedule, JsonValue setDict, Func<string, bool> action, Action notify)
         {
             string statusUpdate = string.Empty;
             var switchMode = "stop";
@@ -41,6 +41,7 @@ namespace DataIntegrationServiceLogic
                             setDict["status"] = "wait";
                             statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
                             MariaDBConnector.Instance.SetQuery(statusUpdate);
+                            notify.DynamicInvoke();
                         }
                         switchMode = "wait";
                     }
@@ -53,6 +54,7 @@ namespace DataIntegrationServiceLogic
                 setDict["status"] = "stop";
                 statusUpdate = MariaQueryBuilder.UpdateQuery(tableName, whereKV, setDict);
                 MariaDBConnector.Instance.SetQuery(statusUpdate);
+                notify.DynamicInvoke();
             }
         }
     }

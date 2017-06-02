@@ -24,8 +24,8 @@ module.exports = React.createClass({
         self.socket.on('analysis.create', function(data) {
             if(data.code == "200") {
                 self.refs.AnalysisTable.setState({active:false});
-                var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE ANALYSIS)',message:data.message, active : true})
@@ -34,8 +34,8 @@ module.exports = React.createClass({
         self.socket.on('analysis.modify', function(data) {
             if(data.code == "200") {
                 self.refs.AnalysisTable.setState({active:false});
-                var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY ANALYSIS)',message:data.message, active : true})
@@ -43,16 +43,16 @@ module.exports = React.createClass({
         });
         self.socket.on('analysis.delete', function(data) {
             if(data.code == "200") {
-                var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE ANALYSIS)',message:data.message, active : true})
             }
         });
         self.socket.on('analysis.execute', function(data) {
-            var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
-            self.socket.emit('fromclient', data);
+            // var data = {"broadcast":true,"target":"analysis", "method":"getlist", "parameters":{}};
+            // self.socket.emit('fromclient', data);
             self.refs.loader.setState({active:true});
         });
 

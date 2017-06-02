@@ -24,8 +24,8 @@ module.exports = React.createClass({
         self.socket.on('collection.create', function(data) {
             if(data.code == "200") {
                 self.refs.CollectionTable.setState({active:false});
-                var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE COLLECTION)',message:data.message, active : true})
@@ -34,8 +34,8 @@ module.exports = React.createClass({
         self.socket.on('collection.modify', function(data) {
             if(data.code == "200") {
                 self.refs.CollectionTable.setState({active:false});
-                var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY COLLECTION)',message:data.message, active : true})
@@ -43,16 +43,16 @@ module.exports = React.createClass({
         });
         self.socket.on('collection.delete', function(data) {
             if(data.code == "200") {
-                var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
-                self.socket.emit('fromclient', data);
+                // var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
+                // self.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE COLLECTION)',message:data.message, active : true})
             }
         });
         self.socket.on('collection.execute', function(data) {
-            var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
-            self.socket.emit('fromclient', data);
+            // var data = {"broadcast":true,"target":"collection", "method":"getlist", "parameters":{}};
+            // self.socket.emit('fromclient', data);
             self.refs.loader.setState({active:true});
         });
 
