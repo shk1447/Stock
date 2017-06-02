@@ -63,7 +63,7 @@ namespace DataIntegrationServiceLogic
 
             fields.Add(new JsonObject(new KeyValuePair<string, JsonValue>("text", "ANALYSIS QUERY"),
                                       new KeyValuePair<string, JsonValue>("value", "analysis_query"),
-                                      new KeyValuePair<string, JsonValue>("type", "TextArea"),
+                                      new KeyValuePair<string, JsonValue>("type", "Editor"),
                                       new KeyValuePair<string, JsonValue>("group", 2),
                                       new KeyValuePair<string, JsonValue>("required", true)));
 

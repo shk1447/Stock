@@ -34,6 +34,7 @@ namespace Finance
             var KOSPI_KOSDAQ_Config = new JsonObject();
             var AllStockInformationConfig = new JsonObject();
             var CurrentStockInformationConfig = new JsonObject();
+            CurrentStockInformationConfig.Add("date", "");
             var FinanceInformationConfig = new JsonObject();
             var EmptyInformationConfig = new JsonObject();
             this.config.Add("KOSPI_KOSDAQ", KOSPI_KOSDAQ_Config);
@@ -344,7 +345,16 @@ namespace Finance
                     var cnt = stock.Value["cnt"].ReadAs<string>();
 
                     var nvParser = new nvParser(code);
-                    var siseInfo = nvParser.getSise(2);
+                    string[] siseInfo;
+                    var date = this.config["CurrentStockInformation"]["date"].ReadAs<string>();
+                    if (string.IsNullOrWhiteSpace(date))
+                    {
+                        siseInfo = nvParser.getSise(2);
+                    }
+                    else
+                    {
+                        siseInfo = nvParser.getSise(date, 2);
+                    }
 
                     if (siseInfo.Length < 7) continue;
                     var columnInfo = new string[] { "날짜", "종가", "전일비", "시가", "고가", "저가", "거래량", "전일비율" };

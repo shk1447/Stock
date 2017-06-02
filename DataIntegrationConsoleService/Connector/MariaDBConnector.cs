@@ -14,6 +14,8 @@ using Model.Common;
 using System.Reflection;
 using Helper;
 using System.Json;
+using Model.Request;
+using System.IO;
 
 namespace Connector
 {

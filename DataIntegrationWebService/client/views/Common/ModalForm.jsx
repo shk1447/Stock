@@ -7,6 +7,7 @@ require('react-times/css/material/default.css');
 var MessageBox = require('./MessageBox');
 var DynamicField = require('./DynamicField');
 var SQLEditor = require('./SQLEditor');
+var AceEditor = require('react-ace-editor');
 var moment = require('moment');
 
 module.exports = React.createClass({
@@ -274,6 +275,18 @@ module.exports = React.createClass({
                                         defaultValue={defaultData[fieldInfo.value]} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
+                    case 'Editor' : {
+                        // ace editor 추가 예정
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
+                        let required= fieldInfo.required ? fieldInfo.required : false;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        fieldElement = <Form.Field className='transparency' key={fieldInfo.value} theme={'sqlserver'} mode={'mysql'} control={AceEditor} label={mainlabel} error={error}
+                                        defaultValue={defaultData[fieldInfo.value]} style={{height:'300px',width:'100%'}} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        break;
+                    }
                     case 'AddFields' : {
                         let defaultData;
                         fieldInfo.value ? defaultData = self.state.data[fieldInfo.value] = self.state.data[fieldInfo.value] ? self.state.data[fieldInfo.value] : {} : defaultData = self.state.data;
@@ -462,6 +475,14 @@ module.exports = React.createClass({
                     this.state.data[field.datakey][field.value] = e.target.value;
                 } else {
                     this.state.data[field.value] = e.target.value;
+                }
+                break;
+            }
+            case 'editor' : {
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e;
+                } else {
+                    this.state.data[field.value] = e;
                 }
                 break;
             }

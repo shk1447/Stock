@@ -43,7 +43,7 @@ namespace DataIntegrationServiceLogic
                     
                     foreach (var options in method.Value)
                     {
-                        var optionsField = new FieldSchema(options.Key, options.Key, "Text", 2, true) { temp = true, datakey = "options" };
+                        var optionsField = new FieldSchema(options.Key, options.Key, "Text", 2, false) { temp = true, datakey = "options" };
                         methodOptions.AddFields(optionsField);
                     }
 

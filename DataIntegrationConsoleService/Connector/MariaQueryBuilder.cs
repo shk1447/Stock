@@ -217,9 +217,9 @@ namespace Connector
             var categoryList = new List<string>();
             var resultQueryBuilder = new StringBuilder(query);
 
-            var pastQueryBuilder = new StringBuilder("INSERT INTO past_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
-            var fieldsQueryBuilder = new StringBuilder("INSERT INTO fields_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
-            var currentQueryBuilder = new StringBuilder("INSERT INTO current_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
+            var pastQueryBuilder = new StringBuilder("INSERT INTO past_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
+            var fieldsQueryBuilder = new StringBuilder("INSERT INTO fields_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
+            var currentQueryBuilder = new StringBuilder("INSERT INTO current_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
 
             var collectedDate = "CURTIME(3)";
 
@@ -265,24 +265,24 @@ namespace Connector
 
                 dataCreateBuilder.Append(")");
                 fieldCreateBuilder.Append(")");
-                pastQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                              .Append(collectedDate).Append(")").Append(rowSeparator);
+                pastQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                              .Append(")").Append(rowSeparator);
 
                 if (prevCategory != dynamicCategory)
                 {
-                    currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
-                    fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
-                                      .Append(collectedDate).Append(")").Append(rowSeparator);
+                    currentQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                                         .Append(")").Append(rowSeparator);
+                    fieldsQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString())
+                                      .Append(")").Append(rowSeparator);
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(rowSeparator))
                     {
-                        currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
-                        fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
-                                          .Append(collectedDate).Append(")").Append(rowSeparator);
+                        currentQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                                         .Append(")").Append(rowSeparator);
+                        fieldsQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString())
+                                          .Append(")").Append(rowSeparator);
                     }
                 }
                 prevCategory = dynamicCategory;
@@ -306,10 +306,6 @@ namespace Connector
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
             resultQueryBuilder.Append(fieldsQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
-            if (category == "052420")
-            {
-                Console.WriteLine("test");
-            }
             return resultQueryBuilder.ToString();
         }
 

@@ -322,3 +322,36 @@ GROUP BY category
 
 
 해당 지표!!!다이버전스!!!추가
+
+
+
+next plan(2017년도 하반기)
+- 데이터 분석
+	- 주식데이터에서 candle 분석 기능 추가
+	- autofilter api 분석기능을 analysis 기능의 일부로 추가
+	
+- UI 개선
+	- Query 작성시 Ace-Editor를 통해 SQL처럼 보이도록 UI 개선
+	- Big Ants Title을 Trident.AIM으로 변경
+		- About 화면 작업
+		- Logo 작업 : 데이터를 분석!! 통합!! 관리!!하는 무기!! 삼지창 (첫번째 목표는 주식 데이터다!!!!!!)
+			- Trident
+				- A nalysis
+				- I ntergration
+				- M anage
+	- RealTime Chart 기능 추가 (Polling 방식이 아닌 Notify방식으로 진행) : Server에서 WebSocket Notify기능 완료 후!
+	
+- Collection Module 추가
+	- 외부 데이터에 접근하여 수집이 가능한 Module 추가
+	- Http로 데이터를 받을 수 있는 기능 추가
+	
+- Editor Page 신규 개발 (d3.js)
+	- Collection마다 하나의 화면을 가진다. (Tab)
+	- 개별 화면에서는 해당 Collection의 Category를 표출한다.
+	- Category를 그룹화 시킨다. (데이터가 조건으로 그룹하며, 데이터가 변경될 때마다 다시 그룹화가 이루어진다.)
+	- 해당 정보는 Live Page와 연동하여 필터기능으로 제공되어진다.
+
+- DataIntergration Server 작업
+	- code refactoring 작업.....
+	- Websocket을 통해 작업 완료에 대한 메시지를 Notify할 수 있는 기능 추가
+	- MariaDB Spider Engine을 활용하여 스토리지 이중화 작업

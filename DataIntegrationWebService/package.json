@@ -22,6 +22,7 @@
   "homepage": "https://github.com/shk1447/Stock#readme",
   "dependencies": {
     "body-parser": "^1.15.2",
+    "brace": "^0.10.0",
     "browser-cookies": "^1.0.8",
     "browserify": "^13.1.0",
     "cluster": "^0.7.7",
@@ -42,6 +43,7 @@
     "node-jsx": "^0.13.3",
     "os": "^0.1.1",
     "react": "^15.3.2",
+    "react-ace-editor": "0.0.2",
     "react-bootstrap": "^0.30.3",
     "react-bootstrap-time-picker": "^1.0.1",
     "react-d3": "^0.4.0",
