@@ -17,38 +17,22 @@ namespace DIWebSocket.Services
 {
     public class DIService : WebSocketBehavior
     {
-        /// <summary>
-        /// 서버 자체에서 연결되어진 클라이언트에게 이벤트를 발생
-        /// </summary>
-        public bool isOpen = false;
-        public Thread sendingThread = null;
-        public AutoResetEvent sendEvent = new AutoResetEvent(false);
-        public ConcurrentQueue<JsonObject> sendQueue = new ConcurrentQueue<JsonObject>();
+        private AutoResetEvent sendEvent;
+        private ConcurrentQueue<JsonObject> sendQueue;
 
-        private void SendingThread()
+        public DIService(ref AutoResetEvent sendEvent, ref ConcurrentQueue<JsonObject> sendQueue)
         {
-            while (isOpen)
-            {
-                sendEvent.WaitOne();
-                JsonObject jsonObj = null;
-                if (sendQueue.TryDequeue(out jsonObj))
-                {
-                    this.Send(jsonObj.ToString());
-                }
-            }
+            this.sendEvent = sendEvent;
+            this.sendQueue = sendQueue;
         }
-
         protected override void OnOpen()
         {
-            isOpen = true;
-            sendingThread = new Thread(new ThreadStart(SendingThread));
-            sendingThread.Start();
+            Console.WriteLine("open");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            isOpen = false;
-            sendingThread.Abort();
+            Console.WriteLine("close");
         }
 
         protected override void OnMessage(MessageEventArgs e)

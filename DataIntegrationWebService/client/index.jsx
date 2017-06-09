@@ -30,6 +30,7 @@ var View = require('./views/DataManager/View');
 var Input = require('./views/DataManager/Input');
 var {Router,browserHistory,IndexRoute,Route} = require('react-router');
 var cookies = require('browser-cookies');
+require('./libs/connector/WebSocketClient')
 
 let rootElement = document.getElementById('contents');
 
