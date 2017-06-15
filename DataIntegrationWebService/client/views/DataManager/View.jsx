@@ -12,48 +12,49 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var self = this;
-        connector.on('view.schema',function(data){
+        connector.socket.on('view.schema',function(data){
             self.refs.ViewTable.setState({fields:data})
             var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
         });
-        connector.on('view.getlist', function(data) {
+        connector.socket.on('view.getlist', function(data) {
             self.refs.ViewTable.setState({data:data});
             self.refs.loader.setState({active:false});
         });
-        connector.on('view.create', function(data) {
+        connector.socket.on('view.create', function(data) {
             if(data.code == "200") {
                 self.refs.ViewTable.setState({active:false});
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (CREATE VIEW)',message:data.message, active : true})
             }
         });
-        connector.on('view.modify', function(data) {
+        connector.socket.on('view.modify', function(data) {
             if(data.code == "200") {
                 self.refs.ViewTable.setState({active:false});
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (MODIFY VIEW)',message:data.message, active : true})
             }
         });
-        connector.on('view.delete', function(data){
+        connector.socket.on('view.delete', function(data){
             if(data.code == "200") {
                 var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
                 self.refs.loader.setState({active:true});
             } else {
                 self.refs.alert_messagebox.setState({title:'ALERT (DELETE VIEW)',message:data.message, active : true})
             }
         });
         var data = {"broadcast":false,"target":"view", "method":"schema", "parameters":{privilege:sessionStorage['privilege']}};
-        connector.emit('fromclient', data);
+        connector.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
+        connector.socket.off('view.delete').off('view.create').off('view.modify').off('view.schema').off('view.getlist');
     },
     componentDidUpdate : function () {
     },
@@ -76,18 +77,18 @@ module.exports = React.createClass({
         if(result.action == 'insert') {
             result.data["member_id"] = sessionStorage.member_id;
             var data = {"broadcast":false,"target":"view", "method":"create", "parameters":result.data};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
         } else if (result.action == 'update') {
             result.data["member_id"] = sessionStorage.member_id;
             var data = {"broadcast":false,"target":"view", "method":"modify", "parameters":result.data};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
         } else if (result.action == 'delete') {
             var selectedItems = this.refs.ViewTable.refs.DataArea.state.selectedItems;
             var $dataArea = $(ReactDOM.findDOMNode(this.refs.ViewTable.refs.DataArea.refs.table_contents));
             _.forEach($dataArea.find('tbody').children('[class=selected]'),function(row,value) {$(row).attr('class','');});
             _.each(selectedItems, function(row, i){
                 var data = {"broadcast":false,"target":"view", "method":"delete", "parameters":{name:row.name,member_id:sessionStorage.member_id}};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
             });
         }
     }

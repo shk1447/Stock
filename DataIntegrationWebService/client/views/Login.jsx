@@ -13,10 +13,10 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var self = this;
-        connector.on('member.schema',function(data){
+        connector.socket.on('member.schema',function(data){
             self.refs.ModalForm.setState({fields:data})
         });
-        connector.on('member.access',function(data) {
+        connector.socket.on('member.access',function(data) {
             if(data.member_id) {
                 if(window.sessionStorage) {
                     sessionStorage['member_id'] = data.member_id;
@@ -30,7 +30,7 @@ module.exports = React.createClass({
                 self.refs.alert_messagebox.setState({title:'ALERT (LOGIN MEMBER)',message:"Fail Login", active : true})
             }
         });
-        connector.on('member.create',function(data) {
+        connector.socket.on('member.create',function(data) {
             if(data.code == "200") {
                 self.setState({active:false});
             } else {
@@ -38,9 +38,10 @@ module.exports = React.createClass({
             }
         });
         var data = {"broadcast":false,"target":"member","method":"schema", "parameters":{}};
-        connector.emit('fromclient', data);
+        connector.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
+        connector.socket.off('member.access').off('member.create').off('member.schema');
     },
     componentDidUpdate : function () {
     },
@@ -94,13 +95,13 @@ module.exports = React.createClass({
     handleCreate: function(result) {
         if(result.action == 'insert') {
             var data = {"broadcast":false,"target":"member", "method":"create", "parameters":result.data};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
         }
     },
     handleSubmit: function(e, serializedForm) {
         e.preventDefault();
         var data = {"broadcast":false,"target":"member", "method":"access", "parameters":serializedForm};
-        connector.emit('fromclient', data);
+        connector.socket.emit('fromclient', data);
     },
     show : function(e,v) {
         this.refs.ModalForm.setState({active:true,action:'insert',data:{}});

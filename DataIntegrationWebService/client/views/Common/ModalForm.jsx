@@ -2,8 +2,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var {Button,Modal,Image,Header,Icon,Form,Input,Select,TextArea,Checkbox,Radio,Dropdown} = require('stardust');
 var TimePicker = require('react-times');
-require('../../../public/style.css');
-require('react-times/css/material/default.css');
 var MessageBox = require('./MessageBox');
 var DynamicField = require('./DynamicField');
 var SQLEditor = require('./SQLEditor');
@@ -284,7 +282,7 @@ module.exports = React.createClass({
                         let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field className='transparency' key={fieldInfo.value} theme={'sqlserver'} mode={'mysql'} control={AceEditor} label={mainlabel} error={error}
-                                        defaultValue={defaultData[fieldInfo.value]} style={{height:'300px',width:'100%'}} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                                        setValue={defaultData[fieldInfo.value]} style={{height:'300px',width:'100%'}} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
                     case 'AddFields' : {

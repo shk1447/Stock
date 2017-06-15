@@ -1,13 +1,17 @@
 var io = require('socket.io-client');
-function WebSocketClient() {
-    console.log('시작??')
+var WebSocketClient = (function () {
     var connected = false;
     var socket = io.connect();
     socket.on('connected', function() {
-        console.log("ok????")
         connected = true;
     });
-    return socket;
-};
+    var instance = {
+        socket : socket,
+        register : function(path, func) {
+            console.log(path);
+        }
+    };
+    return instance;
+})();
 
-module.exports = WebSocketClient();
+module.exports = WebSocketClient;

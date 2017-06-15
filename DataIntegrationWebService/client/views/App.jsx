@@ -1,5 +1,4 @@
 var React = require('react');
-var io = require('socket.io-client');
 var { Container, Icon, Label, Menu, Dropdown, Button, Grid, Segment } = require('stardust');
 var cookies = require('browser-cookies');
 

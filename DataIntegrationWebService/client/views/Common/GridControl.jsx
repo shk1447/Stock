@@ -22,7 +22,7 @@ module.exports = React.createClass({
         }
         return (
             <div style={{float:'right',padding:'8px'}}>
-                <Button.Group basic size='mini'>
+                <Button.Group basic size='small'>
                     <Button icon='search' onClick={this.show}/>
                     <Button icon='chevron left' onClick={function(){self.props.action('prev')}}/>
                     <Button icon='chevron right' onClick={function(){self.props.action('next')}}/>

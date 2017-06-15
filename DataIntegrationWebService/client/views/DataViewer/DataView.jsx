@@ -24,13 +24,13 @@ module.exports = React.createClass({
         var self = this;
         this.$ViewList = $(ReactDOM.findDOMNode(this.refs.ViewList));
 
-        connector.on('view.getlist', function(data) {
+        connector.socket.on('view.getlist', function(data) {
             self.state.viewlist = data;
             self.setState({viewlist:data});
             _.each(self.state.gridInfo, function(value, id){
                 if (value.view_type != 'video') {
                     var data = {"broadcast":false,"target":"view","method":"execute", "parameters":{"name":self.state.gridInfo[id].name},"cellId":id};
-                    connector.emit('fromclient', data);
+                    connector.socket.emit('fromclient', data);
                     var contents = <Loader active>Loading...</Loader>;
                     ReactDOM.render(contents, self.refs[id]);
                 } else {
@@ -44,7 +44,7 @@ module.exports = React.createClass({
                 }
             });
         });
-        connector.on('view.execute', function(response) {
+        connector.socket.on('view.execute', function(response) {
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
             let cellInfo = self.state.gridInfo[cellId];
             let filters = cellInfo.filters ? cellInfo.filters : [];
@@ -57,13 +57,13 @@ module.exports = React.createClass({
             }
             ReactDOM.render(contents, self.refs[cellId]);
         });
-        connector.on('view.execute_item', function(response) {
+        connector.socket.on('view.execute_item', function(response) {
             let cellId = response.cellId ? response.cellId : 'cell_' + self.gridId;
             var contents = <Chart title={response.title} data={response.data} fields={response.fields} cellId={cellId}
                                       action={self.callbackDataView} />;
             ReactDOM.render(contents, self.refs[cellId]);
         });
-        connector.on('view.download', function(response) {
+        connector.socket.on('view.download', function(response) {
             var arr = new Uint8Array(response);
             var dataView = new DataView(arr);
             var blob = new Blob([dataView]);
@@ -71,9 +71,10 @@ module.exports = React.createClass({
         });
 
         var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
-        connector.emit('fromclient', data);
+        connector.socket.emit('fromclient', data);
     },
     componentWillUnmount : function () {
+        connector.socket.off('view.execute').off('view.execute_item').off('view.download').off('view.getlist');
     },
     componentDidUpdate : function () {
         sessionStorage["last_view"] = JSON.stringify(this.state);
@@ -210,7 +211,7 @@ module.exports = React.createClass({
             var data = {"broadcast":false,"target":"view", "method":"execute_item", "parameters":{"source":self.state.gridInfo[cellId]["view_options"]["view_source"],
                         "fields":fields, "category":self.state.gridInfo[cellId]["category"], "sampling":sampling,"sampling_period":sampling_period,
                         "from":from,"to":to,"trend_analysis":trend_analysis }, "title": title, "cellId":cellId};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);
         }
@@ -245,7 +246,7 @@ module.exports = React.createClass({
             this.state.gridInfo[cellId] = this.draggingData;
             if (this.state.activeItem != 'video') {
                 var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}, "cellId":cellId};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
                 var contents = <Loader active>Loading...</Loader>;
                 ReactDOM.render(contents, self.refs[cellId]);
             } else {
@@ -325,13 +326,13 @@ module.exports = React.createClass({
         if(result.action == 'repeat_on') {
             self.state.gridInfo[cellId]["repeatInterval"] = setInterval(function(){
                 var data = {"protocol":"http", "broadcast":false,"target":"view", "method":"execute", "parameters":{"name":self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id},"cellId":cellId};
-                connector.emit('fromclient', data);
+                connector.socket.emit('fromclient', data);
             },3000)
         } else if (result.action == 'repeat_off') {
             clearInterval(self.state.gridInfo[cellId]["repeatInterval"]);
         } else if (result.action == 'download') {
             var data = {"broadcast":false,"target":"view", "method":"download", "parameters":{name:self.state.gridInfo[cellId]["name"],member_id:sessionStorage.member_id}};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
         } else if (result.action == 'doubleclick') {
             let options = [];
             let fieldOptions = [];
@@ -355,7 +356,7 @@ module.exports = React.createClass({
             this.refs.ModalForm.setState({active:true,action:cellId});
         } else if (result.action == 'return_item') {
             var data = {"broadcast":false,"target":"view", "method":"execute", "parameters":{"name":this.state.gridInfo[cellId].name}, "cellId":cellId};
-            connector.emit('fromclient', data);
+            connector.socket.emit('fromclient', data);
             var contents = <Loader active>Loading...</Loader>;
             ReactDOM.render(contents, self.refs[cellId]);
         } else if (result.action == 'search') {
