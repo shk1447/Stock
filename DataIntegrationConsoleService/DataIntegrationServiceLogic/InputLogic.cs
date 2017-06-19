@@ -77,8 +77,8 @@ namespace DataIntegrationServiceLogic
             var category = jsonObj["category"].ReadAs<string>();
             var queryBuilder = new StringBuilder("DELETE FROM ");
             queryBuilder.Append("current_").Append(source).Append(" WHERE category = '").Append(category).Append("';")
-                        .Append("DELETE FROM ").Append("past_").Append(source).Append(" WHERE category = '").Append(category).Append("';")
-                        .Append("DELETE FROM ").Append("fields_").Append(source).Append(" WHERE category = '").Append(category).Append("';");
+                        .Append("DELETE FROM ").Append("past_").Append(source).Append(" WHERE category = '").Append(category).Append("';");
+                        //.Append("DELETE FROM ").Append("fields_").Append(source).Append(" WHERE category = '").Append(category).Append("';");
             var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", queryBuilder.ToString());
 
             return res.ToString();

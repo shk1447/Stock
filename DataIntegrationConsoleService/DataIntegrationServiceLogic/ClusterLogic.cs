@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Json;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Connector;
 
 namespace DataIntegrationServiceLogic
 {
@@ -22,9 +24,13 @@ namespace DataIntegrationServiceLogic
             return string.Empty;
         }
 
-        public string GetList()
+        public string GetList(JsonValue jsonObj)
         {
-            return string.Empty;
+            var selectedItems = new List<string>() { "name", "view_type", "view_query", "column_json(view_options) as view_options", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
+            var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems, jsonObj);
+            var res = MariaDBConnector.Instance.GetJsonArray(query);
+
+            return res.ToString();
         }
     }
 }

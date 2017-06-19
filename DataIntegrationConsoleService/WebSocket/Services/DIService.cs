@@ -266,6 +266,7 @@ namespace DIWebSocket.Services
                                 }
                             case "getlist":
                                 {
+                                    returnString = clusterLogic.GetList(reqInfo["parameters"]);
                                     break;
                                 }
                         }
