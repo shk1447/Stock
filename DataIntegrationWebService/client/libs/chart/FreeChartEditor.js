@@ -146,7 +146,7 @@ var editor = (function () {
             var ratio = d.w / d.h;
             var prev;
             for(var i = innerData.length; i > 0; i--) {
-                let dynamic_row = Math.floor(innerData.length / i);
+                let dynamic_row = Math.ceil(innerData.length / i);
                 let dynamic_w = d.w / i;
                 let dynamic_h = d.h / dynamic_row;
                 let dynamic_ratio = dynamic_w/dynamic_h;
