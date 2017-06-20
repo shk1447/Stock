@@ -32,5 +32,14 @@ namespace DataIntegrationServiceLogic
 
             return res.ToString();
         }
+
+        public JsonValue GetTab(JsonValue jsonValue)
+        {
+            var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
+            var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems, jsonValue);
+            var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
+            return res.ToString();
+        }
     }
 }

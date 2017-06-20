@@ -269,6 +269,11 @@ namespace DIWebSocket.Services
                                     returnString = clusterLogic.GetList(reqInfo["parameters"]);
                                     break;
                                 }
+                            case "gettab":
+                                {
+                                    returnString = clusterLogic.GetTab(reqInfo["parameters"]);
+                                    break;
+                                }
                         }
                         break;
                     }

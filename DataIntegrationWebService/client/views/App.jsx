@@ -49,7 +49,7 @@ module.exports = React.createClass({
                     </Dropdown>
 
                     <Menu.Item name='dataview' onClick={this.handleDataEditor}>
-                        Editor
+                        Cluster
                     </Menu.Item>
 
                     <Menu.Menu position='right'>

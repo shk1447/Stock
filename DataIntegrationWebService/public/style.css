@@ -571,7 +571,7 @@ ul.hintTracker li:last-child {
 .node_label {
   stroke-width: 0;
   fill: #7b7b7b;
-  font-size: 13px;
+  font-size: 15px;
   pointer-events: none;
   -webkit-touch-callout: none;
 }

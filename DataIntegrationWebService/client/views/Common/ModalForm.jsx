@@ -545,7 +545,7 @@ module.exports = React.createClass({
                 this.state.fields.filter(function(d){
                     if(d.type != "Action" && d.type != "Data") {
                         if(d.datakey) {
-                        values[d.datakey] = self.state.data[d.datakey];
+                            values[d.datakey] = self.state.data[d.datakey];
                         } else {
                             values[d.value] = self.state.data[d.value];
                         }
