@@ -1,10 +1,13 @@
 var React = require('react');
+var { Component } = require('react');
 var DataTable = require('../Common/DataTable');
 var MessageBox = require('../Common/MessageBox');
 var Loader = require('../Common/Loader');
 var editor = require('../../libs/chart/FreeChartEditor');
 var connector = require('../../libs/connector/WebSocketClient.js')
 var ModalForm = require('../Common/ModalForm');
+var { Sidebar, Form, Segment } = require('semantic-ui-react');
+var hmm = require('vis');
 module.exports = React.createClass({
     displayName: 'Editor',
     clusterSettings : [
@@ -13,8 +16,9 @@ module.exports = React.createClass({
         router: React.PropTypes.object.isRequired
     },
     componentDidMount : function() {
+        console.log(hmm);
         var me = this;
-        editor.initialize('chart',this.addCluster);
+        editor.initialize('chart',this.actionByEditor);
         connector.socket.on('cluster.getlist', function(data) {
             var $tabs = $('#workspace-tabs');
             $tabs.empty();
@@ -50,6 +54,11 @@ module.exports = React.createClass({
         });
         var data = {"broadcast":false,"target":"cluster", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"],"view_type":"current"}};
         connector.socket.emit('fromclient', data);
+
+        var data = [{id: 1, content: 'item 1', start: '2017-06-20'}];
+        var options = {};
+        var container = document.getElementById('timeline');
+        var timeline = new hmm.Timeline(container, data, options);
     },
     componentWillUnmount : function () {
         connector.socket.off('cluster.getlist').off('cluster.gettab');
@@ -57,18 +66,15 @@ module.exports = React.createClass({
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {};
+		return {visible:false, mode:false};
 	},
     render : function () {
         var me = this;
-        //console.log(Timeline)
-        var test = [{date: '10/01/2016', title: 'Title'}, {date: '10/02/2016', title: 'Title2'}];
         return (
             <div id="workspace" style={{marginTop:'-10px'}}>
                 <div className="ui-tabs ui-tabs-add ui-tabs-scrollable">
                     <div className="ui-tabs-scroll-container">
                         <ul id="workspace-tabs" style={{width: '100%'}}>
-                            
                         </ul>
                     </div>
                     <div className="ui-tab-button ui-tab-scroll ui-tab-scroll-left">
@@ -78,7 +84,26 @@ module.exports = React.createClass({
                         <a href="#" style={{display:'block'}}><i className="fa fa-caret-right"></i></a>
                     </div>
                 </div>
-                <div id="chart"></div>
+                <Sidebar.Pushable as={Segment} style={{overflow:'hidden'}}>
+                    <Sidebar as={Form}
+                            animation='overlay'
+                            width='very wide'
+                            direction = {'right'}
+                            visible={me.state.visible}
+                            className={'edit_panel'}>
+                    </Sidebar>
+                    <Sidebar.Pusher>
+                        <Sidebar animation='overlay' width='very thin'
+                            direction = {'top'}
+                            visible={me.state.mode}
+                            className={'edit_panel'}>
+                            <div id="timeline"></div>
+                        </Sidebar>
+                        <Sidebar.Pusher>
+                            <div id="chart"></div>
+                        </Sidebar.Pusher>
+                    </Sidebar.Pusher>
+                </Sidebar.Pushable>
                 <ModalForm ref='ModalForm' action={'insert'} size={'large'} title={'CLUSTER SETTING'} active={false}
                     fields={me.clusterSettings} data={[]} callback={this.applyCluster}/>
             </div>
@@ -90,9 +115,15 @@ module.exports = React.createClass({
     applyCluster: function(result) {
         this._deferred.resolve(result);
     },
-    addCluster: function(data) {
+    actionByEditor: function(action) {
         this._deferred = $.Deferred();
-        this.refs.ModalForm.setState({active:true});
+        if(action.name === "addCluster") {
+            this.refs.ModalForm.setState({active:true});
+        } else if (action.name === "showInfoPanel") {
+            this.setState({visible : !this.state.visible})
+        } else if (action.name === "showPlaybackPanel") {
+            this.setState({mode : !this.state.mode})
+        }
         this._deferred.promise();
         return this._deferred;
     }

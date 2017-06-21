@@ -260,12 +260,13 @@ namespace Connector
                 dataCreateBuilder.Append(")");
                 pastQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
                                               .Append(")").Append(rowSeparator);
+                currentQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                                         .Append(")").Append(rowSeparator);
                 row++;
             }
             var dupl_cnt = 1;
             var duplicateUpdateBuilder = new StringBuilder("COLUMN_ADD(rawdata,");
             var fieldCreateBuilder = new StringBuilder("COLUMN_CREATE(");
-            var currentCreateBuilder = new StringBuilder("COLUMN_CREATE(");
             foreach (var duplicate in totalFields)
             {
                 var type = "text";
@@ -278,7 +279,6 @@ namespace Connector
 
                 var duplSeparator = dupl_cnt < totalFields.Count ? "," : "";
                 fieldCreateBuilder.Append("\"").Append(duplicate.Key).Append("\",\"").Append(type).Append("\"").Append(duplSeparator);
-                currentCreateBuilder.Append("\"").Append(duplicate.Key).Append("\",\"").Append(duplicate.Value).Append("\"").Append(duplSeparator);
                 duplicateUpdateBuilder.Append("\"").Append(duplicate.Key).Append("\",IF(COLUMN_EXISTS(VALUES(rawdata), \"").Append(duplicate.Key).Append("\"),")
                     .Append("COLUMN_GET(VALUES(rawdata), \"").Append(duplicate.Key).Append("\" as char),").Append("COLUMN_GET(rawdata, \"").Append(duplicate.Key).Append("\" as char))")
                     .Append(duplSeparator);
@@ -286,8 +286,6 @@ namespace Connector
             }
             fieldCreateBuilder.Append(")");
             fieldsQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append("").Append("\",").Append(fieldCreateBuilder.ToString()).Append(")");
-            currentCreateBuilder.Append(")");
-            currentQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(currentCreateBuilder.ToString()).Append(")");
             duplicateQuery = duplicateUpdateBuilder.Append(")").ToString();
 
             resultQueryBuilder.Append(pastQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)

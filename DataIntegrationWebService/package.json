@@ -57,11 +57,14 @@
     "redux": "^3.6.0",
     "request": "^2.75.0",
     "require-directory": "^2.1.1",
-    "semantic-ui-react": "^0.56.10",
+    "semantic-ui-css": "^2.2.4",
+    "semantic-ui-react": "^0.64.7",
     "socket.io": "^1.4.8",
     "socket.io-client": "^1.4.8",
     "stardust": "^0.45.3",
     "style-loader": "^0.13.1",
+    "timelinejs": "^2.35.6",
+    "vis": "^4.20.0",
     "ws": "^1.1.1"
   },
   "devDependencies": {

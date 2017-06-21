@@ -12,6 +12,8 @@ var bodyParser = require('body-parser');
 module.exports = function(config) {
     var app = express();
 
+    //app.use('/semantic', express.static(path.resolve(__dirname, '../../node_modules/semantic-ui-css')));
+    app.use('/node_modules', express.static(path.resolve(__dirname, '../../node_modules')));
     app.use('/semantic', express.static(path.resolve(__dirname, '../../semantic')));
     app.use('/public', express.static(path.resolve(__dirname, '../../public')));
     app.use('/video', express.static(path.resolve(__dirname, '../../video')));

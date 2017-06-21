@@ -14,11 +14,14 @@ var editor = (function () {
         d3.event.preventdefault();
     };
     var canvasMouseUp = function() {
+        var action = {
+            name : 'addCluster'
+        }
         var x = parseInt(lasso.attr("x"));
         var y = parseInt(lasso.attr("y"));
         var w = parseInt(lasso.attr("width"));
         var h = parseInt(lasso.attr("height"));
-        data_callback(lasso).then(function(result){
+        data_callback(action).then(function(result){
             if(result.action != 'cancel') {
                 let conditions = [];
                 _.each(result.data, function(value,key){
@@ -127,6 +130,14 @@ var editor = (function () {
                 })
                 .on("mousedown", function(d, i){
                     d3.event.stopPropagation();
+                })
+                .on("dblclick",function(d, i) {
+                    var action = {
+                        name : 'showPlaybackPanel'
+                    }
+                    data_callback(action).then(function(result){
+                        console.log('playback panel callback')
+                    });
                 });
             var innerData = _.cloneDeep(tabInfo.view_data.data.filter(function(data){
                 let condition = '';
@@ -163,24 +174,44 @@ var editor = (function () {
                     }
                 }
             }
-            console.log(col, row, width, height)
             innerEnter.each(function(innerD,i){
                 var node = d3.select(this);
-                let x = ((i % col) * width);
-                let y = (Math.floor(i / col) * height);
+                var offset_x = (i % col);
+                var offset_y = Math.floor(i / col);
+                let x = (offset_x * width) + ((margin_x/2) * (offset_x + 1));
+                console.log((margin_x/2) * (offset_x + 1));
+                let y = (offset_y * height) + ((margin_y/2) * (offset_y + 1));
                 node.attr("id", d.name + "_" + innerD.category)
                 .attr("transform", "translate(" + x + "," + y + ")");
                 node.append("svg:text").attr("class", "node_label").attr("y",height/2).attr("x", width/2).attr("dy", ".35em").attr("text-anchor", "middle").text(innerD.category);
                 node.append("rect")
-                .attr("width", width)
-                .attr("height", height)
-                .attr("class", "lasso")
+                .attr("width", width - (margin_x/2))
+                .attr("height", height - (margin_y/2))
+                .attr("class", "inode")
+                .on("mouseover", function(d, i) {
+                    outer.style("cursor", "hand");
+                    var node = d3.select(this);
+                    node.classed("inode_hovered", true);
+                })
+                .on("mouseout", function(d, i) {
+                    outer.style("cursor", "crosshair");
+                    var node = d3.select(this);
+                    node.classed("inode_hovered", false);
+                })
                 .on("mouseup", function(d, i){
                     d3.event.stopPropagation();
                 })
                 .on("mousedown", function(d, i){
                     d3.event.stopPropagation();
-                });
+                })
+                .on("dblclick", function(d, i) {
+                    var action = {
+                        name : 'showInfoPanel'
+                    }
+                    data_callback(action).then(function(result){
+                        console.log('info panel callback')
+                    });
+                })
             });
         })
     }
