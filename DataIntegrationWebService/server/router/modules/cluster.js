@@ -6,5 +6,8 @@ module.exports = {
     },
     gettab: function(data){
         return data;
+    },
+    getplayback: function(data){
+        return data;
     }
 };

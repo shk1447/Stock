@@ -19,6 +19,11 @@ namespace DataIntegrationServiceLogic
             this.autoResetEvent = autoResetEvent;
             this.concurrentQueue = concurrentQueue;
         }
+
+        public ClusterLogic()
+        {
+            // TODO: Complete member initialization
+        }
         public string Schema()
         {
             return string.Empty;
@@ -39,6 +44,15 @@ namespace DataIntegrationServiceLogic
             var query = MariaQueryBuilder.SelectQuery("data_view", selectedItems, jsonValue);
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
+            return res.ToString();
+        }
+
+        public string GetPlayback(JsonValue jsonValue)
+        {
+            var parameters = jsonValue["categories"].ToString();
+            var query = MariaQueryDefine.PlaybackQuery.Replace("{categories}", parameters.Replace("[","").Replace("]",""));
+            var res = MariaDBConnector.Instance.GetJsonArray(query);
+
             return res.ToString();
         }
     }

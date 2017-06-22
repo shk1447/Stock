@@ -8,6 +8,13 @@ namespace Connector
 {
     public class MariaQueryDefine
     {
+        public const string PlaybackQuery = "SET @@group_concat_max_len = 99999999999999;" + 
+                                            "SELECT GROUP_CONCAT(category) as categories, CONCAT('[',GROUP_CONCAT(column_json(rawdata)),']') as data_array," +
+                                            " UNIX_TIMESTAMP(unixtime) as data_time" +
+                                            " FROM past_stock" +
+                                            " WHERE category IN ({categories})" +
+                                            " GROUP BY unixtime ASC";
+
         public const string createPastTable = "CREATE TABLE IF NOT EXISTS `{tableName}` (" +
                                                     " `idx` INT(11) NOT NULL AUTO_INCREMENT," +
                                                     " `category` VARCHAR(50) NULL DEFAULT NULL," +

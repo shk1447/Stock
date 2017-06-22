@@ -24,8 +24,12 @@ var editor = (function () {
         data_callback(action).then(function(result){
             if(result.action != 'cancel') {
                 let conditions = [];
+                var sort = {"field":"","method":"ASC",limit:""};
                 _.each(result.data, function(value,key){
-                    if(value !== "" && key !== "name") {
+                    if(key.includes("sort_field")) sort["field"] = value;
+                    if(key.includes("sort_method")) sort["method"] = value;
+                    if(key.includes("sort_limit")) sort["limit"] = value;
+                    if(value !== "" && key !== "name" && !key.includes("sort_")) {
                         var field = tabInfo.view_data.fields.find(function(d){return d.value == key;});
                         var condition = '';
                         if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
@@ -43,7 +47,8 @@ var editor = (function () {
                     y:y,
                     w:w,
                     h:h,
-                    conditions : conditions
+                    conditions : conditions,
+                    sort : sort
                 });
                 redraw();
             }
@@ -108,6 +113,31 @@ var editor = (function () {
                             .attr("class", "node nodegroup");
         clusterEnter.each(function(d,i){
             var node = d3.select(this);
+
+            var innerData = _.cloneDeep(tabInfo.view_data.data.filter(function(data){
+                let condition = '';
+                _.each(d.conditions,function(row,i){
+                    condition += row + " && ";
+                });
+                condition += "true";
+                return eval(condition);
+            }));
+            if(d.sort.field !== "") {
+                innerData.sort(function(a,b){
+                    let compare01 = a[d.sort.field];
+                    let compare02 = b[d.sort.field];
+                    if(parseFloat(compare01)) {
+                        compare01 = parseFloat(compare01);
+                        compare02 = parseFloat(compare02);
+                    }
+                    return compare01 < compare02 ? (d.sort.method === "ASC" ? -1 : 1)
+                                                 : compare01 > compare02 ? (d.sort.method === "ASC" ? 1 : -1) : 0;
+                });
+            }
+            if(d.sort.limit !== "") {
+                innerData = innerData.splice(0, parseInt(d.sort.limit));;
+            }
+
             node.attr("id", d.name)
                 .attr("transform", "translate(" + d.x + "," + d.y + ")");
             node.append("svg:text").attr("class", "node_label").attr("y",-10).attr("x", 10).attr("dy", ".35em").attr("text-anchor", "left").text(d.name);
@@ -133,20 +163,14 @@ var editor = (function () {
                 })
                 .on("dblclick",function(d, i) {
                     var action = {
-                        name : 'showPlaybackPanel'
+                        name : 'showPlaybackPanel',
+                        data : innerData
                     }
                     data_callback(action).then(function(result){
                         console.log('playback panel callback')
                     });
                 });
-            var innerData = _.cloneDeep(tabInfo.view_data.data.filter(function(data){
-                let condition = '';
-                _.each(d.conditions,function(row,i){
-                    condition += row + " && ";
-                });
-                condition += "true";
-                return eval(condition);
-            }));
+
             var inner_node = node.selectAll(".innergroup").data(innerData);
             inner_node.exit().remove();
             var innerEnter = inner_node.enter().insert("svg:g")
@@ -178,40 +202,42 @@ var editor = (function () {
                 var node = d3.select(this);
                 var offset_x = (i % col);
                 var offset_y = Math.floor(i / col);
-                let x = (offset_x * width) + ((margin_x/2) * (offset_x + 1));
-                console.log((margin_x/2) * (offset_x + 1));
-                let y = (offset_y * height) + ((margin_y/2) * (offset_y + 1));
+                let x = (offset_x * width) + margin_x;
+                let y = (offset_y * height) + margin_y;
                 node.attr("id", d.name + "_" + innerD.category)
-                .attr("transform", "translate(" + x + "," + y + ")");
-                node.append("svg:text").attr("class", "node_label").attr("y",height/2).attr("x", width/2).attr("dy", ".35em").attr("text-anchor", "middle").text(innerD.category);
+                    .attr("transform", "translate(" + x + "," + y + ")");
+                node.append("svg:text").attr("class", "node_label")
+                    .attr("x", (width - (margin_x*2))/2).attr("y",(height - (margin_y*2))/2)
+                    .attr("dy", ".35em").attr("text-anchor", "middle").text(innerD.category);
                 node.append("rect")
-                .attr("width", width - (margin_x/2))
-                .attr("height", height - (margin_y/2))
-                .attr("class", "inode")
-                .on("mouseover", function(d, i) {
-                    outer.style("cursor", "hand");
-                    var node = d3.select(this);
-                    node.classed("inode_hovered", true);
-                })
-                .on("mouseout", function(d, i) {
-                    outer.style("cursor", "crosshair");
-                    var node = d3.select(this);
-                    node.classed("inode_hovered", false);
-                })
-                .on("mouseup", function(d, i){
-                    d3.event.stopPropagation();
-                })
-                .on("mousedown", function(d, i){
-                    d3.event.stopPropagation();
-                })
-                .on("dblclick", function(d, i) {
-                    var action = {
-                        name : 'showInfoPanel'
-                    }
-                    data_callback(action).then(function(result){
-                        console.log('info panel callback')
-                    });
-                })
+                    .attr("width", width - (margin_x*2))
+                    .attr("height", height - (margin_y*2))
+                    .attr("class", "inode")
+                    .on("mouseover", function(d, i) {
+                        outer.style("cursor", "hand");
+                        var node = d3.select(this);
+                        node.classed("inode_hovered", true);
+                    })
+                    .on("mouseout", function(d, i) {
+                        outer.style("cursor", "crosshair");
+                        var node = d3.select(this);
+                        node.classed("inode_hovered", false);
+                    })
+                    .on("mouseup", function(d, i){
+                        d3.event.stopPropagation();
+                    })
+                    .on("mousedown", function(d, i){
+                        d3.event.stopPropagation();
+                    })
+                    .on("dblclick", function(d, i) {
+                        var action = {
+                            name : 'showInfoPanel',
+                            data : innerD
+                        }
+                        data_callback(action).then(function(result){
+                            console.log('info panel callback')
+                        });
+                    })
             });
         })
     }
