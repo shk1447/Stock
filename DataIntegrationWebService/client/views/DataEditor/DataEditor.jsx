@@ -6,7 +6,7 @@ var Loader = require('../Common/Loader');
 var editor = require('../../libs/chart/FreeChartEditor');
 var connector = require('../../libs/connector/WebSocketClient.js')
 var ModalForm = require('../Common/ModalForm');
-var { Sidebar, Form, Segment } = require('semantic-ui-react');
+var { Sidebar, Form, Segment, Table, Header } = require('semantic-ui-react');
 var vis = require('vis');
 module.exports = React.createClass({
     displayName: 'Editor',
@@ -17,7 +17,17 @@ module.exports = React.createClass({
     },
     componentDidMount : function() {
         var me = this;
+
         editor.initialize('chart',this.actionByEditor);
+
+        var end = new Date();
+        var start = new Date(); start.setDate(end.getDate()-1);
+        var data = [{id: 1, content: '', start:start.format('yyyy-MM-dd HH:mm:ss'),end:end.format('yyyy-MM-dd HH:mm:ss'),
+                    editable:{remove:false,updateTime:true}}]
+        var options = {editable:false, zoomable:true,onUpdate:me.controlTimeline,onMove: me.moveTimeline,onMoving:me.movingTimeline};
+        var container = document.getElementById('timeline');
+        me.timeline = new vis.Timeline(container, data, options);
+
         connector.socket.on('cluster.getlist', function(data) {
             var $tabs = $('#workspace-tabs');
             $tabs.empty();
@@ -46,8 +56,8 @@ module.exports = React.createClass({
                     });
                     var sort_method_options =[{value:'ASC',text:'오름차순'},{value:'DESC',text:'내림차순'}];
                     settings.push({value:'sort_field', text:"SORT FIELD", type:'Select', group:lastIndex + 1, options:sort_field_options},
-                        {value:'sort_method', text:"SORT METHOD", type:'Select', group:lastIndex + 1, options:sort_method_options},
-                        {value:'sort_limit', text:"LIMIT", type:'Number', group:lastIndex + 1});
+                                  {value:'sort_method', text:"SORT METHOD", type:'Select', group:lastIndex + 1, options:sort_method_options},
+                                  {value:'sort_limit', text:"LIMIT", type:'Number', group:lastIndex + 1});
                     me.refs.ModalForm.setState({fields:settings});
                     var data = {"broadcast":false,"target":"cluster", "method":"gettab", "parameters":{"name":tabInfo.name}};
                     connector.socket.emit('fromclient', data);
@@ -58,40 +68,29 @@ module.exports = React.createClass({
         connector.socket.on('cluster.gettab', function(data) {
             editor.setData(data);
         });
-        // connector.socket.on('cluster.getplayback', function(data){
-        //     console.log(data);
-        //     var timeline_array = data.map(function(d, i){
-        //         var date = new Date(d.data_time * 1000);
-        //         var timeline_data = {id: i, content: d.categories, start: date.format("yyyy-MM-dd HH:mm:ss")};
-        //         return timeline_data;
-        //     });
-        //     var date = new Date();
-        //     var options = {zoomable:true,start:date.format('yyyy-MM-dd'),end:date.format('yyyy-MM-dd')};
-        //     var container = document.getElementById('timeline');
-        //     $(container).empty();
-        //     me.timeline = new vis.Timeline(container, timeline_array, options);
-            
-            
-        // });
+        connector.socket.on('cluster.getplayback', function(data){
+            if(data.fields !== null && data.data !== null) {
+                editor.setData(data)
+            }
+        });
         var data = {"broadcast":false,"target":"cluster", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"],"view_type":"current"}};
         connector.socket.emit('fromclient', data);
-        var date = new Date();
-        var data = [{id: 1, content: 'Controller', start:'2017-06-21',end:'2017-06-22',editable:{remove:false,updateTime:true}}]
-        var options = {editable:false, zoomable:true,onUpdate:me.controlTimeline,onMove: me.moveTimeline,onMoving:me.movingTimeline};
-        var container = document.getElementById('timeline');
-        me.timeline = new vis.Timeline(container, data, options);
-        //me.timeline.on('select', me.playback);
     },
     componentWillUnmount : function () {
-        connector.socket.off('cluster.getlist').off('cluster.gettab')//.off('cluster.getplayback')
+        connector.socket.off('cluster.getlist').off('cluster.gettab').off('cluster.getplayback')
     },
     componentDidUpdate : function () {
     },
     getInitialState: function() {
-		return {visible:false, mode:false, playback:[]};
+		return {visible:false, mode:false, playback:[], info:{}};
 	},
     render : function () {
         var me = this;
+        var rowArr = [];
+        _.forEach(me.state.info, function(d,i){
+            var table_row = <Table.Row key={i}><Table.Cell collapsing>{i}</Table.Cell><Table.Cell>{d}</Table.Cell></Table.Row>;
+            rowArr.push(table_row);
+        })
         return (
             <div id="workspace" style={{marginTop:'-10px'}}>
                 <div className="ui-tabs ui-tabs-add ui-tabs-scrollable">
@@ -113,6 +112,22 @@ module.exports = React.createClass({
                             direction = {'right'}
                             visible={me.state.visible}
                             className={'edit_panel'}>
+                        <Table compact celled definition selectable unstackable>
+                            <Table.Header fullWidth>
+                                <Table.Row>
+                                    <Table.HeaderCell colSpan='2'>
+                                        <Header floated='left' as='h3' color='blue'>INFORMATION</Header>
+                                    </Table.HeaderCell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell>KEY</Table.HeaderCell>
+                                    <Table.HeaderCell>VALUE</Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {rowArr}
+                            </Table.Body>
+                        </Table>
                     </Sidebar>
                     <Sidebar.Pusher>
                         <Sidebar animation='overlay' width='very thin'
@@ -132,20 +147,17 @@ module.exports = React.createClass({
         )
     },
     movingTimeline: function(item, callback) {
-        console.log("moving!!!!!!!!!!!!!!!!");
-        console.log(item);
         item.moving = true;
         callback(item);
     },
     moveTimeline: function(item, callback) {
-        console.log("move~!~!");
-        console.log(item);
+        var currentTab = editor.getTab();
+        var data = {"broadcast":false,"target":"cluster", "method":"getplayback",
+                    "parameters":{"start":item.start.getTime()/1000,"end":item.end.getTime()/1000,"view":currentTab}};
+        connector.socket.emit('fromclient', data);
     },
     controlTimeline:function(item, callback) {
         console.log(item);
-    },
-    playback: function(index) {
-        console.log(index);
     },
     applyCluster: function(result) {
         this._deferred.resolve(result);
@@ -155,18 +167,13 @@ module.exports = React.createClass({
         if(action.name === "addCluster") {
             this.refs.ModalForm.setState({active:true});
         } else if (action.name === "showInfoPanel") {
-            console.log(action.data);
-            this.setState({visible : !this.state.visible})
+            this.setState({visible : !this.state.visible, info:action.data})
+        } else if(action.name === "clickInfo") {
+            this.setState({info:action.data});
         } else if (action.name === "showPlaybackPanel") {
-            // var param = action.data.map(function(d){return d.category});
-            // var data = {"broadcast":false,"target":"cluster", "method":"getplayback", "parameters":{"categories":param}};
-            // connector.socket.emit('fromclient', data);
             this.setState({mode : !this.state.mode})
         }
         this._deferred.promise();
         return this._deferred;
-    },
-    test: function(aa){
-        console.log('ttttt');
     }
 });

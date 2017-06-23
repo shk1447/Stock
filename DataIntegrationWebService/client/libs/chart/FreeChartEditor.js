@@ -104,46 +104,171 @@ var editor = (function () {
         console.log("double click!!")
     };
 
-    var redraw = function() {
-        var cluster_node = vis.selectAll(".nodegroup").data(tabInfo.clusters, function(d){
-            return d.name;
-        });
-        cluster_node.exit().remove();
-        var clusterEnter = cluster_node.enter().insert("svg:g")
-                            .attr("class", "node nodegroup");
-        clusterEnter.each(function(d,i){
-            var node = d3.select(this);
+    var getInnerData = function(d) {
+        var innerData = _.cloneDeep(tabInfo.view_data.data.filter(function(data){
+            let condition = '';
+            _.each(d.conditions,function(row,i){
+                condition += row + " && ";
+            });
+            condition += "true";
+            return eval(condition);
+        }));
+        if(d.sort.field !== "") {
+            innerData.sort(function(a,b){
+                let compare01 = a[d.sort.field];
+                let compare02 = b[d.sort.field];
+                if(parseFloat(compare01)) {
+                    compare01 = parseFloat(compare01);
+                    compare02 = parseFloat(compare02);
+                }
+                return compare01 < compare02 ? (d.sort.method === "ASC" ? -1 : 1)
+                                                : compare01 > compare02 ? (d.sort.method === "ASC" ? 1 : -1) : 0;
+            });
+        }
+        if(d.sort.limit !== "") {
+            innerData = innerData.splice(0, parseInt(d.sort.limit));;
+        }
+        return innerData;
+    }
 
-            var innerData = _.cloneDeep(tabInfo.view_data.data.filter(function(data){
-                let condition = '';
-                _.each(d.conditions,function(row,i){
-                    condition += row + " && ";
-                });
-                condition += "true";
-                return eval(condition);
-            }));
-            if(d.sort.field !== "") {
-                innerData.sort(function(a,b){
-                    let compare01 = a[d.sort.field];
-                    let compare02 = b[d.sort.field];
-                    if(parseFloat(compare01)) {
-                        compare01 = parseFloat(compare01);
-                        compare02 = parseFloat(compare02);
+    var calculateLayout = function(d, innerData) {
+        var width, height, row, col;
+        var ratio = d.w / d.h;
+        var prev;
+        for(var i = innerData.length; i > 0; i--) {
+            let dynamic_row = Math.ceil(innerData.length / i);
+            let dynamic_w = d.w / i;
+            let dynamic_h = d.h / dynamic_row;
+            let dynamic_ratio = dynamic_w/dynamic_h;
+            let gap = Math.abs(dynamic_ratio - ratio);
+            if(prev === undefined) {
+                prev = gap;
+            } else {
+                if(prev > gap) {
+                    prev = gap;
+                    width = dynamic_w;
+                    height = dynamic_h;
+                    col = i;
+                    row = dynamic_row;
+                }
+            }
+        }
+        return {
+            width:width,
+            height:height,
+            row:row,
+            col:col
+        };
+    }
+
+    var redrawInner = function(d, node) {
+        var margin_x = 10;
+        var margin_y = 10;
+        var innerData = getInnerData(d);
+        var layout = calculateLayout(d, innerData);
+
+        var inner_node = node.selectAll(".innergroup").data(innerData);
+        // 내부 노드 삭제
+        inner_node.exit().remove();
+        // 내부 노드 갱신
+        inner_node.each(function(d,i){
+            var node = d3.select(this);
+            var offset_x = (i % layout.col);
+            var offset_y = Math.floor(i / layout.col);
+            let x = (offset_x * layout.width) + margin_x;
+            let y = (offset_y * layout.height) + margin_y;
+            node.attr("id", d.name + "_" + d.category)
+                .attr("transform", "translate(" + x + "," + y + ")");
+
+            node.select('text').attr("class", "node_label")
+                .attr("x", (layout.width - (margin_x*2))/2).attr("y",(layout.height - (margin_y*2))/2)
+                .attr("dy", ".35em").attr("text-anchor", "middle").text(d.category);
+            
+            node.select('rect')
+                .attr("width", layout.width - (margin_x*2))
+                .attr("height", layout.height - (margin_y*2))
+        });
+        // 내부 노드 추가
+        inner_node.enter().insert("svg:g").attr("class", "node innergroup").each(function(d,i){
+            var node = d3.select(this);
+            var offset_x = (i % layout.col);
+            var offset_y = Math.floor(i / layout.col);
+            let x = (offset_x * layout.width) + margin_x;
+            let y = (offset_y * layout.height) + margin_y;
+            node.attr("id", d.name + "_" + d.category)
+                .attr("transform", "translate(" + x + "," + y + ")");
+
+            node.append("svg:text").attr("class", "node_label")
+                .attr("x", (layout.width - (margin_x*2))/2).attr("y",(layout.height - (margin_y*2))/2)
+                .attr("dy", ".35em").attr("text-anchor", "middle").text(d.category);
+
+            node.append("rect")
+                .attr("width", layout.width - (margin_x*2))
+                .attr("height", layout.height - (margin_y*2))
+                .attr("class", "inode")
+                .on("mouseover", function(d, i) {
+                    outer.style("cursor", "hand");
+                    var node = d3.select(this);
+                    node.classed("inode_hovered", true);
+                })
+                .on("mouseout", function(d, i) {
+                    outer.style("cursor", "crosshair");
+                    var node = d3.select(this);
+                    node.classed("inode_hovered", false);
+                })
+                .on("mouseup", function(d, i){
+                    d3.event.stopPropagation();
+                })
+                .on("mousedown", function(d, i){
+                    d3.event.stopPropagation();
+                })
+                .on("dblclick", function(d, i) {
+                    var action = {
+                        name : 'showInfoPanel',
+                        data : d
                     }
-                    return compare01 < compare02 ? (d.sort.method === "ASC" ? -1 : 1)
-                                                 : compare01 > compare02 ? (d.sort.method === "ASC" ? 1 : -1) : 0;
-                });
-            }
-            if(d.sort.limit !== "") {
-                innerData = innerData.splice(0, parseInt(d.sort.limit));;
-            }
+                    data_callback(action).then(function(result){
+                        console.log('info panel callback')
+                    });
+                })
+                .on("click",function(d,i){
+                    var node = d3.select(this);
+                    d3.selectAll('.inode').classed("active", false);
+                    node.classed("active", true);
+                    var action = {
+                        name : 'clickInfo',
+                        data : d
+                    }
+                    data_callback(action).then(function(result){
+                        console.log('info panel callback')
+                    });
+                })
+        })
+    }
+
+    var redraw = function() {
+        var cluster_node = vis.selectAll(".nodegroup").data(tabInfo.clusters);
+        // remove
+        cluster_node.exit().remove();
+        // update
+        cluster_node.each(function(d,i){
+            var node = d3.select(this);
 
             node.attr("id", d.name)
                 .attr("transform", "translate(" + d.x + "," + d.y + ")");
+            node.select("text").text(d.name);
+            node.select("rect").attr("width", d.w).attr("height", d.h);
+
+            redrawInner(d, node);
+        });
+        // add
+        cluster_node.enter().insert("svg:g").each(function(d,i){
+            var node = d3.select(this);
+            node.attr("id", d.name)
+                .attr("class", "node nodegroup")
+                .attr("transform", "translate(" + d.x + "," + d.y + ")");
             node.append("svg:text").attr("class", "node_label").attr("y",-10).attr("x", 10).attr("dy", ".35em").attr("text-anchor", "left").text(d.name);
-            node.append("rect")
-                .attr("width", d.w)
-                .attr("height", d.h)
+            node.append("rect").attr("width", d.w).attr("height", d.h)
                 .attr("class", "lasso")
                 .on("mouseover", function(d, i) {
                     outer.style("cursor", "hand");
@@ -163,83 +288,15 @@ var editor = (function () {
                 })
                 .on("dblclick",function(d, i) {
                     var action = {
-                        name : 'showPlaybackPanel',
-                        data : innerData
+                        name : 'showPlaybackPanel'
                     }
                     data_callback(action).then(function(result){
                         console.log('playback panel callback')
                     });
                 });
 
-            var inner_node = node.selectAll(".innergroup").data(innerData);
-            inner_node.exit().remove();
-            var innerEnter = inner_node.enter().insert("svg:g")
-                                .attr("class", "node innergroup");
-            var width, height, row, col;
-            var margin_x = 10;
-            var margin_y = 10;
-            var ratio = d.w / d.h;
-            var prev;
-            for(var i = innerData.length; i > 0; i--) {
-                let dynamic_row = Math.ceil(innerData.length / i);
-                let dynamic_w = d.w / i;
-                let dynamic_h = d.h / dynamic_row;
-                let dynamic_ratio = dynamic_w/dynamic_h;
-                let gap = Math.abs(dynamic_ratio - ratio);
-                if(prev === undefined) {
-                    prev = gap;
-                } else {
-                    if(prev > gap) {
-                        prev = gap;
-                        width = dynamic_w;
-                        height = dynamic_h;
-                        col = i;
-                        row = dynamic_row;
-                    }
-                }
-            }
-            innerEnter.each(function(innerD,i){
-                var node = d3.select(this);
-                var offset_x = (i % col);
-                var offset_y = Math.floor(i / col);
-                let x = (offset_x * width) + margin_x;
-                let y = (offset_y * height) + margin_y;
-                node.attr("id", d.name + "_" + innerD.category)
-                    .attr("transform", "translate(" + x + "," + y + ")");
-                node.append("svg:text").attr("class", "node_label")
-                    .attr("x", (width - (margin_x*2))/2).attr("y",(height - (margin_y*2))/2)
-                    .attr("dy", ".35em").attr("text-anchor", "middle").text(innerD.category);
-                node.append("rect")
-                    .attr("width", width - (margin_x*2))
-                    .attr("height", height - (margin_y*2))
-                    .attr("class", "inode")
-                    .on("mouseover", function(d, i) {
-                        outer.style("cursor", "hand");
-                        var node = d3.select(this);
-                        node.classed("inode_hovered", true);
-                    })
-                    .on("mouseout", function(d, i) {
-                        outer.style("cursor", "crosshair");
-                        var node = d3.select(this);
-                        node.classed("inode_hovered", false);
-                    })
-                    .on("mouseup", function(d, i){
-                        d3.event.stopPropagation();
-                    })
-                    .on("mousedown", function(d, i){
-                        d3.event.stopPropagation();
-                    })
-                    .on("dblclick", function(d, i) {
-                        var action = {
-                            name : 'showInfoPanel',
-                            data : innerD
-                        }
-                        data_callback(action).then(function(result){
-                            console.log('info panel callback')
-                        });
-                    })
-            });
-        })
+            redrawInner(d, node);
+        });
     }
 
     var instance = {
@@ -285,6 +342,9 @@ var editor = (function () {
         setTab : function(tab){
             tabInfo = tab;
             redraw();
+        },
+        getTab : function() {
+            return tabInfo;
         },
         setData : function(data) {
             tabInfo['view_data'] = data;

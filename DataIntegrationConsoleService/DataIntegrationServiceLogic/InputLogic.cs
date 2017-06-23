@@ -32,7 +32,7 @@ namespace DataIntegrationServiceLogic
             var userId = jsonObj["member_id"].ReadAs<string>();
             var selectedItems = new List<string>() { "category", "column_json(rawdata) as rawdata", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName.Replace("{user}",userId), selectedItems);
-            var res = MariaDBConnector.Instance.GetJsonArray(query);
+            var res = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", query);
 
             return res.ToString();
         }

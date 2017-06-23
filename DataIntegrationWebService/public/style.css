@@ -579,6 +579,12 @@ ul.hintTracker li:last-child {
     fill: rgba(20, 125, 255, 0.1);
     stroke-dasharray: 0 0;
 }
+.inode.active {
+    stroke-width: 1px;
+    stroke:#5fba7d;
+    fill: rgba(95, 186, 125, 0.2);
+    stroke-dasharray: 0 0;
+}
 
 .inode_hovered {
     stroke: gray;

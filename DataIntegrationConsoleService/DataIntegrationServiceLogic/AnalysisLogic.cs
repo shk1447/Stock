@@ -183,7 +183,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             this.Notify();
 
@@ -194,7 +194,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             this.Notify();
 
@@ -205,7 +205,7 @@ namespace DataIntegrationServiceLogic
         {
             var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
 
-            var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", deleteQuery);
 
             this.Notify();
 
@@ -247,7 +247,7 @@ namespace DataIntegrationServiceLogic
                     {
                         setDict["status"] = "play";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", statusUpdate);
 
                         this.Notify();
                     }
@@ -283,7 +283,7 @@ namespace DataIntegrationServiceLogic
                         scheduleThread.Remove(name);
                         setDict["status"] = "stop";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", statusUpdate);
                         this.Notify();
                         break;
                     }

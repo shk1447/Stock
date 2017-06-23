@@ -143,7 +143,7 @@ namespace DataIntegrationServiceLogic
         {
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "column_json(view_options) as view_options", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonObj);
-            var res = MariaDBConnector.Instance.GetJsonArray(query);
+            var res = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", query);
 
             return res.ToString();
         }
@@ -202,7 +202,7 @@ namespace DataIntegrationServiceLogic
             }
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             return res.ToString();
         }
@@ -260,7 +260,7 @@ namespace DataIntegrationServiceLogic
             }
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             return res.ToString();
         }
@@ -269,7 +269,7 @@ namespace DataIntegrationServiceLogic
         {
             var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
 
-            var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", deleteQuery);
 
             return res.ToString();
         }
@@ -279,7 +279,7 @@ namespace DataIntegrationServiceLogic
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
             var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
-            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(viewInfo["view_query"].ReadAs<string>());
+            var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", viewInfo["view_query"].ReadAs<string>());
             return res.ToString();
         }
 
@@ -332,7 +332,7 @@ namespace DataIntegrationServiceLogic
                 else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
 
                 var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
-                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", query);
                 ret = res.ToString();
             }
             sw.Stop();
@@ -401,7 +401,7 @@ namespace DataIntegrationServiceLogic
                     last++;
                 }
             }
-            var categories = MariaDBConnector.Instance.GetJsonArray(categories_query);
+            var categories = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", categories_query);
             var total = categories.Count;
             foreach (var row in categories)
             {
@@ -427,8 +427,8 @@ namespace DataIntegrationServiceLogic
                 var volume_query = volume_query_builder.ToString().Replace("{category}", category);
                 var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " ORDER BY unixtime DESC";
 
-                var volume_signal = MariaDBConnector.Instance.GetJsonArray(volume_query);
-                var rsi_signal = MariaDBConnector.Instance.GetJsonArray(rsi_query);
+                var volume_signal = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", volume_query);
+                var rsi_signal = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", rsi_query);
 
                 var item_key = field;
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
@@ -451,7 +451,7 @@ namespace DataIntegrationServiceLogic
                 else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
 
                 var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
-                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema(query);
+                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", query);
 
                 var data = res["data"].ReadAs<JsonArray>();
                 if (data.Count == 0) continue;
@@ -653,7 +653,7 @@ namespace DataIntegrationServiceLogic
             var repository = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory + ConfigurationManager.AppSettings["FileRepository"]).Replace(@"\", "/");
             var selectedItems = new List<string>() { "name", "view_type", "view_query", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, jsonValue);
-            var viewInfo = MariaDBConnector.Instance.GetJsonObject(query);
+            var viewInfo = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", query);
             var filePath = repository + "/" + "temp.csv";
             var outFileQuery = viewInfo["view_query"].ReadAs<string>() + " INTO OUTFILE '" + filePath + "' CHARACTER SET utf8 FIELDS TERMINATED BY ','";
             MariaDBConnector.Instance.SetQuery(outFileQuery);

@@ -103,7 +103,7 @@ namespace DataIntegrationServiceLogic
             var selectedItems = new List<string>() { "name", "module_name", "method_name", "action_type", "COLUMN_JSON(options) as options",
                                                      "COLUMN_JSON(schedule) as schedule", "status", "DATE_FORMAT(unixtime, '%Y-%m-%d %H:%i:%s') as `unixtime`" };
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
-            var result = MariaDBConnector.Instance.GetJsonArray(query);
+            var result = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", query);
 
             var state = scheduleThread.Count > 0 ? "running" : "stop";
             var res = new JsonObject(new KeyValuePair<string, JsonValue>("state", state), new KeyValuePair<string, JsonValue>("result", result));
@@ -115,7 +115,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             this.Notify();
 
@@ -126,7 +126,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             this.Notify();
 
@@ -137,7 +137,7 @@ namespace DataIntegrationServiceLogic
         {
             var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
 
-            var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", deleteQuery);
 
             this.Notify();
 
@@ -158,7 +158,7 @@ namespace DataIntegrationServiceLogic
             var whereKV = new JsonObject(); whereKV.Add("name", name);
 
             var query = MariaQueryBuilder.SelectQuery(TableName, selectedItems, whereKV);
-            var moduleInfo = MariaDBConnector.Instance.GetJsonObject(query);
+            var moduleInfo = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", query);
 
             var status = moduleInfo["status"].ReadAs<string>().ToLower();
 
@@ -179,7 +179,7 @@ namespace DataIntegrationServiceLogic
                     {
                         setDict["status"] = "play";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", statusUpdate);
                         this.Notify();
                     }
 
@@ -215,7 +215,7 @@ namespace DataIntegrationServiceLogic
                         scheduleThread.Remove(name);
                         setDict["status"] = "stop";
                         var statusUpdate = MariaQueryBuilder.UpdateQuery(TableName, whereKV, setDict);
-                        MariaDBConnector.Instance.SetQuery(statusUpdate);
+                        MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", statusUpdate);
                         this.Notify();
                         break;
                     }
