@@ -9,67 +9,93 @@ var editor = (function () {
     var mouse_position = null;
     var data_callback = null;
     var tabInfo = null;
+    var panning = false;
+    var isSpace = false;
+
+    $(window).on('keydown', function(e){
+        if(e.which === 32) {
+            outer.style("cursor", "move");
+            isSpace = true;
+        }
+    }).on('keyup', function(e) {
+        if(e.which === 32) {
+            outer.style("cursor", "crosshair");
+            isSpace = false;
+        }
+    });
 
     var canvasContextMenu = function() {
         d3.event.preventdefault();
     };
-    var canvasMouseUp = function() {
-        var action = {
-            name : 'addCluster'
-        }
-        var x = parseInt(lasso.attr("x"));
-        var y = parseInt(lasso.attr("y"));
-        var w = parseInt(lasso.attr("width"));
-        var h = parseInt(lasso.attr("height"));
-        data_callback(action).then(function(result){
-            if(result.action != 'cancel') {
-                let conditions = [];
-                var sort = {"field":"","method":"ASC",limit:""};
-                _.each(result.data, function(value,key){
-                    if(key.includes("sort_field")) sort["field"] = value;
-                    if(key.includes("sort_method")) sort["method"] = value;
-                    if(key.includes("sort_limit")) sort["limit"] = value;
-                    if(value !== "" && key !== "name" && !key.includes("sort_")) {
-                        var field = tabInfo.view_data.fields.find(function(d){return d.value == key;});
-                        var condition = '';
-                        if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
-                            condition = 'data.' + key + '.includes("' + value + '")'
-                        } else {
-                            condition = 'data.' + key + value;
-                        }
-                        conditions.push(condition);
-                    }
-                });
-
-                tabInfo.clusters.push({
-                    name:result.data.name,
-                    x:x,
-                    y:y,
-                    w:w,
-                    h:h,
-                    conditions : conditions,
-                    sort : sort
-                });
-                redraw();
+    var canvasMouseUp = function() {        
+        if(lasso) {
+            if(panning) {
+                panning = false;
+                lasso.remove();
+                lasso = null;
+                return;
             }
-            lasso.remove();
-            lasso = null;
-        })
+            var action = {
+                name : 'addCluster'
+            }
+            var x = parseInt(lasso.attr("x"));
+            var y = parseInt(lasso.attr("y"));
+            var w = parseInt(lasso.attr("width"));
+            var h = parseInt(lasso.attr("height"));
+            data_callback(action).then(function(result){
+                if(result.action != 'cancel') {
+                    let conditions = [];
+                    var sort = {"field":"","method":"ASC",limit:""};
+                    _.each(result.data, function(value,key){
+                        if(key.includes("sort_field")) sort["field"] = value;
+                        if(key.includes("sort_method")) sort["method"] = value;
+                        if(key.includes("sort_limit")) sort["limit"] = value;
+                        if(value !== "" && key !== "name" && !key.includes("sort_")) {
+                            var field = tabInfo.view_data.fields.find(function(d){return d.value == key;});
+                            var condition = '';
+                            if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
+                                condition = 'data.' + key + '.includes("' + value + '")'
+                            } else {
+                                condition = 'data.' + key + value;
+                            }
+                            conditions.push(condition);
+                        }
+                    });
+
+                    tabInfo.clusters.push({
+                        name:result.data.name,
+                        x:x,
+                        y:y,
+                        w:w,
+                        h:h,
+                        conditions : conditions,
+                        sort : sort
+                    });
+                    redraw();
+                    lasso.remove();
+                    lasso = null;
+                }
+            })
+        }
     };
     var canvasMouseDown = function() {
+        if(isSpace) {
+            panning = true;
+        }
         var point = d3.mouse(this);
         lasso = vis.append("rect")
-          .attr("ox", point[0])
-          .attr("oy", point[1])
-          .attr("rx", 1)
-          .attr("ry", 1)
-          .attr("x", point[0])
-          .attr("y", point[1])
-          .attr("width", 0)
-          .attr("height", 0)
-          .attr("class", "lasso");
+                .attr("ox", point[0])
+                .attr("oy", point[1])
+                .attr("rx", 1)
+                .attr("ry", 1)
+                .attr("x", point[0])
+                .attr("y", point[1])
+                .attr("width", 0)
+                .attr("height", 0)
+                .attr("class", "lasso");
     };
     var canvasMouseMove = function() {
+        var selector = d3.select(this);
         if (lasso) {
             var ox = parseInt(lasso.attr("ox"));
             var oy = parseInt(lasso.attr("oy"));
@@ -93,11 +119,21 @@ var editor = (function () {
                 h = mouse_position[1] - y;
                 up = false;
             }
-            lasso
-            .attr("x", x)
-            .attr("y", y)
-            .attr("width", w)
-            .attr("height", h);
+            if(panning) {
+                var pos = vis.node().transform.baseVal[0].matrix;
+                var curr = {
+                    x : pos.e,
+                    y : pos.f
+                }
+                var mx = left ? curr.x-w : curr.x+w;
+                var my = up ? curr.y-h : curr.y+h;
+                if((curr.x <= 0 && mx > 0)||(curr.y <= 0 && my > 0) || (curr.y >= 5000 && my < 5000)||(curr.x >= 5000 && mx <  0)) {
+                    return;
+                }
+                selector.attr("transform", "translate("+mx+","+my+")")
+            } else {
+                lasso.attr("x", x).attr("y", y).attr("width", w).attr("height", h);
+            }
         }
     };
     var canvasDoubleClick = function() {
@@ -247,6 +283,12 @@ var editor = (function () {
     }
 
     var redraw = function() {
+        var position = vis.node().transform.baseVal[0].matrix;
+        var curr = {
+            x: position.e,
+            y: position.f
+        }
+        vis.attr("transform", "translate("+curr.x+","+curr.y+")");
         var cluster_node = vis.selectAll(".nodegroup").data(tabInfo.clusters);
         // remove
         cluster_node.exit().remove();
@@ -310,6 +352,7 @@ var editor = (function () {
                         .style("cursor", "crosshair");
             vis = outer.append("svg:g")
                        .append("svg:g")
+                       .attr("transform", "translate(-"+space_width/2+",-"+space_height/2+")")
                        .on("dblclick", canvasDoubleClick)
                        .on("mousemove", canvasMouseMove)
                        .on("mousedown", canvasMouseDown)
