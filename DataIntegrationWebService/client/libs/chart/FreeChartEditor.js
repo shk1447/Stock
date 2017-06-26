@@ -72,9 +72,9 @@ var editor = (function () {
                         sort : sort
                     });
                     redraw();
-                    lasso.remove();
-                    lasso = null;
                 }
+                lasso.remove();
+                lasso = null;
             })
         }
     };
