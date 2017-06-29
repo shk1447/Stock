@@ -68,8 +68,8 @@ module.exports = React.createClass({
     addFilter: function(){
         var filter = {
             text:this.filterInfo.target.text + ' ' + this.filterInfo.comparison.value + ' ' + this.filterInfo.value,
-            value:"data." + this.filterInfo.target.value + ' ' + this.filterInfo.comparison.value 
-                          + (parseFloat(this.filterInfo.value) ? parseFloat(this.filterInfo.value) : (' "' + this.filterInfo.value + '"')) 
+            value:"data." + this.filterInfo.target.value + "=== null ? false : (" + "data." + this.filterInfo.target.value + ' ' + this.filterInfo.comparison.value 
+                          + (parseFloat(this.filterInfo.value) ? parseFloat(this.filterInfo.value) : (' "' + this.filterInfo.value + '")')) 
         };
         this.state.filters.push(filter);
         this.setState(this.state.filters);

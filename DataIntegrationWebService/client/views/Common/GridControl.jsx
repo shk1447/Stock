@@ -55,9 +55,9 @@ module.exports = React.createClass({
                     var field = self.state.fields.find(function(d){return d.value == key;});
                     var condition = '';
                     if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
-                        condition = 'data.' + key + '.includes("' + value + '")'
+                        condition = '(data.' + key + '=== null ? false : ' + 'data.' + key + '.includes("' + value + '"))'
                     } else {
-                        condition = 'data.' + key + value;
+                        condition = '(data.' + key + '=== null ? false : ' + 'data.' + key + value + ')';
                     }
                     conditions.push(condition);
                 }

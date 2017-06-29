@@ -72,6 +72,13 @@ module.exports = React.createClass({
 
         var data = {"broadcast":false,"target":"view", "method":"getlist", "parameters":{"member_id":sessionStorage["member_id"]}};
         connector.socket.emit('fromclient', data);
+
+        var today = new Date();
+        today.setDate(today.getDate() + 1);
+        this.refs.ModalForm.state.data["to"]= today.format('yyyy-MM-dd');
+        today.setYear(today.getFullYear() - 10);
+        this.refs.ModalForm.state.data["from"]= today.format('yyyy-MM-dd');
+        
     },
     componentWillUnmount : function () {
         connector.socket.off('view.execute').off('view.execute_item').off('view.download').off('view.getlist');
@@ -342,15 +349,10 @@ module.exports = React.createClass({
                 fieldOptions.push({text:key,value:key});
                 defaultFields.push(key);
             });
-            var today = new Date();
             this.refs.ModalForm.state.fields[0].options = options;
             this.refs.ModalForm.state.fields[1].options = fieldOptions;
             this.refs.ModalForm.state.data["title"] = result.data.category;
             this.refs.ModalForm.state.data["fields"]= defaultFields;
-            today.setDate(today.getDate() + 1);
-            this.refs.ModalForm.state.data["to"]= today.format('yyyy-MM-dd');
-            today.setYear(today.getFullYear() - 10);
-            this.refs.ModalForm.state.data["from"]= today.format('yyyy-MM-dd');
             self.state.gridInfo[cellId]["category"] = result.data.category;
             self.state.gridInfo[cellId]["fields"] = result.data;
             this.refs.ModalForm.setState({active:true,action:cellId});

@@ -366,8 +366,8 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "상태"),
-                                                           new KeyValuePair<string, JsonValue>("value", "상태"),
+                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_OSCILLATOR"),
+                                                           new KeyValuePair<string, JsonValue>("value", "VOLUME_OSCILLATOR"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
@@ -612,7 +612,7 @@ namespace DataIntegrationServiceLogic
                     }
                     else
                     {
-                        result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
+                        result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
                         result.Add("생명선", volume_row["생명선"] == null ? 0 : volume_row["생명선"].ReadAs<double>());
                     }
                     resultArr.Add(result);

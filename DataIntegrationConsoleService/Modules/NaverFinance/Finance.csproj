@@ -53,6 +53,7 @@
     <Compile Include="HtmlParser.cs" />
     <Compile Include="Finance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StockAnalysis.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Common.csproj">

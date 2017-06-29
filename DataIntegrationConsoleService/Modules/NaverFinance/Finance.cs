@@ -399,6 +399,7 @@ namespace Finance
                     {
                         ThreadPool.QueueUserWorkItem((a) =>
                         {
+                            StockAnalysis.Instance.AutoAnalysis("day", code, siseUnix, ref result);
                             var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                             MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
                         });

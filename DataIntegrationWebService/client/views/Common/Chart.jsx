@@ -88,6 +88,7 @@ module.exports = React.createClass({
             }
             this.state.player.options.predict = false;
         }
+        this.state.player.options.chartType = 'line';
         this.state.player.load();
     },
     handleChartSetting: function() {

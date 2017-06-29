@@ -54,9 +54,9 @@ var editor = (function () {
                             var field = tabInfo.view_data.fields.find(function(d){return d.value == key;});
                             var condition = '';
                             if(field && field.type == 'Text' && !value.includes('<') && !value.includes('>') && !value.includes('=')) {
-                                condition = 'data.' + key + '.includes("' + value + '")'
+                                condition = '(data.' + key + '=== null ? false : ' + 'data.' + key + '.includes("' + value + '"))'
                             } else {
-                                condition = 'data.' + key + value;
+                                condition = '(data.' + key + '=== null ? false : ' + 'data.' + key + value + ')';
                             }
                             conditions.push(condition);
                         }
@@ -179,6 +179,10 @@ var editor = (function () {
             let gap = Math.abs(dynamic_ratio - ratio);
             if(prev === undefined) {
                 prev = gap;
+                width = dynamic_w;
+                height = dynamic_h;
+                col = i;
+                row = dynamic_row;
             } else {
                 if(prev > gap) {
                     prev = gap;
@@ -202,6 +206,9 @@ var editor = (function () {
         var margin_y = 10;
         var innerData = getInnerData(d);
         var layout = calculateLayout(d, innerData);
+        var prevData = tabInfo['prev_data'] === undefined ? [] : tabInfo['prev_data'];
+
+        var cluster_name = d.name;
 
         var inner_node = node.selectAll(".innergroup").data(innerData);
         // 내부 노드 삭제
@@ -213,7 +220,15 @@ var editor = (function () {
             var offset_y = Math.floor(i / layout.col);
             let x = (offset_x * layout.width) + margin_x;
             let y = (offset_y * layout.height) + margin_y;
-            node.attr("id", d.name + "_" + d.category)
+
+            var exists = false;
+            if(prevData.find(function(a){
+                return a.category === d.category
+            })) {
+                exists = true;
+            }            
+
+            node.attr("id", cluster_name + "_" + d.category)
                 .attr("transform", "translate(" + x + "," + y + ")");
 
             node.select('text').attr("class", "node_label")
@@ -223,6 +238,7 @@ var editor = (function () {
             node.select('rect')
                 .attr("width", layout.width - (margin_x*2))
                 .attr("height", layout.height - (margin_y*2))
+                .classed('added', !exists);
         });
         // 내부 노드 추가
         inner_node.enter().insert("svg:g").attr("class", "node innergroup").each(function(d,i){
@@ -231,7 +247,15 @@ var editor = (function () {
             var offset_y = Math.floor(i / layout.col);
             let x = (offset_x * layout.width) + margin_x;
             let y = (offset_y * layout.height) + margin_y;
-            node.attr("id", d.name + "_" + d.category)
+
+            var exists = false;
+            if(prevData.find(function(a){
+                return a.category === d.category
+            })) {
+                exists = true;
+            }
+
+            node.attr("id", cluster_name + "_" + d.category)
                 .attr("transform", "translate(" + x + "," + y + ")");
 
             node.append("svg:text").attr("class", "node_label")
@@ -242,6 +266,7 @@ var editor = (function () {
                 .attr("width", layout.width - (margin_x*2))
                 .attr("height", layout.height - (margin_y*2))
                 .attr("class", "inode")
+                .classed('added', !exists)
                 .on("mouseover", function(d, i) {
                     outer.style("cursor", "hand");
                     var node = d3.select(this);
@@ -280,6 +305,7 @@ var editor = (function () {
                     });
                 })
         })
+        tabInfo['prev_data'] = innerData;
     }
 
     var redraw = function() {
