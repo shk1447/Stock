@@ -582,7 +582,7 @@ ul.hintTracker li:last-child {
 .inode.added {
     stroke: #f45b5b;
     stroke-width: 2px;
-}
+}       
 .inode.active {
     stroke-width: 1px;
     stroke:#5fba7d;

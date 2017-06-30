@@ -397,7 +397,7 @@ namespace Finance
 
                     if (result.rawdata.Count > 0)
                     {
-                        ThreadPool.QueueUserWorkItem((a) =>
+                        Task.Factory.StartNew(() =>
                         {
                             StockAnalysis.Instance.AutoAnalysis("day", code, siseUnix, ref result);
                             var setSourceQuery = MariaQueryBuilder.SetDataSource(result);

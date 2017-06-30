@@ -151,12 +151,12 @@ namespace Finance
                                 (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse));
 
                 var a_pattern_real = double.Parse(real_resistance.Count().ToString()) /
-                                    (double.Parse(reverse_support.Count().ToString()) + double.Parse(real_resistance.Count().ToString())) * 100;
+                                    (double.Parse(reverse_resistance.Count().ToString()) + double.Parse(real_resistance.Count().ToString())) * 100;
                 var a_pattern_reverse = double.Parse(reverse_support.Count().ToString()) /
                                         (double.Parse(real_support.Count().ToString()) + double.Parse(reverse_support.Count().ToString())) * 100;
                 var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
                                 (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse));
-
+                
                 var totalState = string.Empty;
                 if (v_pattern > a_pattern)
                 {
