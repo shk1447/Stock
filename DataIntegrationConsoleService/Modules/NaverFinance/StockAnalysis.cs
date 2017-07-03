@@ -60,8 +60,9 @@ namespace Finance
             var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", query);
 
-            var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " WHERE unixtime <= FROM_UNIXTIME(" + siseUnix.ToString() +  ") ORDER BY unixtime DESC LIMIT 1";
-            var rsi_signal = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", rsi_query);
+            var rsi_query = MariaQueryDefine.GetRSI + " WHERE unixtime <= FROM_UNIXTIME(" + siseUnix.ToString() + ") ORDER BY unixtime DESC LIMIT 1;"
+                            + " DROP TABLE IF EXISTS `{category}_temp`; DROP TABLE IF EXISTS `start_{category}_temp`";
+            var rsi_signal = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", rsi_query.Replace("{category}", category));
 
             var data = res["data"].ReadAs<JsonArray>();
             var refFields = res["fields"].ReadAs<JsonArray>();
@@ -102,11 +103,11 @@ namespace Finance
                 var lastState = "횡보";
                 var supportArr = new JsonArray();
                 var resistanceArr = new JsonArray();
-                double price = 0.0;
+                double price = double.Parse(data_source.rawdata[0]["종가"].ToString());
                 foreach (var item in datum)
                 {
                     if (item.Key == "unixtime") {  continue; }
-                    if (item.Key == field) { price = item.Value.ReadAs<double>(); continue; }
+                    if (item.Key == field) { continue; }
 
                     if (item.Key.Contains("support"))
                     {
