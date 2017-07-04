@@ -75,7 +75,7 @@ namespace DataIntegrationServiceLogic
                             }
                         }
                     }
-                    
+
                     var schemaFields = new JsonObject(new KeyValuePair<string, JsonValue>("text", "FIELDS"),
                                                         new KeyValuePair<string, JsonValue>("value", "view_fields"),
                                                         new KeyValuePair<string, JsonValue>("type", "MultiSelect"),
@@ -401,58 +401,46 @@ namespace DataIntegrationServiceLogic
                     last++;
                 }
             }
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             var categories = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", categories_query);
             var total = categories.Count;
+            Console.WriteLine("category query time : {0} ms", sw.ElapsedMilliseconds);
+            sw.Restart();
             foreach (var row in categories)
             {
                 var name = row["종목명"].ReadAs<string>();
                 var category = row["category"].ReadAs<string>();
-                var queryBuilder = new StringBuilder();
-                var sampling_items = new StringBuilder();
-                queryBuilder.Append("SELECT {sampling_items} UNIX_TIMESTAMP(DATE(unixtime)) as unixtime FROM (SELECT ");
+                var queryBuilder = new StringBuilder(MariaQueryDefine.GetAnalysis);
 
-                var volume_query_builder = new StringBuilder(MariaQueryDefine.GetVolumeOscillator);//.Append(" WHERE 날짜 <= '2016-04-23'");
-
-                if (sampling_period == "all")
-                    volume_query_builder.Replace("{sampling_query}", "GROUP BY 날짜 ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "day")
-                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE(날짜) ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "week")
-                    volume_query_builder.Replace("{sampling_query}", "GROUP BY TO_DAYS(날짜) - WEEKDAY(날짜) ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "month")
-                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(날짜, '%Y-%m') ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
-                else if (sampling_period == "year")
-                    volume_query_builder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(날짜, '%Y') ASC").Replace("{short_day}", "5").Replace("{long_day}", "20");
-
-                var volume_query = volume_query_builder.ToString().Replace("{category}", category);
-                var rsi_query = MariaQueryDefine.GetRSI.Replace("{category}", category) + " ORDER BY unixtime DESC";
-
-                var volume_signal = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", volume_query);
-                var rsi_signal = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", rsi_query);
-
-                var item_key = field;
-                queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
-                sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
-                queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL");
+                var time_range = string.Empty;
                 if (from != null && to != null)
                 {
-                    queryBuilder.Append(" AND unixtime >= '").Append(from).Append("' AND unixtime <= '").Append(to).Append("') as result");
-                }
-                else
-                {
-                    queryBuilder.Append(") as result");
+                    time_range = " AND unixtime >= '" + from + "' AND unixtime <= '" + to + "'";
                 }
 
-                if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
-                else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
-                else if (sampling_period == "week") queryBuilder.Append(" GROUP BY TO_DAYS(unixtime) - WEEKDAY(unixtime) ASC");
-                else if (sampling_period == "month") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y-%m') ASC");
-                else if (sampling_period == "year") queryBuilder.Append(" GROUP BY DATE_FORMAT(unixtime, '%Y') ASC");
+                if (sampling_period == "all")
+                    queryBuilder.Replace("{sampling_query}", "GROUP BY result01.unixtime ASC")
+                                .Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "day")
+                    queryBuilder.Replace("{sampling_query}", "GROUP BY DATE(result01.unixtime) ASC")
+                                .Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "week")
+                    queryBuilder.Replace("{sampling_query}", "GROUP BY TO_DAYS(result01.unixtime) - WEEKDAY(result01.unixtime) ASC")
+                                .Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "month")
+                    queryBuilder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(result01.unixtime, '%Y-%m') ASC")
+                                .Replace("{short_day}", "5").Replace("{long_day}", "20");
+                else if (sampling_period == "year")
+                    queryBuilder.Replace("{sampling_query}", "GROUP BY DATE_FORMAT(result01.unixtime, '%Y') ASC")
+                                .Replace("{short_day}", "5").Replace("{long_day}", "20");
+                queryBuilder.Replace("{sampling}", sampling);
+                queryBuilder.Replace("{time_range}", time_range);
+                queryBuilder.Replace("{category}", category);
+                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", queryBuilder.ToString());
 
-                var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
-                var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", query);
-
+                Console.WriteLine("data query time : {0} ms", sw.ElapsedMilliseconds);
+                sw.Restart();
                 var data = res["data"].ReadAs<JsonArray>();
                 if (data.Count == 0) continue;
                 var refFields = res["fields"].ReadAs<JsonArray>();
@@ -461,29 +449,27 @@ namespace DataIntegrationServiceLogic
                 double 최고가 = 0;
                 double 최저가 = 0;
 
-                for (int i = 0; i < fieldCnt; i++)
+                try
                 {
-                    var key = refFields[i]["value"].ReadAs<string>();
-                    if (key == "unixtime") continue;
-                    try
+                    var max = data.Aggregate<JsonValue>((arg1, arg2) =>
                     {
-                        var max = data.Aggregate<JsonValue>((arg1, arg2) =>
-                        {
-                            return arg1[key].ReadAs<double>() > arg2[key].ReadAs<double>() ? arg1 : arg2;
-                        });
-                        var min = data.Aggregate<JsonValue>((arg1, arg2) =>
-                        {
-                            return arg1[key].ReadAs<double>() < arg2[key].ReadAs<double>() ? arg1 : arg2;
-                        });
-                        최고가 = max[key].ReadAs<double>();
-                        최저가 = min[key].ReadAs<double>();
-                        Segmentation(ref refFields, ref data, data, key, max[key].ReadAs<double>(), min[key].ReadAs<double>());
-                    }
-                    catch (Exception ex)
+                        return arg1[field].ReadAs<double>() > arg2[field].ReadAs<double>() ? arg1 : arg2;
+                    });
+                    var min = data.Aggregate<JsonValue>((arg1, arg2) =>
                     {
-                        Console.WriteLine(ex.ToString());
-                    }
+                        return arg1[field].ReadAs<double>() < arg2[field].ReadAs<double>() ? arg1 : arg2;
+                    });
+                    최고가 = max[field].ReadAs<double>();
+                    최저가 = min[field].ReadAs<double>();
+                    Segmentation(ref refFields, ref data, data, field, max[field].ReadAs<double>(), min[field].ReadAs<double>());
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+                Console.WriteLine("analysis time : {0} ms", sw.ElapsedMilliseconds);
+                sw.Restart();
                 var index = 0;
                 foreach (var datum in data)
                 {
@@ -501,10 +487,14 @@ namespace DataIntegrationServiceLogic
                     var result = new JsonObject();
                     var supportArr = new JsonArray();
                     var resistanceArr = new JsonArray();
+
                     foreach (var item in datum)
                     {
-                        if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
                         if (item.Key == field) { result.Add(field, item.Value.ReadAs<double>()); continue; }
+                        if (item.Key == "RSI") { result.Add("RSI", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                        if (item.Key == "생명선") { result.Add("생명선", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                        if (item.Key == "VOLUME_OSCILLATOR") { result.Add("VOLUME_OSCILLATOR", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                        if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
 
                         if (item.Key.Contains("support"))
                         {
@@ -529,6 +519,7 @@ namespace DataIntegrationServiceLogic
                             currentCount++;
                         }
                     }
+
                     var time = result["unixtime"].ReadAs<double>();
                     var total_support = new JsonArray();
                     var total_resistance = new JsonArray();
@@ -602,21 +593,9 @@ namespace DataIntegrationServiceLogic
                     }
 
                     result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
-                    var volume_row = volume_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
-                    var rsi_row = rsi_signal.FirstOrDefault<JsonValue>(p => p["unixtime"].ReadAs<double>() == time);
-                    result.Add("RSI", rsi_row == null || rsi_row["RSI"] == null || !rsi_row.ContainsKey("RSI") ? 0 : rsi_row["RSI"].ReadAs<double>());
-                    if (volume_row == null)
-                    {
-                        result.Add("VOLUME_OSCILLATOR", 0);
-                        result.Add("생명선", 0);
-                    }
-                    else
-                    {
-                        result.Add("VOLUME_OSCILLATOR", volume_row["VOLUME_OSCILLATOR"] == null ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>() < 0 ? 0 : volume_row["VOLUME_OSCILLATOR"].ReadAs<double>());
-                        result.Add("생명선", volume_row["생명선"] == null ? 0 : volume_row["생명선"].ReadAs<double>());
-                    }
                     resultArr.Add(result);
                 }
+                Console.WriteLine("reponse data time : {0} ms", sw.ElapsedMilliseconds);
                 EnvironmentHelper.ProgressBar(progress, total);
                 progress++;
             }

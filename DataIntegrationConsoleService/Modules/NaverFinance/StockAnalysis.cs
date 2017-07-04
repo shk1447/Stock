@@ -38,6 +38,8 @@ namespace Finance
             var sampling = "min";
             var sampling_period = "day";
 
+            var start_price = int.Parse(data_source.rawdata[0]["시가"].ToString());
+
             var category = code;
             var queryBuilder = new StringBuilder();
             var sampling_items = new StringBuilder();
@@ -184,11 +186,15 @@ namespace Finance
                         totalState = "횡보";
                     }
                 }
-
+                if (start_price == 0)
+                {
+                    lastState = "거래정지";
+                    totalState = "거래정지";
+                }
                 data_source.rawdata[0].Add("현재상태", lastState);
                 data_source.rawdata[0].Add("전체상태", totalState);
-                data_source.rawdata[0].Add("저항갯수", lastState == "하락" ? currentCount : prevCount);
-                data_source.rawdata[0].Add("지지갯수", lastState == "상승" ? currentCount : prevCount);
+                data_source.rawdata[0].Add("저항갯수", real_resistance.Count() + reverse_support.Count());
+                data_source.rawdata[0].Add("지지갯수", real_support.Count() + reverse_resistance.Count());
                 data_source.rawdata[0].Add("V패턴_비율", v_pattern);
                 data_source.rawdata[0].Add("A패턴_비율", a_pattern);
                 data_source.rawdata[0].Add("강도", v_pattern - a_pattern);
