@@ -62,9 +62,9 @@ namespace Finance
             var query = queryBuilder.ToString().Replace("{sampling_items}", sampling_items.ToString());
             var res = MariaDBConnector.Instance.GetJsonArrayWithSchema("DynamicQueryExecuter", query);
 
-            var rsi_query = MariaQueryDefine.GetRSI + " WHERE unixtime <= FROM_UNIXTIME(" + siseUnix.ToString() + ") ORDER BY unixtime DESC LIMIT 1;"
-                            + " DROP TABLE IF EXISTS `{category}_temp`; DROP TABLE IF EXISTS `start_{category}_temp`";
-            var rsi_signal = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", rsi_query.Replace("{category}", category));
+            //var rsi_query = MariaQueryDefine.GetRSI + " WHERE unixtime <= FROM_UNIXTIME(" + siseUnix.ToString() + ") ORDER BY unixtime DESC LIMIT 1;"
+            //                + " DROP TABLE IF EXISTS `{category}_temp`; DROP TABLE IF EXISTS `start_{category}_temp`";
+            //var rsi_signal = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", rsi_query.Replace("{category}", category));
 
             var data = res["data"].ReadAs<JsonArray>();
             var refFields = res["fields"].ReadAs<JsonArray>();
@@ -198,7 +198,7 @@ namespace Finance
                 data_source.rawdata[0].Add("V패턴_비율", v_pattern);
                 data_source.rawdata[0].Add("A패턴_비율", a_pattern);
                 data_source.rawdata[0].Add("강도", v_pattern - a_pattern);
-                data_source.rawdata[0].Add("RSI", rsi_signal == null || rsi_signal["RSI"] == null || !rsi_signal.ContainsKey("RSI") ? 0 : rsi_signal["RSI"].ReadAs<double>());
+                //data_source.rawdata[0].Add("RSI", rsi_signal == null || rsi_signal["RSI"] == null || !rsi_signal.ContainsKey("RSI") ? 0 : rsi_signal["RSI"].ReadAs<double>());
             }
         }
 
