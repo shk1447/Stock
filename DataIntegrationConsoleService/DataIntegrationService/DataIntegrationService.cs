@@ -23,6 +23,8 @@ using Helper;
 using Model.Common;
 using System.ServiceModel.Channels;
 using System.Json;
+using System.Web;
+using System.Configuration;
 using DataIntegrationServiceLogic;
 
 
@@ -129,6 +131,36 @@ namespace DataIntegrationService
             viewLogic.AutoFilter();
 
             return result;
+        }
+
+        #endregion
+
+        #region IDataIntegrationService 멤버
+
+
+        public void SlackMessage(Stream stream)
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+            
+            var message = string.Empty;
+            using (var streamReader = new StreamReader(stream, Encoding.Default))
+            {
+                message = HttpUtility.UrlDecode(streamReader.ReadToEnd());
+            }
+            var param = new Dictionary<string, string>();
+            foreach(var item in message.Split('&'))
+            {
+                var kv = item.Split('=');
+                param.Add(kv[0], kv[1]);
+            }
+            var response_url = ConfigurationManager.AppSettings["FileRepository"];
+            var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
+            var stock_list = JsonValue.Parse(File.ReadAllText(file));
+
+            var bot = new BotLogic(param["text"]);
         }
 
         #endregion

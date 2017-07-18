@@ -31,5 +31,9 @@ namespace DataIntegrationService
         [OperationContract]
         [WebInvoke(Method = "GET", UriTemplate = "AutoFilter", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
         CommonResponse AutoFilter();
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "slack", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        void SlackMessage(Stream stream);
     }
 }
