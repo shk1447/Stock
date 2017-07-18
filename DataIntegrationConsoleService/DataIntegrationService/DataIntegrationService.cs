@@ -145,22 +145,51 @@ namespace DataIntegrationService
                 throw new Exception("Can not get current WebOpreationContext.");
             }
             
-            var message = string.Empty;
+            var body = string.Empty;
             using (var streamReader = new StreamReader(stream, Encoding.Default))
             {
-                message = HttpUtility.UrlDecode(streamReader.ReadToEnd());
+                body = HttpUtility.UrlDecode(streamReader.ReadToEnd());
             }
             var param = new Dictionary<string, string>();
-            foreach(var item in message.Split('&'))
+            foreach (var item in body.Split('&'))
             {
                 var kv = item.Split('=');
                 param.Add(kv[0], kv[1]);
             }
-            var response_url = ConfigurationManager.AppSettings["FileRepository"];
-            var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
-            var stock_list = JsonValue.Parse(File.ReadAllText(file));
 
-            var bot = new BotLogic(param["text"]);
+            var message = param["text"];
+            var user_id = param["user_id"];
+            var user_name = param["user_name"];
+            if (!user_id.Equals("USLACKBOT"))
+            {
+                if (BotLogic.Instance.CheckUser(user_id))
+                {
+                    if (message.Contains("빅앤츠 종료"))
+                    {
+                        // 등록된 유저 세션을 삭제한다.
+                    }
+                    else
+                    {
+                        // 명령(질문)인지 대답인지 알아야한다.
+
+                        // 명령(질문)일 경우 무조건 대답을 요구한다.
+
+                        // 대답일 경우 해당에 맞는 액션을 실행한다.
+                    }
+                }
+                else
+                {
+                    if (message.Contains("빅앤츠"))
+                    {
+                        BotLogic.Instance.start(user_id, user_name);
+                    }
+                }
+            }
+            //var response_url = ConfigurationManager.AppSettings["FileRepository"];
+            //var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
+            //var stock_list = JsonValue.Parse(File.ReadAllText(file));
+
+            //var bot = new BotLogic("",param["text"]);
         }
 
         #endregion
