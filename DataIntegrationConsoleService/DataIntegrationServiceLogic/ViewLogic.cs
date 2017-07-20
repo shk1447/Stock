@@ -389,7 +389,8 @@ namespace DataIntegrationServiceLogic
             var sampling_period = period == "day" || period == "week" || period == "month" || period == "year" ? period : "week";
 
             var progress = 1;
-            var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명` FROM current_" + source;
+            var categories_query = "SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," + 
+                                   "column_get(rawdata, '상장주식수' as char) as `상장주식수` FROM current_" + source;
             if (stock.Count > 0)
             {
                 var last = 1;
@@ -410,6 +411,7 @@ namespace DataIntegrationServiceLogic
             foreach (var row in categories)
             {
                 var name = row["종목명"].ReadAs<string>();
+                var amount = row["상장주식수"].ReadAs<string>();
                 var category = row["category"].ReadAs<string>();
                 var queryBuilder = new StringBuilder(MariaQueryDefine.GetAnalysis);
 
@@ -471,129 +473,19 @@ namespace DataIntegrationServiceLogic
                 Console.WriteLine("analysis time : {0} ms", sw.ElapsedMilliseconds);
                 sw.Restart();
                 var index = 0;
-                foreach (var datum in data)
+                if (!history)
                 {
-                    if (!history)
-                    {
-                        if (index != data.Count - 1)
-                        {
-                            index++;
-                            continue;
-                        }
-                    }
-                    var prevCount = 0;
-                    var currentCount = 0;
-                    var lastState = string.Empty;
-                    var result = new JsonObject();
-                    var supportArr = new JsonArray();
-                    var resistanceArr = new JsonArray();
-
-                    foreach (var item in datum)
-                    {
-                        if (item.Key == field) { result.Add(field, item.Value.ReadAs<double>()); continue; }
-                        if (item.Key == "RSI") { result.Add("RSI", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
-                        if (item.Key == "생명선") { result.Add("생명선", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
-                        if (item.Key == "VOLUME_OSCILLATOR") { result.Add("VOLUME_OSCILLATOR", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
-                        if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
-
-                        if (item.Key.Contains("support"))
-                        {
-                            if (lastState == "하락")
-                            {
-                                prevCount = currentCount;
-                                currentCount = 0;
-                            }
-                            lastState = "상승";
-                            supportArr.Add(item.Value.ReadAs<double>());
-                            currentCount++;
-                        }
-                        else if (item.Key.Contains("resistance"))
-                        {
-                            if (lastState == "상승")
-                            {
-                                prevCount = currentCount;
-                                currentCount = 0;
-                            }
-                            lastState = "하락";
-                            resistanceArr.Add(item.Value.ReadAs<double>());
-                            currentCount++;
-                        }
-                    }
-
-                    var time = result["unixtime"].ReadAs<double>();
-                    var total_support = new JsonArray();
-                    var total_resistance = new JsonArray();
-                    var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
-                    var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
-                    var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
-                    var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
-                    total_support.AddRange(real_support);
-                    total_support.AddRange(reverse_resistance);
-                    total_resistance.AddRange(real_resistance);
-                    total_resistance.AddRange(reverse_support);
-                    result.Add("종목명", name);
-                    result.Add("현재상태", lastState);
-                    result.Add("현재상태_유지횟수", currentCount);
-                    result.Add("과거상태_유지횟수", prevCount);
-                    result.Add("실제지지_갯수", real_support.Count());
-                    result.Add("실제저항_갯수", real_resistance.Count());
-                    result.Add("반전지지_갯수", reverse_resistance.Count());
-                    result.Add("반전저항_갯수", reverse_support.Count());
-                    result.Add("최고가", 최고가);
-                    result.Add("최저가", 최저가);
-                    result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
-
-                    if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
-                    if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
-                    if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
-                    if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
-
-
-                    var v_pattern_real = result["실제지지_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>()) * 100;
-                    var v_pattern_reverse = result["반전지지_갯수"].ReadAs<double>() / (result["실제저항_갯수"].ReadAs<double>() + result["반전지지_갯수"].ReadAs<double>()) * 100;
-                    var v_pattern = ((double.IsNaN(v_pattern_real) || double.IsInfinity(v_pattern_real) ? 0 : v_pattern_real) +
-                                    (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse));
-
-                    var a_pattern_real = result["실제저항_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>()) * 100;
-                    var a_pattern_reverse = result["반전저항_갯수"].ReadAs<double>() / (result["실제지지_갯수"].ReadAs<double>() + result["반전저항_갯수"].ReadAs<double>()) * 100;
-                    var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
-                                    (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse));
-
-                    result.Add("V패턴_비율", v_pattern);
-                    result.Add("A패턴_비율", a_pattern);
-
-                    if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
-                    {
-                        if (result["V패턴_비율"].ReadAs<double>() > result["A패턴_비율"].ReadAs<double>())
-                        {
-                            // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
-                            result.Add("전체상태", "상승");
-                        }
-                        else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
-                        {
-                            // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
-                            result.Add("전체상태", "하락");
-                        }
-                        else
-                        {
-                            if (total_support.Count > total_resistance.Count)
-                            {
-                                result.Add("전체상태", "상승");
-                            }
-                            else if (total_support.Count < total_resistance.Count)
-                            {
-                                result.Add("전체상태", "하락");
-                            }
-                            else
-                            {
-                                result.Add("전체상태", "횡보");
-                            }
-                        }
-                        result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
-                    }
-
-                    result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
+                    var datum = data[data.Count - 1];
+                    var result = NewMethod(field, name, amount, 최고가, 최저가, datum);
                     resultArr.Add(result);
+                }
+                else
+                {
+                    foreach (var datum in data)
+                    {
+                        var result = NewMethod(field, name, amount, 최고가, 최저가, datum);
+                        resultArr.Add(result);
+                    }
                 }
                 Console.WriteLine("reponse data time : {0} ms", sw.ElapsedMilliseconds);
                 EnvironmentHelper.ProgressBar(progress, total);
@@ -601,6 +493,125 @@ namespace DataIntegrationServiceLogic
             }
 
             return resultArr.ToString();
+        }
+
+        private static JsonObject NewMethod(string field, string name, string amount, double 최고가, double 최저가, JsonValue datum)
+        {
+            var prevCount = 0;
+            var currentCount = 0;
+            var lastState = string.Empty;
+            var result = new JsonObject();
+            var supportArr = new JsonArray();
+            var resistanceArr = new JsonArray();
+
+            foreach (var item in datum)
+            {
+                if (item.Key == field) { result.Add(field, item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "RSI") { result.Add("RSI", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "거래량") { result.Add("거래량", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "생명선") { result.Add("생명선", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "VOLUME_OSCILLATOR") { result.Add("VOLUME_OSCILLATOR", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
+
+                if (item.Key.Contains("support"))
+                {
+                    if (lastState == "하락")
+                    {
+                        prevCount = currentCount;
+                        currentCount = 0;
+                    }
+                    lastState = "상승";
+                    supportArr.Add(item.Value.ReadAs<double>());
+                    currentCount++;
+                }
+                else if (item.Key.Contains("resistance"))
+                {
+                    if (lastState == "상승")
+                    {
+                        prevCount = currentCount;
+                        currentCount = 0;
+                    }
+                    lastState = "하락";
+                    resistanceArr.Add(item.Value.ReadAs<double>());
+                    currentCount++;
+                }
+            }
+
+            var time = result["unixtime"].ReadAs<double>();
+            var total_support = new JsonArray();
+            var total_resistance = new JsonArray();
+            var real_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
+            var reverse_support = supportArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
+            var real_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() > result[field].ReadAs<double>());
+            var reverse_resistance = resistanceArr.Where<JsonValue>(p => p.ReadAs<double>() < result[field].ReadAs<double>());
+            total_support.AddRange(real_support);
+            total_support.AddRange(reverse_resistance);
+            total_resistance.AddRange(real_resistance);
+            total_resistance.AddRange(reverse_support);
+            result.Add("종목명", name);
+            result.Add("상장주식수", amount);
+            result.Add("현재상태", lastState);
+            result.Add("현재상태_유지횟수", currentCount);
+            result.Add("과거상태_유지횟수", prevCount);
+            result.Add("실제지지_갯수", real_support.Count());
+            result.Add("실제저항_갯수", real_resistance.Count());
+            result.Add("반전지지_갯수", reverse_resistance.Count());
+            result.Add("반전저항_갯수", reverse_support.Count());
+            result.Add("최고가", 최고가);
+            result.Add("최저가", 최저가);
+            result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
+
+            if (reverse_resistance.Count() > 0) result.Add("반전지지", reverse_resistance.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
+            if (real_support.Count() > 0) result.Add("실제지지", real_support.OrderByDescending(p => p.ReadAs<double>()).ToJsonArray().ToString());
+            if (reverse_support.Count() > 0) result.Add("반전저항", reverse_support.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
+            if (real_resistance.Count() > 0) result.Add("실제저항", real_resistance.OrderBy(p => p.ReadAs<double>()).ToJsonArray().ToString());
+
+
+            var v_pattern_real = result["실제지지_갯수"].ReadAs<double>() / (result["반전저항_갯수"].ReadAs<double>() + result["실제지지_갯수"].ReadAs<double>()) * 100;
+            var v_pattern_reverse = result["반전지지_갯수"].ReadAs<double>() / (result["실제저항_갯수"].ReadAs<double>() + result["반전지지_갯수"].ReadAs<double>()) * 100;
+            var v_pattern = ((double.IsNaN(v_pattern_real) || double.IsInfinity(v_pattern_real) ? 0 : v_pattern_real) +
+                            (double.IsNaN(v_pattern_reverse) || double.IsInfinity(v_pattern_reverse) ? 0 : v_pattern_reverse));
+
+            var a_pattern_real = result["실제저항_갯수"].ReadAs<double>() / (result["반전지지_갯수"].ReadAs<double>() + result["실제저항_갯수"].ReadAs<double>()) * 100;
+            var a_pattern_reverse = result["반전저항_갯수"].ReadAs<double>() / (result["실제지지_갯수"].ReadAs<double>() + result["반전저항_갯수"].ReadAs<double>()) * 100;
+            var a_pattern = ((double.IsNaN(a_pattern_real) || double.IsInfinity(a_pattern_real) ? 0 : a_pattern_real) +
+                            (double.IsNaN(a_pattern_reverse) || double.IsInfinity(a_pattern_reverse) ? 0 : a_pattern_reverse));
+
+            result.Add("V패턴_비율", v_pattern);
+            result.Add("A패턴_비율", a_pattern);
+
+            if (result.ContainsKey("V패턴_비율") && result.ContainsKey("A패턴_비율"))
+            {
+                if (result["V패턴_비율"].ReadAs<double>() > result["A패턴_비율"].ReadAs<double>())
+                {
+                    // 상승을 하였으며, A패턴 비율에 따라 조정강도 파악 가능 (A패턴_비율로 오름차순정렬)
+                    result.Add("전체상태", "상승");
+                }
+                else if (result["V패턴_비율"].ReadAs<double>() < result["A패턴_비율"].ReadAs<double>())
+                {
+                    // 하락을 하였으며, V패턴 비율에 따라 반등강도 파악 가능 (V패턴_비율로 오름차순정렬)
+                    result.Add("전체상태", "하락");
+                }
+                else
+                {
+                    if (total_support.Count > total_resistance.Count)
+                    {
+                        result.Add("전체상태", "상승");
+                    }
+                    else if (total_support.Count < total_resistance.Count)
+                    {
+                        result.Add("전체상태", "하락");
+                    }
+                    else
+                    {
+                        result.Add("전체상태", "횡보");
+                    }
+                }
+                result.Add("강도", result["V패턴_비율"].ReadAs<double>() - result["A패턴_비율"].ReadAs<double>());
+            }
+
+            result.Add("강도(갯수)", total_support.Count - total_resistance.Count);
+            return result;
         }
 
         public string SaveFilter(string type, JsonArray jsonValue)
