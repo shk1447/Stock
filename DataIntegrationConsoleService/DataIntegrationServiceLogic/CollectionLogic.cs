@@ -183,7 +183,13 @@ namespace DataIntegrationServiceLogic
                         this.Notify();
                     }
 
-                    ModuleManager.Instance.ExecuteModule(moduleInfo);
+                    var event_callback = new Func<string, bool>((code) =>
+                    {
+                        Console.WriteLine(code);
+                        return true;
+                    });
+
+                    ModuleManager.Instance.ExecuteModule(moduleInfo, event_callback);
                 }
                 catch (Exception ex)
                 {

@@ -342,7 +342,7 @@ namespace DataIntegrationServiceLogic
 
         public string VAPatternAnalysis(string source, string category, string sampling, string sampling_period, string from = null, string to = null)
         {
-            var result = this.AutoAnalysis(sampling_period, new List<string>() { category }, from, to);
+            var result = this.AutoAnalysis(sampling_period, sampling, new List<string>() { category }, from, to);
             var resultArr = JsonArray.Parse(result);
             var ret = new JsonObject();
             ret.Add("data", resultArr);
@@ -366,11 +366,11 @@ namespace DataIntegrationServiceLogic
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
                                                            new KeyValuePair<string, JsonValue>("group", 0),
                                                            new KeyValuePair<string, JsonValue>("required", false)),
-                                            new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_OSCILLATOR"),
-                                                           new KeyValuePair<string, JsonValue>("value", "VOLUME_OSCILLATOR"),
-                                                           new KeyValuePair<string, JsonValue>("type", "Number"),
-                                                           new KeyValuePair<string, JsonValue>("group", 0),
-                                                           new KeyValuePair<string, JsonValue>("required", false)),
+                                            //new JsonObject(new KeyValuePair<string, JsonValue>("text", "VOLUME_OSCILLATOR"),
+                                            //               new KeyValuePair<string, JsonValue>("value", "VOLUME_OSCILLATOR"),
+                                            //               new KeyValuePair<string, JsonValue>("type", "Number"),
+                                            //               new KeyValuePair<string, JsonValue>("group", 0),
+                                            //               new KeyValuePair<string, JsonValue>("required", false)),
                                             new JsonObject(new KeyValuePair<string, JsonValue>("text", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("value", "unixtime"),
                                                            new KeyValuePair<string, JsonValue>("type", "Number"),
@@ -380,12 +380,12 @@ namespace DataIntegrationServiceLogic
             return ret.ToString();
         }
 
-        public string AutoAnalysis(string period, List<string> stock, string from = null, string to = null, bool history = true)
+        public string AutoAnalysis(string period, string method, List<string> stock, string from = null, string to = null, bool history = true)
         {
             var resultArr = new JsonArray();
             var source = "stock";
             var field = "종가";
-            var sampling = "min";
+            var sampling = method;
             var sampling_period = period == "day" || period == "week" || period == "month" || period == "year" ? period : "week";
 
             var progress = 1;
@@ -416,9 +416,14 @@ namespace DataIntegrationServiceLogic
                 var queryBuilder = new StringBuilder(MariaQueryDefine.GetAnalysis);
 
                 var time_range = string.Empty;
-                if (from != null && to != null)
+
+                if (to != null)
                 {
-                    time_range = " AND unixtime >= '" + from + "' AND unixtime <= '" + to + "'";
+                    time_range += " AND unixtime <= '" + to + "'";
+                }
+                if (from != null && !string.IsNullOrWhiteSpace(time_range))
+                {
+                    time_range += " AND unixtime >= '" + from + "'";
                 }
 
                 if (sampling_period == "all")
@@ -829,7 +834,7 @@ namespace DataIntegrationServiceLogic
 
         private void AutoFiltering(object obj)
         {
-            var dayFilter = this.AutoAnalysis("day", new List<string>(), null, null, false);
+            var dayFilter = this.AutoAnalysis("day", "avg", new List<string>(), null, null, false);
             var dayJson = JsonArray.Parse(dayFilter);
             this.SaveFilter("day", (JsonArray)dayJson);
         }

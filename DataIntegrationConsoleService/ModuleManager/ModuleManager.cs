@@ -73,7 +73,7 @@ namespace SourceModuleManager
             return AssemblyLoader.LoadOne<ISourceModule>(moduleName);
         }
 
-        public void ExecuteModule(JsonValue moduleInfo)
+        public void ExecuteModule(JsonValue moduleInfo, Func<string, bool> event_callback)
         {
             var collectionName = moduleInfo["name"].ReadAs<string>();
             var moduleName = moduleInfo["module_name"].ReadAs<string>();
@@ -83,7 +83,7 @@ namespace SourceModuleManager
             if (moduleInfo["options"] != null)
                 module.SetConfig(methodName, moduleInfo["options"]);
 
-            module.ExecuteModule(methodName, collectionName);
+            module.ExecuteModule(methodName, collectionName, event_callback);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Finance
             this.config.Add("EmptyInformation", EmptyInformationConfig);
             this.functionDict.Add("AllStockInformation", new Func<string, bool>(AllStockInformation));
             this.functionDict.Add("KOSPI_KOSDAQ", new Func<string, bool>(KOSPI_KOSDAQ));
-            this.functionDict.Add("CurrentStockInformation", new Func<string, bool>(CurrentStockInformation));
+            this.functionDict.Add("CurrentStockInformation", new Func<string, Func<string, bool>, bool>(CurrentStockInformation));
             this.functionDict.Add("FinanceInformation", new Func<string, bool>(FinanceInformation));
             this.functionDict.Add("EmptyInformation", new Func<string, bool>(EmptyInformation));
         }
@@ -170,9 +170,9 @@ namespace Finance
             return this.config;
         }
 
-        public object ExecuteModule(string method, string collectionName)
+        public object ExecuteModule(string method, string collectionName, Func<string, bool> callback)
         {
-            var result = this.functionDict[method].DynamicInvoke(collectionName);
+            var result = this.functionDict[method].DynamicInvoke(collectionName, callback);
 
             return result;
         }
@@ -322,7 +322,7 @@ namespace Finance
             return true;
         }
 
-        private bool CurrentStockInformation(string collectionName)
+        private bool CurrentStockInformation(string collectionName, Func<string,bool> callback)
         {
             Console.WriteLine("{0} Collector Start : {1}", collectionName, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var file = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "stocklist.json");
@@ -343,6 +343,7 @@ namespace Finance
                     var name = stock.Value["name"].ReadAs<string>();
                     var type = stock.Value["type"].ReadAs<string>();
                     var cnt = stock.Value["cnt"].ReadAs<string>();
+                    var state = stock.Value.ContainsKey("state") ? stock.Value["state"].ReadAs<bool>() : false;
 
                     var nvParser = new nvParser(code);
                     string[] siseInfo;
@@ -402,6 +403,7 @@ namespace Finance
                             StockAnalysis.Instance.AutoAnalysis("day", code, siseUnix, ref result);
                             var setSourceQuery = MariaQueryBuilder.SetDataSource(result);
                             MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", setSourceQuery);
+                            if (state) callback.DynamicInvoke(code);
                         });
                     }
                 }

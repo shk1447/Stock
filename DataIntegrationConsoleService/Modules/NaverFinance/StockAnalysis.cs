@@ -195,6 +195,8 @@ namespace Finance
                 data_source.rawdata[0].Add("전체상태", totalState);
                 data_source.rawdata[0].Add("저항갯수", real_resistance.Count() + reverse_support.Count());
                 data_source.rawdata[0].Add("지지갯수", real_support.Count() + reverse_resistance.Count());
+                data_source.rawdata[0].Add("최근갯수", currentCount);
+                data_source.rawdata[0].Add("과거갯수", prevCount);
                 data_source.rawdata[0].Add("V패턴_비율", v_pattern);
                 data_source.rawdata[0].Add("A패턴_비율", a_pattern);
                 data_source.rawdata[0].Add("강도", v_pattern - a_pattern);
