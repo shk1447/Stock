@@ -106,6 +106,26 @@ namespace Finance
                 var supportArr = new JsonArray();
                 var resistanceArr = new JsonArray();
                 double price = double.Parse(data_source.rawdata[0]["종가"].ToString());
+
+                int calc_cnt = 0;
+                double life_price = 0;
+                
+                for (int m = 0; m < 60; m++)
+                {
+                    var index = data.Count - m - 1;
+                    if (index < 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (calc_cnt == 20) data_source.rawdata[0].Add("20평균가", life_price / calc_cnt);
+                        life_price += data[index]["종가"].ReadAs<double>();
+                    }
+                    calc_cnt++;
+                }
+                data_source.rawdata[0].Add("60평균가", life_price / calc_cnt);
+
                 foreach (var item in datum)
                 {
                     if (item.Key == "unixtime") {  continue; }
