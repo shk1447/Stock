@@ -482,6 +482,24 @@ namespace DataIntegrationServiceLogic
                 {
                     var datum = data[data.Count - 1];
                     var result = NewMethod(field, name, amount, 최고가, 최저가, datum);
+
+                    var curr_start = datum["시가"].ReadAs<double>();
+                    var curr_end = datum["종가"].ReadAs<double>();
+                    var curr_high = datum["고가"].ReadAs<double>();
+                    var curr_low = datum["저가"].ReadAs<double>();
+
+                    result.Add("curr_start", curr_start); result.Add("curr_end", curr_end); result.Add("curr_high", curr_high); result.Add("curr_low", curr_low);
+
+                    if (data.Count > 2)
+                    {
+                        var prev_datum = data[data.Count - 2];
+                        var prev_start = prev_datum["시가"].ReadAs<double>();
+                        var prev_end = prev_datum["종가"].ReadAs<double>();
+                        var prev_high = prev_datum["고가"].ReadAs<double>();
+                        var prev_low = prev_datum["저가"].ReadAs<double>();
+
+                        result.Add("prev_start", prev_start); result.Add("prev_end", prev_end); result.Add("prev_high", prev_high); result.Add("prev_low", prev_low);
+                    }
                     resultArr.Add(result);
                 }
                 else

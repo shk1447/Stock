@@ -117,7 +117,7 @@ namespace DataIntegrationServiceLogic
                     }
                     else if (parameters.Contains("상승"))
                     {
-                        message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 하락 추천 종목*");
+                        message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 상승 추천 종목*");
                         query = "SELECT CONCAT(current.최근갯수, ' 단계 상승 종목') as `title`, GROUP_CONCAT(current.종목명) as `text`" +
                                 " FROM (" +
                                 " SELECT *" +
@@ -219,7 +219,8 @@ namespace DataIntegrationServiceLogic
                                 if (resultArr.Count > 0)
                                 {
                                     var result = resultArr[0];
-                                    // 주가 분석 레포트
+
+                                    #region 주가 분석 레포트
                                     var price = result["종가"].ReadAs<double>();
                                     var highest = result["최고가"].ReadAs<double>();
                                     var lowest = result["최저가"].ReadAs<double>();
@@ -230,8 +231,8 @@ namespace DataIntegrationServiceLogic
                                                                         price.ToString(), life_price.ToString(), life_price <= price ? "위" : "아래");
                                     price_analysis_report.AppendFormat("최저가 {0}원, 최고가는 {1}원으로 {2}%로 {3} 위치에 도달해 있습니다.```",
                                     lowest.ToString(), highest.ToString(), price_location.ToString(), price_location < 30 ? "낮은" : (price_location < 70 ? "중간" : "높은"));
-
-                                    // 거래량 분석 레포트
+                                    #endregion
+                                    #region 거래량 분석 레포트
                                     var amount = result["상장주식수"].ReadAs<double>();
                                     var volume = result["거래량"].ReadAs<double>();
                                     var volume_oscillator = Math.Round(result["VOLUME_OSCILLATOR"].ReadAs<double>(), 2);
@@ -240,8 +241,8 @@ namespace DataIntegrationServiceLogic
                                     Math.Round(amount / 1000, 2).ToString(), Math.Round(volume / 1000, 2).ToString(), Math.Round(volume / amount * 100, 2).ToString());
                                     volume_analysis_report.AppendFormat("5일 거래량 대비 20일 거래량 비교했을때, {0}%만큼 {1}하였습니다.```",
                                                                          volume_oscillator.ToString(), volume_oscillator > 0 ? "증가" : "감소");
-
-                                    // 추세 분석 레포트
+                                    #endregion
+                                    #region 추세 분석 레포트
                                     var rsi = result["RSI"].ReadAs<double>();
                                     var rsi_state = Math.Round(rsi) <= 30 ? "과매도" : (Math.Round(rsi) >= 70 ? "과매수" : "저항/지지");
                                     var total_state = result["전체상태"].ReadAs<string>();
@@ -254,8 +255,8 @@ namespace DataIntegrationServiceLogic
                                         current_count.ToString(), current_state, past_count, current_state == "상승" ? "하락" : "상승");
                                     trend_analysis_report.AppendFormat("최근 14일 동안 RSI가 {0}인 것으로 보아, {1} 상태로 판단되어 집니다.```",
                                         Math.Round(rsi, 2).ToString(), rsi_state);
-
-                                    // 저항과 지지
+                                    #endregion
+                                    #region 저항과 지지 및 종합 분석 레포트
                                     var v_pattern = result["V패턴_비율"].ReadAs<double>();
                                     var a_pattern = result["A패턴_비율"].ReadAs<double>();
                                     var va_pretext = new StringBuilder();
@@ -376,6 +377,39 @@ namespace DataIntegrationServiceLogic
                                                                 "RSI({2})에 따라 매수타이밍을 포착하시기 바랍니다.\n" +
                                                                 "추가적으로 추세분석에서 나온 상승/하락의 단계에 따라 저항/지지 가격을 결정하시면 됩니다.",
                                                                 volume_oscillator.ToString(), volume_oscillator > 0 ? "증가" : "감소", rsi.ToString());
+                                    #endregion
+                                    #region 캔들 분석 레포트
+                                    var curr_start = result["curr_start"].ReadAs<double>();
+                                    var curr_end = result["curr_end"].ReadAs<double>();
+                                    var curr_high = result["curr_high"].ReadAs<double>();
+                                    var curr_low = result["curr_low"].ReadAs<double>();
+
+                                    var prev_start = result["prev_start"].ReadAs<double>();
+                                    var prev_end = result["prev_end"].ReadAs<double>();
+                                    var prev_high = result["prev_high"].ReadAs<double>();
+                                    var prev_low = result["prev_low"].ReadAs<double>();
+
+                                    // Single Candle Analysis
+                                    var curr_candle_direct = curr_start > curr_end ? "음봉" : curr_start < curr_end ? "양봉" : "도지";
+                                    var curr_candle_weight = Math.Abs(curr_start - curr_end);
+                                    var curr_low_weight = Math.Abs(curr_start - curr_low);
+                                    var curr_high_weight = Math.Abs(curr_start - curr_high);
+                                    // Dual Candle Analysis
+                                    var prev_candle_direct = prev_start > prev_end ? "음봉" : prev_start < prev_end ? "양봉" : "도지";
+                                    var prev_candle_weight = Math.Abs(prev_start - prev_end);
+                                    var prev_low_line_weight = Math.Abs(prev_start - prev_low);
+                                    var prev_high_line_weight = Math.Abs(prev_start - prev_high);
+
+                                    var total_range = prev_end * 0.6;
+                                    var price_movement = curr_candle_weight + curr_low_weight + curr_high_weight;
+                                    var candle_movement = Math.Round(price_movement / total_range * 100, 2);
+                                    var high_per = (curr_candle_direct == "음봉" ? curr_candle_weight : 0 + curr_high_weight) / price_movement * 100;
+                                    var low_per = (curr_candle_direct == "양봉" ? curr_candle_weight : 0 + curr_low_weight) / price_movement * 100;
+                                    var candle_analysis_report = new StringBuilder();
+                                    candle_analysis_report.AppendFormat("```현재 주가는 {0}% 유동성을 보이고 있습니다.\n", candle_movement.ToString());
+                                    candle_analysis_report.AppendFormat("현재 캔들은 {0} 형태이며, (위꼬리:{1}% / 아래꼬리:{2}%)인 것으로 보아 {3}가 우위에 있습니다.```",
+                                        curr_candle_direct, Math.Round(high_per, 2), Math.Round(low_per, 2), low_per > high_per ? "매수세" : "매도세");
+                                    #endregion
 
                                     message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " " + param + " 분석결과*");
                                     message.Add("attachments", new JsonArray(
@@ -397,6 +431,11 @@ namespace DataIntegrationServiceLogic
                                                                       new KeyValuePair<string, JsonValue>("pretext", va_pretext.ToString()),
                                                                       new KeyValuePair<string, JsonValue>("title", "추세 분석"),
                                                                       new KeyValuePair<string, JsonValue>("text", trend_analysis_report.ToString()),
+                                                                      new KeyValuePair<string, JsonValue>("mrkdwn_in", new JsonArray("text", "pretext", "fields"))
+                                                                  ), new JsonObject(
+                                        //new KeyValuePair<string, JsonValue>("color", "#0000ff"),
+                                                                      new KeyValuePair<string, JsonValue>("title", "캔들 분석"),
+                                                                      new KeyValuePair<string, JsonValue>("text", candle_analysis_report.ToString()),
                                                                       new KeyValuePair<string, JsonValue>("mrkdwn_in", new JsonArray("text", "pretext", "fields"))
                                                                   ), new JsonObject(
                                         //new KeyValuePair<string, JsonValue>("color", "#ffffff"),
