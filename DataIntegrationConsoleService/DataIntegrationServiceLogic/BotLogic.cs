@@ -392,23 +392,45 @@ namespace DataIntegrationServiceLogic
                                     // Single Candle Analysis
                                     var curr_candle_direct = curr_start > curr_end ? "음봉" : curr_start < curr_end ? "양봉" : "도지";
                                     var curr_candle_weight = Math.Abs(curr_start - curr_end);
-                                    var curr_low_weight = Math.Abs(curr_start - curr_low);
-                                    var curr_high_weight = Math.Abs(curr_start - curr_high);
+                                    var curr_low_weight = Math.Abs((curr_start > curr_end ? curr_end : curr_start) - curr_low);
+                                    var curr_high_weight = Math.Abs((curr_start > curr_end ? curr_start : curr_end) - curr_high);
                                     // Dual Candle Analysis
                                     var prev_candle_direct = prev_start > prev_end ? "음봉" : prev_start < prev_end ? "양봉" : "도지";
                                     var prev_candle_weight = Math.Abs(prev_start - prev_end);
-                                    var prev_low_line_weight = Math.Abs(prev_start - prev_low);
-                                    var prev_high_line_weight = Math.Abs(prev_start - prev_high);
+                                    var prev_low_line_weight = Math.Abs((prev_start > prev_end ? prev_end : prev_start) - prev_low);
+                                    var prev_high_line_weight = Math.Abs((prev_start > prev_end ? prev_start :prev_end) - prev_high);
 
                                     var total_range = prev_end * 0.6;
                                     var price_movement = curr_candle_weight + curr_low_weight + curr_high_weight;
                                     var candle_movement = Math.Round(price_movement / total_range * 100, 2);
-                                    var high_per = (curr_candle_direct == "음봉" ? curr_candle_weight : 0 + curr_high_weight) / price_movement * 100;
-                                    var low_per = (curr_candle_direct == "양봉" ? curr_candle_weight : 0 + curr_low_weight) / price_movement * 100;
+                                    var high_per = ((curr_candle_direct == "음봉" ? curr_candle_weight : 0) + curr_high_weight) / price_movement * 100;
+                                    var low_per = ((curr_candle_direct == "양봉" ? curr_candle_weight : 0) + curr_low_weight) / price_movement * 100;
                                     var candle_analysis_report = new StringBuilder();
                                     candle_analysis_report.AppendFormat("```현재 주가는 {0}% 유동성을 보이고 있습니다.\n", candle_movement.ToString());
-                                    candle_analysis_report.AppendFormat("현재 캔들은 {0} 형태이며, (위꼬리:{1}% / 아래꼬리:{2}%)인 것으로 보아 {3}가 우위에 있습니다.```",
+                                    candle_analysis_report.AppendFormat("현재 캔들은 {0} 형태이며, (위꼬리:{1}% / 아래꼬리:{2}%)인 것으로 보아 {3}가 우위에 있습니다.\n",
                                         curr_candle_direct, Math.Round(high_per, 2), Math.Round(low_per, 2), low_per > high_per ? "매수세" : "매도세");
+
+                                    var test1 = curr_start - prev_end;
+                                    var test2 = curr_end - prev_end;
+                                    var test3 = prev_end - prev_start;
+                                    if (test1 <= 0 && test2 <= 0)
+                                    {
+                                        candle_analysis_report.Append("하락 추세 캔들");
+                                    }
+                                    else if (test1 <= 0 && test2 > 0)
+                                    {
+                                        candle_analysis_report.Append("상승 반격 캔들");
+                                    }
+                                    else if (test1 > 0 && test2 > 0)
+                                    {
+                                        candle_analysis_report.Append("상승 추세 캔들");
+                                    }
+                                    else if (test1 > 0 && test2 <= 0)
+                                    {
+                                        candle_analysis_report.Append("하락 반격 캔들");
+                                    }
+                                    candle_analysis_report.AppendFormat(" 강도 : {0}", (test1 + test2 + test3) / prev_candle_weight * 100);
+                                    candle_analysis_report.Append("```");
                                     #endregion
 
                                     message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " " + param + " 분석결과*");
