@@ -415,19 +415,19 @@ namespace DataIntegrationServiceLogic
                                     var test3 = prev_end - prev_start;
                                     if (test1 <= 0 && test2 <= 0)
                                     {
-                                        candle_analysis_report.Append("하락 추세 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 추세 캔들");
                                     }
                                     else if (test1 <= 0 && test2 > 0)
                                     {
-                                        candle_analysis_report.Append("상승 반격 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 반격 캔들");
                                     }
                                     else if (test1 > 0 && test2 > 0)
                                     {
-                                        candle_analysis_report.Append("상승 추세 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 추세 캔들");
                                     }
                                     else if (test1 > 0 && test2 <= 0)
                                     {
-                                        candle_analysis_report.Append("하락 반격 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 반격 캔들");
                                     }
                                     candle_analysis_report.AppendFormat(" 강도 : {0}", (test1 + test2 + test3) / prev_candle_weight * 100);
                                     candle_analysis_report.Append("```");
