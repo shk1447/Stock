@@ -445,30 +445,38 @@ namespace DataIntegrationServiceLogic
                                     var high_per = ((curr_candle_direct == "음봉" ? curr_candle_weight : 0) + curr_high_weight) / price_movement * 100;
                                     var low_per = ((curr_candle_direct == "양봉" ? curr_candle_weight : 0) + curr_low_weight) / price_movement * 100;
                                     var candle_analysis_report = new StringBuilder();
-                                    candle_analysis_report.AppendFormat("```현재 주가는 {0}% 유동성을 보이고 있습니다.\n", candle_movement.ToString());
-                                    candle_analysis_report.AppendFormat("현재 캔들은 {0} 형태이며, (위꼬리:{1}% / 아래꼬리:{2}%)인 것으로 보아 {3}가 우위에 있습니다.\n",
-                                        curr_candle_direct, Math.Round(high_per, 2), Math.Round(low_per, 2), low_per > high_per ? "매수세" : "매도세");
+                                    candle_analysis_report.AppendFormat("```현재 주가는 {0}%({1}원) 유동성을 보이고 있습니다.\n", candle_movement.ToString(), price_movement.ToString());
+                                    candle_analysis_report.AppendFormat("현재 캔들은 {0}({4}원) 형태이며, (위꼬리:{1}% / 아래꼬리:{2}%)인 것으로 보아 {3}가 우위에 있습니다.\n",
+                                        curr_candle_direct, Math.Round(high_per, 2), Math.Round(low_per, 2), low_per > high_per ? "매수세" : "매도세", curr_end - curr_start);
 
                                     var test1 = curr_start - prev_end;
-                                    var test2 = curr_end - prev_end;
+                                    var test2 = curr_end - curr_start;
                                     var test3 = prev_end - prev_start;
-                                    if (test1 <= 0 && test2 <= 0)
+                                    if (test1 <= 0 && test2 < 0)
                                     {
-                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 추세 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 추세 캔들" +
+                                            (prev_candle_direct == "음봉" ? " (200%이상 부정)" : " (50%이하 부정)") + "\n");
                                     }
-                                    else if (test1 <= 0 && test2 > 0)
+                                    else if (test1 > 0 && test2 < 0)
                                     {
-                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 반격 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 반격 캔들" +
+                                            (prev_candle_direct == "음봉" ? " (100%이상 부정)" : " (50%이하 부정)") + "\n");
                                     }
-                                    else if (test1 > 0 && test2 > 0)
+                                    else if (test1 >= 0 && test2 > 0)
                                     {
-                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 추세 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 추세 캔들" +
+                                            (prev_candle_direct == "음봉" ? " (50%이하 긍정)" :" (200%이상 긍정)") + "\n");
                                     }
-                                    else if (test1 > 0 && test2 <= 0)
+                                    else if (test1 < 0 && test2 > 0)
                                     {
-                                        candle_analysis_report.Append(prev_candle_direct + " 후 하락 반격 캔들");
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 상승 반격 캔들" +
+                                            (prev_candle_direct == "음봉" ? " (50%이하 긍정)" : " (100%이상 긍정)") + "\n");
                                     }
-                                    candle_analysis_report.AppendFormat(" 강도 : {0}", (test1 + test2 + test3) / prev_candle_weight * 100);
+                                    else
+                                    {
+                                        candle_analysis_report.Append(prev_candle_direct + " 후 도지 캔들\n");
+                                    }
+                                    candle_analysis_report.AppendFormat("강도 : {1}원 대비 {0}%", (test1 + test2 + test3) / test3 * 100, prev_candle_weight);
                                     candle_analysis_report.Append("```");
                                     #endregion
 
