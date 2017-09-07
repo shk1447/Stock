@@ -96,26 +96,44 @@ namespace DataIntegrationServiceLogic
                     var query = string.Empty;
                     if (parameters.Contains("하락"))
                     {
-                        message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 바닥 확인 후 상승 추천 종목*");
-                        query = "SET @@group_concat_max_len = 9999999999; SELECT '바닥확인 후 상승 종목' as `title`, GROUP_CONCAT(current.종목명) as `text`" +
+                        message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 빅앤츠 시그널 추천 종목*");
+                        query = "SELECT CONCAT(current.최근갯수, ' 단계 하락 종목') as `title`, GROUP_CONCAT(current.종목명) as `text`" +
                                 " FROM (" +
-                                " SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
+                                " SELECT *" +
+                                " FROM (SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
                                 " column_get(rawdata, '종가' as double) as `종가`," +
+                                " column_get(rawdata, '20평균가' as double) as `20평균가`," +
+                                " column_get(rawdata, '60평균가' as double) as `60평균가`," +
                                 " column_get(rawdata, '전체상태' as char) as `전체상태`," +
-                                " column_get(rawdata, '현재상태' as char) as `현재상태`" +
-                                " FROM past_stock" +
-                                " WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '" + date_param.ToString("yyyy-MM-dd") + "'" +
-                                " AND column_get(rawdata, '전체상태' as char) = '하락' AND column_get(rawdata, '현재상태' as char) = '하락') as prev" +
-                                " ,(SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
+                                " column_get(rawdata, '현재상태' as char) as `현재상태`," +
+                                " column_get(rawdata, 'V패턴_비율' as double) as `V패턴`," +
+                                " column_get(rawdata, 'A패턴_비율' as double) as `A패턴`," +
+                                " column_get(rawdata, '강도' as double) as `강도`," +
+                                " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
+                                " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
+                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
+                                " AND 현재상태 = '하락' AND 종가 >= `20평균가`) as prev," +
+                                " (" +
+                                " SELECT *" +
+                                " FROM (SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
                                 " column_get(rawdata, '종가' as double) as `종가`," +
+                                " column_get(rawdata, '20평균가' as double) as `20평균가`," +
+                                " column_get(rawdata, '60평균가' as double) as `60평균가`," +
                                 " column_get(rawdata, '전체상태' as char) as `전체상태`," +
-                                " column_get(rawdata, '현재상태' as char) as `현재상태`" +
-                                " FROM past_stock" +
-                                " WHERE unixtime >= '" + date_param.ToString("yyyy-MM-dd") + "' AND unixtime <= '" + date_param.AddDays(1).ToString("yyyy-MM-dd") + "'" +
-                                " AND column_get(rawdata, '전체상태' as char) = '상승' AND column_get(rawdata, '현재상태' as char) = '상승') as current" +
-                                " WHERE prev.category = current.category";
+                                " column_get(rawdata, '현재상태' as char) as `현재상태`," +
+                                " column_get(rawdata, 'V패턴_비율' as double) as `V패턴`," +
+                                " column_get(rawdata, 'A패턴_비율' as double) as `A패턴`," +
+                                " column_get(rawdata, '강도' as double) as `강도`," +
+                                " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
+                                " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
+                                " FROM past_stock WHERE unixtime >= '" + date_param.ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                + date_param.AddDays(1).ToString("yyyy-MM-dd") + "' ) as result2" +
+                                " WHERE (전체상태 = '횡보' OR 전체상태 = '상승')" +
+                                " AND 현재상태 = '하락' AND 종가 >= `20평균가`) as current" +
+                                " WHERE prev.category = current.category GROUP BY current.최근갯수";
                     }
-                    else if (parameters.Contains("신호"))
+                    else if (parameters.Contains("상승"))
                     {
                         message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 빅앤츠 시그널 추천 종목*");
                         query = "SELECT CONCAT(current.최근갯수, ' 단계 상승 종목') as `title`, GROUP_CONCAT(current.종목명) as `text`" +
@@ -154,7 +172,7 @@ namespace DataIntegrationServiceLogic
                                 " AND 현재상태 = '상승' AND 종가 >= `20평균가`) as current" +
                                 " WHERE prev.category = current.category GROUP BY current.최근갯수";
                     }
-                    else if (parameters.Contains("상승"))
+                    else
                     {
                         message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 상승 추천 종목*");
                         query = "SELECT CONCAT(current.최근갯수, ' 단계 상승 종목') as `title`, GROUP_CONCAT(current.종목명) as `text`" +
@@ -192,45 +210,6 @@ namespace DataIntegrationServiceLogic
                                 " WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
                                 " AND 현재상태 = '상승' AND 최근갯수 > 1 AND 과거갯수 > 1 AND 종가 > `20평균가`) as current" +
                                 " WHERE prev.category = current.category GROUP BY current.최근갯수";
-                    }
-                    else
-                    {
-                        message.Add("text", "*" + date_param.ToString("yyyy-MM-dd") + " 신규 추천 종목*");
-                        query = "SELECT CONCAT(current.최근갯수, ' 단계 상승 종목') as `title`, GROUP_CONCAT(current.종목명) as `text`" +
-                                " FROM (" +
-                                " SELECT *" +
-                                " FROM (SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
-                                " column_get(rawdata, '종가' as double) as `종가`," +
-                                " column_get(rawdata, '20평균가' as double) as `20평균가`," +
-                                " column_get(rawdata, '60평균가' as double) as `60평균가`," +
-                                " column_get(rawdata, '전체상태' as char) as `전체상태`," +
-                                " column_get(rawdata, '현재상태' as char) as `현재상태`," +
-                                " column_get(rawdata, 'V패턴_비율' as double) as `V패턴`," +
-                                " column_get(rawdata, 'A패턴_비율' as double) as `A패턴`," +
-                                " column_get(rawdata, '강도' as double) as `강도`," +
-                                " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
-                                " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
-                                + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
-                                " AND 현재상태 = '하락' AND 최근갯수 > 1 AND 과거갯수 > 1 AND 종가 > `20평균가`) as prev RIGHT OUTER JOIN" +
-                                " (" +
-                                " SELECT *" +
-                                " FROM (SELECT category, column_get(rawdata, '종목명' as char) as `종목명`," +
-                                " column_get(rawdata, '종가' as double) as `종가`," +
-                                " column_get(rawdata, '20평균가' as double) as `20평균가`," +
-                                " column_get(rawdata, '60평균가' as double) as `60평균가`," +
-                                " column_get(rawdata, '전체상태' as char) as `전체상태`," +
-                                " column_get(rawdata, '현재상태' as char) as `현재상태`," +
-                                " column_get(rawdata, 'V패턴_비율' as double) as `V패턴`," +
-                                " column_get(rawdata, 'A패턴_비율' as double) as `A패턴`," +
-                                " column_get(rawdata, '강도' as double) as `강도`," +
-                                " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
-                                " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.ToString("yyyy-MM-dd") + "' AND unixtime <= '"
-                                + date_param.AddDays(1).ToString("yyyy-MM-dd") + "' ) as result2" +
-                                " WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
-                                " AND 현재상태 = '상승' AND 최근갯수 > 1 AND 과거갯수 > 1 AND 종가 > `20평균가`) as current" +
-                                " ON prev.category = current.category WHERE prev.category IS NULL GROUP BY current.최근갯수";
                     }
                     var down_recommaned = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", query);
 
@@ -540,7 +519,7 @@ namespace DataIntegrationServiceLogic
                 var message = new JsonObject();
                 message.Add("text", "제가 이해할 수 있게 명령해주세요.");
                 this.SendMessage(message.ToString());
-                message["text"] = ">>>1. 빅앤츠 (주식명) 분석해\n2. 빅앤츠 (일봉,주봉) 추천해봐";
+                message["text"] = ">>>1. 빅앤츠 (주식명) 분석해\n2. 빅앤츠 (상승,하락,신규) 추천해봐";
                 this.SendMessage(message.ToString());
             }
         }
