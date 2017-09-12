@@ -111,7 +111,8 @@ namespace DataIntegrationServiceLogic
                                 " column_get(rawdata, '강도' as double) as `강도`," +
                                 " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
                                 " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                " FROM past_stock WHERE unixtime >= '" + (date_param.DayOfWeek == DayOfWeek.Monday ? date_param.AddDays(-3).ToString("yyyy-MM-dd") : 
+                                date_param.AddDays(-1).ToString("yyyy-MM-dd")) + "' AND unixtime <= '"
                                 + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
                                 " AND 현재상태 = '하락' AND 종가 >= `20평균가`) as prev," +
                                 " (" +
@@ -150,7 +151,8 @@ namespace DataIntegrationServiceLogic
                                 " column_get(rawdata, '강도' as double) as `강도`," +
                                 " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
                                 " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                " FROM past_stock WHERE unixtime >= '" + (date_param.DayOfWeek == DayOfWeek.Monday ? date_param.AddDays(-3).ToString("yyyy-MM-dd") :
+                                date_param.AddDays(-1).ToString("yyyy-MM-dd")) + "' AND unixtime <= '"
                                 + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
                                 " AND 현재상태 = '상승' AND 종가 >= `20평균가`) as prev," +
                                 " (" +
@@ -189,7 +191,8 @@ namespace DataIntegrationServiceLogic
                                 " column_get(rawdata, '강도' as double) as `강도`," +
                                 " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
                                 " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                " FROM past_stock WHERE unixtime >= '" + (date_param.DayOfWeek == DayOfWeek.Monday ? date_param.AddDays(-3).ToString("yyyy-MM-dd") :
+                                date_param.AddDays(-1).ToString("yyyy-MM-dd")) + "' AND unixtime <= '"
                                 + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
                                 " AND 현재상태 = '하락' AND 종가 >= `20평균가`) as prev," +
                                 " (" +
@@ -228,7 +231,8 @@ namespace DataIntegrationServiceLogic
                                 " column_get(rawdata, '강도' as double) as `강도`," +
                                 " column_get(rawdata, '최근갯수' as double) as `최근갯수`," +
                                 " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
-                                " FROM past_stock WHERE unixtime >= '" + date_param.AddDays(-1).ToString("yyyy-MM-dd") + "' AND unixtime <= '"
+                                " FROM past_stock WHERE unixtime >= '" + (date_param.DayOfWeek == DayOfWeek.Monday ? date_param.AddDays(-3).ToString("yyyy-MM-dd") :
+                                date_param.AddDays(-1).ToString("yyyy-MM-dd")) + "' AND unixtime <= '"
                                 + date_param.ToString("yyyy-MM-dd") + "' ) as result1 WHERE (전체상태 = '횡보' OR 전체상태 = '하락')" +
                                 " AND 현재상태 = '상승' AND 최근갯수 > 1 AND 과거갯수 > 1 AND 종가 > `20평균가`) as prev," +
                                 " (" +
