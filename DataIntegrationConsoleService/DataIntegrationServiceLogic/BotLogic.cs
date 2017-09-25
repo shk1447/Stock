@@ -210,7 +210,7 @@ namespace DataIntegrationServiceLogic
                                 " column_get(rawdata, '과거갯수' as double) as `과거갯수`" +
                                 " FROM past_stock WHERE unixtime >= '" + date_param.ToString("yyyy-MM-dd") + "' AND unixtime <= '"
                                 + date_param.AddDays(1).ToString("yyyy-MM-dd") + "' ) as result2" +
-                                " WHERE (전체상태 = '횡보' OR 전체상태 = '상승')" +
+                                " WHERE (전체상태 = '상승')" +
                                 " AND 현재상태 = '상승' AND 종가 >= `20평균가`) as current" +
                                 " WHERE prev.category = current.category GROUP BY current.최근갯수";
                     }
@@ -385,14 +385,30 @@ namespace DataIntegrationServiceLogic
                                     {
                                         support_pretext.Append(" ").Append(support.ToString()).Append("원");
                                     }
-                                    support_pretext.Append("``` ");
                                     var resistance_pretext = new StringBuilder("```저항 가격 :");
                                     foreach (var support in total_resistance.OrderBy(p => p))
                                     {
                                         resistance_pretext.Append(" ").Append(support.ToString()).Append("원");
                                     }
-                                    resistance_pretext.Append("``` ");
 
+                                    if (result.ContainsKey("바닥"))
+                                    {
+                                        support_pretext.Append("\n바닥 가격 :");
+                                        foreach (var bottom in result["바닥"].ReadAs<JsonArray>())
+                                        {
+                                            support_pretext.Append(" ").Append(bottom.ToString());
+                                        }
+                                    }
+                                    if (result.ContainsKey("천장"))
+                                    {
+                                        resistance_pretext.Append("\n천장 가격 :");
+                                        foreach (var up in result["천장"].ReadAs<JsonArray>())
+                                        {
+                                            resistance_pretext.Append(" ").Append(up.ToString());
+                                        }
+                                    }
+                                    support_pretext.Append("``` ");
+                                    resistance_pretext.Append("``` ");
                                     var action_state = "매수";
                                     var total_analysis_report = new StringBuilder();
                                     if (total_state == "상승")

@@ -534,6 +534,8 @@ namespace DataIntegrationServiceLogic
                 if (item.Key == "거래량") { result.Add("거래량", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
                 if (item.Key == "생명선") { result.Add("생명선", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
                 if (item.Key == "VOLUME_OSCILLATOR") { result.Add("VOLUME_OSCILLATOR", item.Value == null ? 0 : item.Value.ReadAs<double>()); continue; }
+                if (item.Key == "천장") { result.Add("천장", item.Value); continue; }
+                if (item.Key == "바닥") { result.Add("바닥", item.Value); continue; }
                 if (item.Key == "unixtime") { result.Add("unixtime", item.Value.ReadAs<double>()); continue; }
 
                 if (item.Key.Contains("support"))
@@ -580,6 +582,8 @@ namespace DataIntegrationServiceLogic
             result.Add("실제저항_갯수", real_resistance.Count());
             result.Add("반전지지_갯수", reverse_resistance.Count());
             result.Add("반전저항_갯수", reverse_support.Count());
+            result.Add("저항수", total_resistance.Count);
+            result.Add("지지수", total_support.Count);
             result.Add("최고가", 최고가);
             result.Add("최저가", 최저가);
             result.Add("주가위치", (result[field].ReadAs<double>() - 최저가) / (최고가 - 최저가) * 100);
@@ -741,7 +745,20 @@ namespace DataIntegrationServiceLogic
                                                     new KeyValuePair<string, JsonValue>("value", id),
                                                     new KeyValuePair<string, JsonValue>("type", "Number")));
                         }
-
+                        if (result2.Count > 0)
+                        {
+                            var lastObj = result[lastIndex - 1].ReadAs<JsonObject>();
+                            var minVal = min["종가"].ReadAs<string>();
+                            var minTime = EnvironmentHelper.GetDateTimeString(min["unixtime"].ReadAs<int>() + 1);
+                            if (lastObj.ContainsKey("바닥"))
+                            {
+                                lastObj["바닥"].ReadAs<JsonArray>().Add(minTime + " : " + minVal + "원");
+                            }
+                            else
+                            {
+                                lastObj.Add("바닥", new JsonArray(minTime + " : " + minVal + "원"));
+                            }
+                        }
                         this.Segmentation(ref fields, ref result, data, key, maximum, minimum, max["unixtime"].ReadAs<double>());
                         break;
                     }
@@ -786,7 +803,20 @@ namespace DataIntegrationServiceLogic
                                                     new KeyValuePair<string, JsonValue>("value", id),
                                                     new KeyValuePair<string, JsonValue>("type", "Number")));
                         }
-
+                        if (result2.Count > 0)
+                        {
+                            var lastObj = result[lastIndex - 1].ReadAs<JsonObject>();
+                            var maxVal = max["종가"].ReadAs<string>();
+                            var maxTime = EnvironmentHelper.GetDateTimeString(max["unixtime"].ReadAs<int>() + 1);
+                            if (lastObj.ContainsKey("천장"))
+                            {
+                                lastObj["천장"].ReadAs<JsonArray>().Add(maxTime + " : " + maxVal + "원");
+                            }
+                            else
+                            {
+                                lastObj.Add("천장", new JsonArray(maxTime + " : " + maxVal + "원"));
+                            }
+                        }
                         this.Segmentation(ref fields, ref result, data, key, maximum, minimum, min["unixtime"].ReadAs<double>());
                         break;
                     }
