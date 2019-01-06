@@ -449,7 +449,7 @@ namespace DataIntegrationServiceLogic
                 queryBuilder.Append("COLUMN_GET(`rawdata`,'").Append(item_key).Append("' as double) as `").Append(item_key).Append("`,");
                 sampling_items.Append(sampling).Append("(`").Append(item_key).Append("`) as `").Append(item_key).Append("`,");
                 queryBuilder.Append("unixtime ").Append("FROM ").Append("past_" + source).Append(" WHERE category = '")
-                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL ").Append(") as result");
+                    .Append(category).Append("' AND column_get(rawdata,'").Append(item_key).Append("' as char) IS NOT NULL AND unixtime < '2016-06-06'").Append(") as result");
 
                 if (sampling_period == "all") queryBuilder.Append(" GROUP BY unixtime ASC");
                 else if (sampling_period == "day") queryBuilder.Append(" GROUP BY DATE(unixtime) ASC");
@@ -492,16 +492,24 @@ namespace DataIntegrationServiceLogic
                 var result = new JsonObject();
                 var supportArr = new JsonArray();
                 var resistanceArr = new JsonArray();
+                var supportDict = new Dictionary<string, JsonArray>();
+                var resistanceDict = new Dictionary<string, JsonArray>();
+                if (data.Count == 0) continue;
                 foreach (var item in data[data.Count - 1])
                 {
                     if (item.Key == "unixtime") continue;
                     if (item.Key == field) { result.Add(field, item.Value.ReadAs<int>()); continue; }
+                    var 발생일 = string.Empty;
+                    if (item.Key.Split('_').Length > 2) { 발생일 = item.Key.Split('_')[2]; }
                     if (item.Key.Contains("support"))
                     {
                         if (lastState == "하락")
                         {
+                            supportArr = new JsonArray();
+                            resistanceDict.Add(lastState + "_" + 발생일, resistanceArr);
                             prevCount = currentCount;
                             currentCount = 0;
+
                         }
                         lastState = "상승";
                         supportArr.Add(item.Value.ReadAs<int>());
@@ -511,11 +519,13 @@ namespace DataIntegrationServiceLogic
                     {
                         if (lastState == "상승")
                         {
+                            resistanceArr = new JsonArray();
+                            supportDict.Add(lastState + "_" + 발생일, supportArr);
                             prevCount = currentCount;
                             currentCount = 0;
                         }
                         lastState = "하락";
-                        resistanceArr.Add(item.Value.ReadAs<int>());
+                        resistanceArr.Add( item.Value.ReadAs<int>());
                         currentCount++;
                     }
                 }
@@ -543,8 +553,8 @@ namespace DataIntegrationServiceLogic
             }
 
             return resultArr.Where<JsonValue>(arg => 
-                arg["현재상태"].ReadAs<string>() == state && arg["반전저항_갯수"].ReadAs<int>() > 0 && arg["실제저항_갯수"].ReadAs<int>() > 0)
-                .OrderByDescending(p => p["반전저항_갯수"].ReadAs<int>()).ToJsonArray().ToString();
+                arg["현재상태"].ReadAs<string>() == state && arg["반전지지_갯수"].ReadAs<int>() > 0 && arg["실제지지_갯수"].ReadAs<int>() >= 0)
+                .OrderByDescending(p => p["반전지지_갯수"].ReadAs<int>()).ToJsonArray().ToString();
         }
 
         public string Download(JsonValue jsonValue)
