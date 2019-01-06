@@ -23,6 +23,8 @@ using Helper;
 using Model.Common;
 using System.ServiceModel.Channels;
 using System.Json;
+using System.Web;
+using System.Configuration;
 using DataIntegrationServiceLogic;
 
 
@@ -91,7 +93,7 @@ namespace DataIntegrationService
         #region IDataIntegrationService 멤버
 
 
-        public CommonResponse AutoAnalysis(string state)
+        public CommonResponse AutoAnalysis(string period, string state, string name)
         {
             if (WebOperationContext.Current.IncomingRequest.Headers == null)
             {
@@ -104,7 +106,8 @@ namespace DataIntegrationService
             try
             {
                 result.code = "200";
-                result.message = viewLogic.AutoAnalysis(state);
+                var stock_list = name == null ? new List<string>() : name.Split(',').ToList();
+                result.message = viewLogic.AutoAnalysis(period == null ? string.Empty : period.ToLower(), "avg", stock_list);
             }
             catch(Exception ex)
             {
@@ -113,6 +116,54 @@ namespace DataIntegrationService
             }
 
             return result;
+        }
+
+        public CommonResponse AutoFilter()
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+
+            var viewLogic = new ViewLogic();
+            var result = new CommonResponse();
+
+            viewLogic.AutoFilter();
+
+            return result;
+        }
+
+        #endregion
+
+        #region IDataIntegrationService 멤버
+
+
+        public void SlackMessage(Stream stream)
+        {
+            if (WebOperationContext.Current.IncomingRequest.Headers == null)
+            {
+                throw new Exception("Can not get current WebOpreationContext.");
+            }
+            
+            var body = string.Empty;
+            using (var streamReader = new StreamReader(stream, Encoding.Default))
+            {
+                body = HttpUtility.UrlDecode(streamReader.ReadToEnd());
+            }
+            var param = new Dictionary<string, string>();
+            foreach (var item in body.Split('&'))
+            {
+                var kv = item.Split('=');
+                param.Add(kv[0], kv[1]);
+            }
+
+            var message = param["text"];
+            var user_id = param["user_id"];
+            var user_name = param["user_name"];
+            if (!user_id.Equals("USLACKBOT"))
+            {
+                BotLogic.Instance.Receive(param);
+            }
         }
 
         #endregion

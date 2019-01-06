@@ -24,7 +24,16 @@ namespace DataIntegrationService
         CommonResponse ViewExecute(ViewExecuteReq req);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "AutoAnalysis?state={state}", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
-        CommonResponse AutoAnalysis(string state);
+        [WebInvoke(Method = "GET", UriTemplate = "AutoAnalysis?period={period}&state={state}&name={name}",
+                   RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        CommonResponse AutoAnalysis(string period, string state, string name);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", UriTemplate = "AutoFilter", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        CommonResponse AutoFilter();
+
+        [OperationContract]
+        [WebInvoke(Method = "POST", UriTemplate = "slack", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        void SlackMessage(Stream stream);
     }
 }

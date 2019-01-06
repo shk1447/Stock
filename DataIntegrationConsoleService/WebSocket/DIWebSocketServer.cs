@@ -1,15 +1,44 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Json;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using DataIntegrationServiceLogic;
+using DIWebSocket.Services;
+using Model.Request;
 using WebSocketSharp.Server;
 
 namespace DIWebSocket
 {
     public class DIWebSocketServer
     {
+        /// <summary>
+        /// 서버 자체에서 연결되어진 클라이언트에게 이벤트를 발생
+        /// </summary>
+        public Thread sendingThread = null;
+        public AutoResetEvent sendEvent = new AutoResetEvent(false);
+        public ConcurrentQueue<JsonObject> sendQueue = new ConcurrentQueue<JsonObject>();
+
+        private void SendingThread()
+        {
+            while (true)
+            {
+                sendEvent.WaitOne();
+                JsonObject jsonObj = null;
+                if (sendQueue.TryDequeue(out jsonObj))
+                {
+                    this.server.WebSocketServices.Broadcast(jsonObj.ToString());
+                    // this.Send(jsonObj.ToString());
+                    // broad cast에 대한 로직 추가 예정
+                    // this.Sessions.Broadcast(jsonObj.ToString());
+                }
+            }
+        }
+
         #region | Private |
         public WebSocketServer server;
         #endregion
@@ -30,20 +59,14 @@ namespace DIWebSocket
 
         private void SetServices()
         {
-            var services = Assembly.GetExecutingAssembly().DefinedTypes.Where(t => t.BaseType == typeof(WebSocketBehavior));
-            var method = this.server.GetType().GetMethods().FirstOrDefault(item =>
-                item.Name == "AddWebSocketService" && item.GetParameters().Length == 1 && item.GetParameters().First().Name.Equals("path", StringComparison.OrdinalIgnoreCase)
-            );
+            this.server.AddWebSocketService<DIService>("/diservice", initializer);
+        }
 
-            if (method == null)
-            {
-                throw new Exception("Not AddWebSocketService Method");
-            }
+        private DIService initializer()
+        {
+            var init = new DIService(ref sendEvent, ref sendQueue);
 
-            foreach (var service in services)
-            {
-                method.MakeGenericMethod(service).Invoke(this.server, new object[] { "/" + service.Name.ToLower() });
-            }
+            return init;
         }
 
         /// <summary>
@@ -61,6 +84,8 @@ namespace DIWebSocket
             this.server = new WebSocketServer(System.Net.IPAddress.Any, Convert.ToInt32(port));
             SetServices();
             this.server.Start();
+            this.sendingThread = new Thread(SendingThread);
+            this.sendingThread.Start();
         }
 
         /// <summary>

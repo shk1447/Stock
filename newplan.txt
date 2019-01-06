@@ -249,3 +249,109 @@ DATA INTEGRATION WEB UI
 	- 반전저항이 적은 경우, 상승 추세 유지 잠시 조정상태로 판단 (2 => 4)
 	- 반전저항이 많을 경우, 하락패턴으로 가기 전 상태로 판단
 	
+	
+	
+	
+V패턴
+- 1 ~ 100 : 클수록 상승중을 의미한다.
+- 값이 없을 경우에는 전고점을 도달하여 더이상 저항이 없음을 의미한다.
+
+A패턴
+- 1 ~ 100 : 클수록 하락중을 의미한다.
+- 값이 없을 경우에는 전저점을 도달하여 더이상 지지가 없음을 의미한다.
+
+VA크로스
+- 차트상에서 단번에 일어나는 크로스가 아닌 흐름이 있는 크로스는 주가가 완전히 반전되어짐을 의미한다.
+
+VA=0
+- 주가가 최고 고점에 다다랐을때 발생하는 신호이며, 향후 하락을 의미한다.
+
+VA=100
+- 주가가 최고 저점에 다다랐을때 발생하는 신호이며, 향후 상승을 의미한다.
+
+* V패턴과 A패턴은 서로 상호관계하에 움직인다는 것을 주시하여 매수/매도를 진행함으로서 수익구간을 정확하게 판단한다. *
+
+상승이 있으면 하락이 있는 법 또한 하락이 있으면 상승이 있는 법!!! 
+- 하락시
+	- 하락 강도가 강해졌다가 약해질때 사라.
+	- 하락 강도가 다시 강해지면 팔아라.
+	- 하락 강도가 상승 강도로 변하면, 상승으로 변할 수 도 있다.
+- 상승시
+	- 상승 강도가 약해졌다가 강해질때 사라.
+	- 상승 강도가 다시 약해지면 팔아라.
+
+산과 숲과 나무를 모두 보아라.
+- 산과 숲을 통해 현재 상태를 확인하며, 나무를 통해 다음 상황을 예측하라.
+
+
+
+
+DROP TABLE IF EXISTS `temp`; CREATE TEMPORARY TABLE IF NOT EXISTS `temp` ENGINE=MEMORY AS
+SELECT result02.idx, result01.category, result01.종가 - result02.종가 as Gain, CAST(NULL as DOUBLE) as AvgGain, CAST(NULL as DOUBLE) as AvgLoss, result01.unixtime
+FROM (
+SELECT @rownum:=@rownum+1 as idx, category, 종가, unixtime
+FROM (
+SELECT category, COLUMN_GET(rawdata, '종가' as double) as `종가`, unixtime
+FROM past_stock
+WHERE category = '038060' AND (@rownum:=0)=0 GROUP BY DATE(unixtime)) temp01
+ORDER BY unixtime ASC) as result01,
+(
+SELECT @rownum:=@rownum+1 as idx, category, 종가, unixtime
+FROM (
+SELECT category, COLUMN_GET(rawdata, '종가' as double) as `종가`, unixtime
+FROM past_stock
+WHERE category = '038060' AND (@rownum:=0)=0 GROUP BY DATE(unixtime)) as temp02
+ORDER BY unixtime ASC) as result02
+WHERE result01.idx - 1 = result02.idx;
+
+
+DROP TABLE IF EXISTS `start_temp`; CREATE TEMPORARY TABLE IF NOT EXISTS `start_temp` ENGINE=MEMORY AS
+SELECT category, SUM(CASE WHEN Gain >= 0 THEN Gain ELSE 0 END) AS start_gain_sum, SUM(CASE WHEN Gain < 0 THEN ABS(Gain) ELSE 0 END) AS start_loss_sum
+FROM temp WHERE idx <= 14 GROUP BY category;
+
+SET @avg_gain = 0;
+SET @avg_loss = 0;
+
+UPDATE temp,start_temp SET AvgGain = @avg_gain := if(idx = 14, start_temp.start_gain_sum, if(idx > 14, @avg_gain * 13 + if(Gain >= 0, Gain, 0), 0))/14,
+					 AvgLoss = @avg_loss := if(idx = 14, start_temp.start_loss_sum, if(idx > 14, @avg_loss * 13 + if(Gain < 0, abs(Gain), 0), 0))/14
+WHERE temp.category = start_temp.category;
+
+SELECT idx, category, unixtime, Gain, AvgGain, AvgLoss, AvgGain / AvgLoss as RS, 100 - (100 / (1 + AvgGain / AvgLoss)) as RSI
+FROM temp
+GROUP BY category
+
+
+해당 지표!!!다이버전스!!!추가
+
+
+
+next plan(2017년도 하반기)
+- 데이터 분석
+	- 주식데이터에서 candle 분석 기능 추가
+	- autofilter api 분석기능을 analysis 기능의 일부로 추가
+	
+- UI 개선
+	- Query 작성시 Ace-Editor를 통해 SQL처럼 보이도록 UI 개선
+	- Big Ants Title을 Trident.AIM으로 변경
+		- About 화면 작업
+		- Logo 작업 : 데이터를 분석!! 통합!! 관리!!하는 무기!! 삼지창 (첫번째 목표는 주식 데이터다!!!!!!)
+			- Trident
+				- A nalysis
+				- I ntergration
+				- M anage
+	- RealTime Chart 기능 추가 (Polling 방식이 아닌 Notify방식으로 진행) : Server에서 WebSocket Notify기능 완료 후!
+	
+- Collection Module 추가
+	- 외부 데이터에 접근하여 수집이 가능한 Module 추가
+	- Http로 데이터를 받을 수 있는 기능 추가
+	
+- Editor Page 신규 개발 (d3.js)
+	- Collection마다 하나의 화면을 가진다. (Tab)
+	- 개별 화면에서는 해당 Collection의 Category를 표출한다.
+	- Category를 그룹화 시킨다. (데이터가 조건으로 그룹하며, 데이터가 변경될 때마다 다시 그룹화가 이루어진다.)
+	- 해당 정보는 Live Page와 연동하여 필터기능으로 제공되어진다.
+
+- DataIntergration Server 작업
+	- code refactoring 작업.....
+	- Websocket을 통해 작업 완료에 대한 메시지를 Notify할 수 있는 기능 추가
+	- MariaDB Spider Engine을 활용하여 스토리지 이중화 작업

@@ -217,9 +217,9 @@ namespace Connector
             var categoryList = new List<string>();
             var resultQueryBuilder = new StringBuilder(query);
 
-            var pastQueryBuilder = new StringBuilder("INSERT INTO past_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
-            var fieldsQueryBuilder = new StringBuilder("INSERT INTO fields_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
-            var currentQueryBuilder = new StringBuilder("INSERT INTO current_").Append(source).Append(" (category, rawdata, unixtime) VALUES ");
+            var pastQueryBuilder = new StringBuilder("INSERT INTO past_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
+            var fieldsQueryBuilder = new StringBuilder("INSERT INTO fields_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
+            var currentQueryBuilder = new StringBuilder("INSERT INTO current_").Append(source).Append(" (unixtime, category, rawdata ) VALUES ");
 
             var collectedDate = "CURTIME(3)";
 
@@ -228,6 +228,8 @@ namespace Connector
             var dynamicCategory = string.Empty;
 
             var row = 1;
+            var currentValid = new Dictionary<string, Dictionary<string,string>>();
+            var totalFields = new Dictionary<string,string>();
             foreach (var item in rawData)
             {
                 if (item == null) continue;
@@ -235,8 +237,6 @@ namespace Connector
                 var rowSeparator = row < rawData.Count ? "," : "";
 
                 var dataCreateBuilder = new StringBuilder("COLUMN_CREATE(");
-                var fieldCreateBuilder = new StringBuilder("COLUMN_CREATE(");
-                var duplicateUpdateBuilder = new StringBuilder("COLUMN_ADD(rawdata,");
 
                 var itemDict = item.GetDictionary();
                 if (itemDict.Count == 0) continue;
@@ -248,48 +248,45 @@ namespace Connector
                 foreach (var kv in itemDict)
                 {
                     var cellSeparator = cell < itemDict.Count ? "," : "";
-                    var type = "text";
-                    double doubleTemp;
-                    DateTime datetimeTemp;
-                    if (double.TryParse(kv.Value.ToString(), out doubleTemp))
-                        type = "number";
-                    else if (DateTime.TryParse(kv.Value.ToString(), out datetimeTemp))
-                        type = "datetime";
 
-                    fieldCreateBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(type).Append("\"").Append(cellSeparator);
                     dataCreateBuilder.Append("\"").Append(kv.Key).Append("\",\"").Append(kv.Value).Append("\"").Append(cellSeparator);
-                    duplicateUpdateBuilder.Append("\"").Append(kv.Key).Append("\",COLUMN_GET(VALUES(rawdata), \"").Append(kv.Key).Append("\" as char)").Append(cellSeparator);
+
+                    if (!totalFields.ContainsKey(kv.Key)) totalFields.Add(kv.Key, kv.Value.ToString());
+                    else totalFields[kv.Key] = kv.Value.ToString();
 
                     cell++;
                 }
 
                 dataCreateBuilder.Append(")");
-                fieldCreateBuilder.Append(")");
-                duplicateQuery = duplicateUpdateBuilder.Append(")").ToString();
-
-                pastQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                              .Append(collectedDate).Append(")").Append(rowSeparator);
-
-                if (prevCategory != dynamicCategory)
-                {
-                    currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
-                    fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
-                                      .Append(collectedDate).Append(")").Append(rowSeparator);
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(rowSeparator))
-                    {
-                        currentQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString()).Append(", ")
-                                                         .Append(collectedDate).Append(")").Append(rowSeparator);
-                        fieldsQueryBuilder.Append("(\"").Append(dynamicCategory).Append("\",").Append(fieldCreateBuilder.ToString()).Append(", ")
-                                          .Append(collectedDate).Append(")").Append(rowSeparator);
-                    }
-                }
-                prevCategory = dynamicCategory;
+                pastQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                              .Append(")").Append(rowSeparator);
+                currentQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append(dynamicCategory).Append("\",").Append(dataCreateBuilder.ToString())
+                                                         .Append(")").Append(rowSeparator);
                 row++;
             }
+            var dupl_cnt = 1;
+            var duplicateUpdateBuilder = new StringBuilder("COLUMN_ADD(rawdata,");
+            var fieldCreateBuilder = new StringBuilder("COLUMN_CREATE(");
+            foreach (var duplicate in totalFields)
+            {
+                var type = "text";
+                double doubleTemp;
+                DateTime datetimeTemp;
+                if (double.TryParse(duplicate.Value.ToString(), out doubleTemp))
+                    type = "number";
+                else if (DateTime.TryParse(duplicate.Value.ToString(), out datetimeTemp))
+                    type = "datetime";
+
+                var duplSeparator = dupl_cnt < totalFields.Count ? "," : "";
+                fieldCreateBuilder.Append("\"").Append(duplicate.Key).Append("\",\"").Append(type).Append("\"").Append(duplSeparator);
+                duplicateUpdateBuilder.Append("\"").Append(duplicate.Key).Append("\",IF(COLUMN_EXISTS(VALUES(rawdata), \"").Append(duplicate.Key).Append("\"),")
+                    .Append("COLUMN_GET(VALUES(rawdata), \"").Append(duplicate.Key).Append("\" as char),").Append("COLUMN_GET(rawdata, \"").Append(duplicate.Key).Append("\" as char))")
+                    .Append(duplSeparator);
+                dupl_cnt++;
+            }
+            fieldCreateBuilder.Append(")");
+            fieldsQueryBuilder.Append("(").Append(collectedDate).Append(",\"").Append("").Append("\",").Append(fieldCreateBuilder.ToString()).Append(")");
+            duplicateQuery = duplicateUpdateBuilder.Append(")").ToString();
 
             resultQueryBuilder.Append(pastQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
@@ -297,7 +294,6 @@ namespace Connector
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
             resultQueryBuilder.Append(fieldsQueryBuilder.ToString()).Append(" ON DUPLICATE KEY UPDATE rawdata = ").Append(duplicateQuery)
                               .Append(",category = VALUES(category), unixtime=VALUES(unixtime);");
-            
             return resultQueryBuilder.ToString();
         }
 

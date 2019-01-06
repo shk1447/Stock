@@ -17,37 +17,22 @@ namespace DIWebSocket.Services
 {
     public class DIService : WebSocketBehavior
     {
-        /// <summary>
-        /// 서버 자체에서 연결되어진 클라이언트에게 이벤트를 발생
-        /// </summary>
-        public bool isOpen = false;
-        public Thread sendingThread = null;
-        public AutoResetEvent sendEvent = new AutoResetEvent(false);
-        public ConcurrentQueue<JsonObject> sendQueue = new ConcurrentQueue<JsonObject>();
+        private AutoResetEvent sendEvent;
+        private ConcurrentQueue<JsonObject> sendQueue;
 
-        private void SendingThread()
+        public DIService(ref AutoResetEvent sendEvent, ref ConcurrentQueue<JsonObject> sendQueue)
         {
-            while (isOpen)
-            {
-                sendEvent.WaitOne();
-                JsonObject jsonObj = null;
-                if (sendQueue.TryDequeue(out jsonObj))
-                {
-                    this.Send(jsonObj.ToString());
-                }
-            }
+            this.sendEvent = sendEvent;
+            this.sendQueue = sendQueue;
         }
-
         protected override void OnOpen()
         {
-            isOpen = true;
-            sendingThread = new Thread(new ThreadStart(SendingThread));
-            sendingThread.Start();
+            Console.WriteLine("open");
         }
 
         protected override void OnClose(CloseEventArgs e)
         {
-            isOpen = false;
+            Console.WriteLine("close");
         }
 
         protected override void OnMessage(MessageEventArgs e)
@@ -66,7 +51,7 @@ namespace DIWebSocket.Services
                 #region Member
                 case "member":
                     {
-                        var memberLogic = new MemberLogic();
+                        var memberLogic = new MemberLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -108,7 +93,7 @@ namespace DIWebSocket.Services
                 #region Collection
                 case "collection":
                     {
-                        var collectionLogic = new CollectionLogic();
+                        var collectionLogic = new CollectionLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -149,7 +134,7 @@ namespace DIWebSocket.Services
                 #region Analysis
                 case "analysis":
                     {
-                        var analysisLogic = new AnalysisLogic();
+                        var analysisLogic = new AnalysisLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -190,7 +175,7 @@ namespace DIWebSocket.Services
                 #region DataView
                 case "view":
                     {
-                        var viewLogic = new ViewLogic();
+                        var viewLogic = new ViewLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -241,7 +226,7 @@ namespace DIWebSocket.Services
                 #region Input
                 case "input":
                     {
-                        var inputLogic = new InputLogic();
+                        var inputLogic = new InputLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "getlist":
@@ -272,7 +257,7 @@ namespace DIWebSocket.Services
                 #region Cluster
                 case "cluster":
                     {
-                        var clusterLogic = new ClusterLogic();
+                        var clusterLogic = new ClusterLogic(ref this.sendEvent, ref this.sendQueue);
                         switch (method.ToLower())
                         {
                             case "schema":
@@ -281,6 +266,17 @@ namespace DIWebSocket.Services
                                 }
                             case "getlist":
                                 {
+                                    returnString = clusterLogic.GetList(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "gettab":
+                                {
+                                    returnString = clusterLogic.GetTab(reqInfo["parameters"]);
+                                    break;
+                                }
+                            case "getplayback":
+                                {
+                                    returnString = clusterLogic.GetPlayback(reqInfo["parameters"]);
                                     break;
                                 }
                         }

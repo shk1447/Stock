@@ -29,7 +29,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nvParser_COM, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\nvParser_COM.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -45,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalysisLogic.cs" />
+    <Compile Include="BotLogic.cs" />
     <Compile Include="ClusterLogic.cs" />
     <Compile Include="CollectionLogic.cs" />
     <Compile Include="InputLogic.cs" />
@@ -77,6 +85,10 @@
     <ProjectReference Include="..\ModuleManager\ModuleManager.csproj">
       <Project>{235894f0-e407-4fe3-9c46-52c8697121b3}</Project>
       <Name>ModuleManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NHanNanum\NHanNanum.csproj">
+      <Project>{90781225-7cfe-4123-aea0-fcdccdd1c602}</Project>
+      <Name>NHanNanum</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

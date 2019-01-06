@@ -15,7 +15,7 @@ namespace ModuleInterface
 
         dynamic GetData(string config, string query, string type, int interval);
 
-        object ExecuteModule(string method, string collection_name);
+        object ExecuteModule(string method, string collection_name, Func<string, bool> callback);
 
         void Initialize();
     }

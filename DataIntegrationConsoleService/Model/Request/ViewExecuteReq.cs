@@ -11,4 +11,9 @@ namespace Model.Request
         public string name { get; set; }
         public string member_id { get; set; }
     }
+
+    public class PlaybackReq
+    {
+        public string categories { get; set; }
+    }
 }

@@ -1,0 +1,1 @@
+define("ace/snippets/sql",["require","exports","module"],function(e,t,n){"use strict";t.snippetSql=undefined,t.scope="sql"})

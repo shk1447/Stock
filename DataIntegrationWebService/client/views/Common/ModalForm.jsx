@@ -2,11 +2,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var {Button,Modal,Image,Header,Icon,Form,Input,Select,TextArea,Checkbox,Radio,Dropdown} = require('stardust');
 var TimePicker = require('react-times');
-require('../../../public/style.css');
-require('react-times/css/material/default.css');
 var MessageBox = require('./MessageBox');
 var DynamicField = require('./DynamicField');
 var SQLEditor = require('./SQLEditor');
+var AceEditor = require('react-ace-editor');
 var moment = require('moment');
 
 module.exports = React.createClass({
@@ -221,7 +220,7 @@ module.exports = React.createClass({
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field key={fieldInfo.value} required={required} className='transparency' onChange={self.handleChange.bind(self,fieldInfo,fields)} control={Input}
                                         type='number' label={mainlabel} name={fieldInfo.value} placeholder={fieldInfo.text} defaultValue={defaultData[fieldInfo.value]}
-                                        min={attributes.min} max={attributes.max} step={attributes.step} error={error} focus={false}/>;
+                                        min={attributes.min} max={attributes.max} step={attributes.step} error={error}/>;
                         break;
                     }
                     case 'Password' :{
@@ -272,6 +271,18 @@ module.exports = React.createClass({
                         let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
                         fieldElement = <Form.Field className='transparency' key={fieldInfo.value} schema={fieldInfo.schema} control={SQLEditor} label={mainlabel} error={error}
                                         defaultValue={defaultData[fieldInfo.value]} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
+                        break;
+                    }
+                    case 'Editor' : {
+                        // ace editor 추가 예정
+                        let defaultData;
+                        fieldInfo.datakey ? defaultData = self.state.data[fieldInfo.datakey] = self.state.data[fieldInfo.datakey] ? self.state.data[fieldInfo.datakey] : {} : defaultData = self.state.data;
+                        let required= fieldInfo.required ? fieldInfo.required : false;
+                        defaultData[fieldInfo.value] = defaultData[fieldInfo.value] ? defaultData[fieldInfo.value] : '';
+                        let error = !required ? false : self.state.data[fieldInfo.value] == '' ? true : false; fieldInfo['error'] = error;
+                        let mainlabel = fieldInfo.datakey ? fieldInfo.datakey + '.' + fieldInfo.text : fieldInfo.text;
+                        fieldElement = <Form.Field className='transparency' key={fieldInfo.value} theme={'sqlserver'} mode={'mysql'} control={AceEditor} label={mainlabel} error={error}
+                                        setValue={defaultData[fieldInfo.value]} style={{height:'300px',width:'100%'}} onChange={self.handleChange.bind(self,fieldInfo,fields)}/>
                         break;
                     }
                     case 'AddFields' : {
@@ -465,6 +476,14 @@ module.exports = React.createClass({
                 }
                 break;
             }
+            case 'editor' : {
+                if(field.datakey) {
+                    this.state.data[field.datakey][field.value] = e;
+                } else {
+                    this.state.data[field.value] = e;
+                }
+                break;
+            }
             case 'timepicker' : {
                 if(field.datakey) {
                     this.state.data[field.datakey][field.value] = data;
@@ -526,7 +545,7 @@ module.exports = React.createClass({
                 this.state.fields.filter(function(d){
                     if(d.type != "Action" && d.type != "Data") {
                         if(d.datakey) {
-                        values[d.datakey] = self.state.data[d.datakey];
+                            values[d.datakey] = self.state.data[d.datakey];
                         } else {
                             values[d.value] = self.state.data[d.value];
                         }

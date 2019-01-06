@@ -308,7 +308,7 @@ module.exports = function () {
     self.options = {
         predict: false,
         title:"",
-        chartType: "line",
+        chartType: "area",
         start : 0,
         end : 0,
         fake: false,
@@ -375,7 +375,7 @@ module.exports = function () {
                 legendFontStyle: "normal normal",
                 legendFontColor: "#ffffff",
                 legendFontSize: 12,
-                seriesColor : ["#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
+                seriesColor : ["#ff0000", "#0000ff", "#000000", "#00ff00", "#C6FF00 ", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff","#f45b5b", "#8085e9", "#4DB6AC", "#E040FB", "#C6FF00 ", "#ff0000", "#0000ff",
                     "#55BF3B", "#8d4654", "#7798BF", "#aaeeee","#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
                 annotateDisplay: true,
                 annotateLabel: '<%=v12%><BR><%=v2%><BR><span style="color:{color};font-size:10px;">●</span> <%=v1%> : <%=v3%> <%=unit%>',
@@ -386,7 +386,7 @@ module.exports = function () {
                 spaceTop: 20,
                 spaceBottom: 20,
                 bezierCurve: true,
-                bezierCurveTension: 0,
+                bezierCurveTension: 0.2,
                 reverseLegend : true,
                 dynamicDisplay : false,
                 pointHitDetectionRadius : 10,
@@ -933,8 +933,8 @@ module.exports = function () {
             }
             self.options.style.chart.graphSubTitle = 'Range : ' + self.renderData.labels["unixtime"][0] + " ~ "
                                                    + self.renderData.labels["unixtime"][self.renderData.labels["unixtime"].length-1];
-            self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
-            self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
+            // self.options.style.chart.yMaximum = self.options.yMaximum = maxVal;
+            // self.options.style.chart.yMinimum = self.options.yMinimum = minVal;
         }
         return true;
     };
@@ -1011,7 +1011,7 @@ module.exports = function () {
                     if(minIndex > maxIndex) {
                         var timeMaxGap = (data.times[minIndex] - data.times[maxIndex]) / (minIndex - maxIndex);
                         var maxGap = (row.data[minIndex] - row.data[maxIndex]) / (minIndex - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
@@ -1020,7 +1020,7 @@ module.exports = function () {
                     } else {
                         var timeMinGap = (data.times[maxIndex] - data.times[minIndex]) / (maxIndex - minIndex);
                         var minGap = (row.data[maxIndex] - row.data[minIndex]) / (maxIndex - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1031,7 +1031,7 @@ module.exports = function () {
                     if(nextMin != undefined) {
                         var timeMinGap = (data.times[nextMin] - data.times[minIndex]) / (nextMin - minIndex);
                         var minGap = (row.data[nextMin] - row.data[minIndex]) / (nextMin - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1040,7 +1040,7 @@ module.exports = function () {
                     } else if(nextMax != undefined) {
                         var timeMinGap = (data.times[nextMax] - data.times[minIndex]) / (nextMax - minIndex);
                         var minGap = (row.data[nextMax] - row.data[minIndex]) / (nextMax - minIndex);
-                        for(var j = minIndex; j < row.data.length; j++) {
+                        for(var j = minIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_support' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[minIndex] + minGap * (j - minIndex);
@@ -1050,7 +1050,7 @@ module.exports = function () {
                     if(nextMax != undefined) {
                         var timeMaxGap = (data.times[nextMax] - data.times[maxIndex]) / (nextMax - maxIndex);
                         var maxGap = (row.data[nextMax] - row.data[maxIndex]) / (nextMax - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);
@@ -1059,7 +1059,7 @@ module.exports = function () {
                     } else if (nextMin != undefined) {
                         var timeMaxGap = (data.times[nextMin] - data.times[maxIndex]) / (nextMin - maxIndex);
                         var maxGap = (row.data[nextMin] - row.data[maxIndex]) / (nextMin - maxIndex);
-                        for(var j = maxIndex; j < row.data.length; j++) {
+                        for(var j = maxIndex; j < row.data.length+30; j++) {
                             var supportData = data.datasets.find(function(d){ return d.id == row.id + '_real_resistance' });
                             if(data.datasets[i]) {
                                 supportData.data[j] = data.datasets[i].data[maxIndex] + maxGap * (j - maxIndex);

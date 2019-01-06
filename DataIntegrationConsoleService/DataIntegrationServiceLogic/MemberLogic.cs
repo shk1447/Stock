@@ -8,12 +8,23 @@ using Connector;
 using Model.Response;
 using Helper;
 using System.Json;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DataIntegrationServiceLogic
 {
     public class MemberLogic
     {
         private const string TableName = "member";
+        private ConcurrentQueue<JsonObject> concurrentQueue;
+        private AutoResetEvent autoResetEvent;
+
+        public MemberLogic(ref AutoResetEvent autoResetEvent, ref ConcurrentQueue<JsonObject> concurrentQueue)
+        {
+            // TODO: Complete member initialization
+            this.autoResetEvent = autoResetEvent;
+            this.concurrentQueue = concurrentQueue;
+        }
 
         public string Schema()
         {
@@ -32,7 +43,7 @@ namespace DataIntegrationServiceLogic
         {
             var selectedItems = new List<string>() { "member_id", "password", "member_name", "privilege", "email", "phone_number" };
             var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems, where);
-            var member = MariaDBConnector.Instance.GetJsonObject(selectQuery);
+            var member = MariaDBConnector.Instance.GetJsonObject("DynamicQueryExecuter", selectQuery);
 
             return member.ToString();
         }
@@ -41,7 +52,7 @@ namespace DataIntegrationServiceLogic
         {
             var selectedItems = new List<string>() { "member_id", "password", "member_name", "privilege", "email", "phone_number" };
             var selectQuery = MariaQueryBuilder.SelectQuery(TableName, selectedItems);
-            var member = MariaDBConnector.Instance.GetJsonArray(selectQuery);
+            var member = MariaDBConnector.Instance.GetJsonArray("DynamicQueryExecuter", selectQuery);
 
             return member.ToString();
         }
@@ -50,7 +61,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, false);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             return res.ToString();
         }
@@ -59,7 +70,7 @@ namespace DataIntegrationServiceLogic
         {
             var upsertQuery = MariaQueryBuilder.UpsertQuery(TableName, jsonObj, true);
 
-            var res = MariaDBConnector.Instance.SetQuery(upsertQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", upsertQuery);
 
             return res.ToString();
         }
@@ -68,7 +79,7 @@ namespace DataIntegrationServiceLogic
         {
             var deleteQuery = MariaQueryBuilder.DeleteQuery(TableName, jsonObj);
 
-            var res = MariaDBConnector.Instance.SetQuery(deleteQuery);
+            var res = MariaDBConnector.Instance.SetQuery("DynamicQueryExecuter", deleteQuery);
 
             return res.ToString();
         }
